@@ -1,0 +1,19 @@
+<html>
+<head><p>Please fill the form below</p></head> 
+<body>
+      {%load filters%}
+      {%with add="add_"|strcat:obj%}
+      <form action={% url  add%}  method="post">
+         
+       {%endwith%}
+       {% csrf_token %}
+       {% for field in form%}
+            {{field.label_tag}}{{field}}{{field.errors}}<br></br>
+            
+       {% endfor %}
+      <input type="submit" value="submit">  
+      
+     </form>
+</body>
+
+</html>

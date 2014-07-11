@@ -1,0 +1,52 @@
+<html>
+<head>
+  <title>Welcome ~!Dear administrator~</title>
+</head>
+<body>
+ {%load filters%} 
+ {%with add='add_'|strcat:obj%}
+  <a href={% url add %}>Add {{obj}}</a> 
+  <table>
+  {%endwith%} 
+  {% for o in obj_list%}
+   
+     <tr>
+       {%for v in o.get_values.values%}
+        <td>{{v}}</td>
+         
+          {%endfor%}
+     <td>
+     {%with delete='delete_'|strcat:obj%}
+     <a href={% url delete obj_list.number o.id%}>delete</a> 
+     </td>
+     {%endwith%}
+     <td>
+     {%with edit='edit_'|strcat:obj%}
+     <a href={% url edit obj_list.number o.id%}>edit</a> 
+     {%endwith%}
+     </td>
+     </tr>
+  {% endfor %}
+   
+  <table/>
+  {%with show='show_'|strcat:obj%}
+  {% if obj_list.has_previous%}
+      
+         <a href="{% url show obj_list.previous_page_number%}">Last</a>
+          
+  
+  {% endif %}
+ 
+  {% for p in page_range%}
+          <a href={% url show p%}>&nbsp{{p}}</a>
+  {% endfor%}
+   {% if obj_list.has_next%}
+     
+         <a href={% url show obj_list.next_page_number%}>&nbspnext</a>
+          
+  
+  {% endif %} 
+  {%endwith%}
+  <input type="hidden" name="page" value={{page}}>
+</body>
+</html>
