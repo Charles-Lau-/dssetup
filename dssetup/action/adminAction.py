@@ -1,24 +1,53 @@
 #coding=utf-8
-from django.conf.urls import patterns, url
- 
+from dssetup.forms import AccountForm,GroupForm,AuthorityForm
+from django.shortcuts import render
+from dssetup.models import User,Group,Authority
+from django.http import HttpResponseRedirect
+from dssetup.decorator import login_required
 from dssetup.service import adminService
+@login_required
+def homepage(request):
+    return show_object(request,"user")
+@login_required
+def show_object(request,obj):
+    return render(request,"index.html",{
+                  "obj_list":adminService.getAllObject(obj),
+                  "obj":obj,                     
+                })
  
+@login_required
+def delete_object(request,Id,obj):
+    adminService.deleteObjectById(obj, Id)
+    return HttpResponseRedirect("/admin/"+obj+"/")
 
-urlpatterns =  patterns('',
-       url(r"^$",adminService.homepage,name="admin_home"),                
-       url("^add_user$",adminService.add_object,{"obj":"user"},name="add_user"),
-       url("^add_group$",adminService.add_object,{"obj":"group"},name="add_group"),
-       url("^add_authority$",adminService.add_object,{"obj":"authority"},name="add_authority"),
-       url("^user/$",adminService.show_object,{"obj":"user"},name="show_user"),            
-       url("^group/$",adminService.show_object,{"obj":"group"},name="show_group"),            
-       url("^authority/$",adminService.show_object,{"obj":"authority"},name="show_authority"),                        
-       url("^user/delete=(?P<Id>\d+)$",adminService.delete_object,{"obj":"user"},name="delete_user"),
-       url("^group/delete=(?P<Id>\d+)$",adminService.delete_object,{"obj":"group"},name="delete_group"),
-       url("^authority/delete=(?P<Id>\d+)$",adminService.delete_object,{"obj":"authority"},name="delete_authority"),
-       url("^user/edit=(?P<Id>\d+)$",adminService.edit_object,{"obj":"user"},name="edit_user"),
-       url("^group/edit=(?P<Id>\d+)$",adminService.edit_object,{"obj":"group"},name="edit_group"),
-       url("^authority/edit=(?P<Id>\d+)$",adminService.edit_object,{"obj":"autority"},name="edit_authority"),                 
-                       
-                       
-                       
-                       )
+@login_required
+def add_object(request,obj):
+    if(request.POST):
+        if(obj == "user"):
+            form = AccountForm(request.POST)
+        elif(obj == "group"):
+            form = GroupForm(request.POST)
+        else:
+            form = AuthorityForm(request.POST)
+            
+        if(form.is_valid()):
+            form.save()
+            return HttpResponseRedirect("/admin/"+obj)
+        
+        else:
+            return render(request,"add.html",{"form":form,"obj":obj})
+    else:
+        if(obj == "user"):
+            form = AccountForm()
+        elif(obj == "group"):
+            form = GroupForm()
+        else:
+            form = AuthorityForm()
+        return render(request,"add.html",{"form":form,"obj":obj})
+@login_required
+def edit_object(request,page,Id,obj):
+    if(request.POST):
+        pass
+    else: 
+        pass    
+    
