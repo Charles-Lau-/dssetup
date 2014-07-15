@@ -10,53 +10,53 @@ class Department(models.Model):
     dptName = models.CharField(max_length=30)
     dptLeader = models.TextField(blank=True)
     dpt_parent = models.ForeignKey('self',blank=True,null=True)
+    def __unicode__(self):
+        return self.dptName
 class Authority(models.Model):
     authName = models.CharField(max_length=30)
     authDes = models.TextField(blank=True)
     auth_parent = models.ForeignKey('self',blank=True,null=True)
     def __unicode__(self):
-        return self.authName 
+        return self.authName+" : "+self.authDes 
     def get_values(self):
-        return {"authName":self.authName,"authDescription":self.authDescription,"auth_father":self.auth_father}
+        return {"authName":self.authName,"authDescription":self.authDes,"auth_parent":self.auth_parent}
 class Group(models.Model):
     groupName = models.CharField(max_length=30,unique=True)
     groupDes = models.TextField(blank=True)
     authority = models.ManyToManyField(Authority,blank=True,null=True)
     def __unicode__(self):
-        return self.groupName
+        return self.groupName+" : "+self.groupDes
     def get_values(self):
-        return {"groupName":self.groupName,"groupDescription":self.groupDescription,"authority":self.authority.all()}
+        return {"groupName":self.groupName,"groupDescription":self.groupDes,"authority":self.authority.all()}
 class User(models.Model):
     userName = models.CharField(max_length=30,unique=True)
     userPassword = models.CharField(max_length=100)
     group = models.ManyToManyField(Group,blank=True,null=True)
     userMail = models.EmailField(unique=True)
-    userPhone = models.CharField(max_length=11,blank=True,unique=True)
+    userPhone = models.CharField(max_length=11, blank=True)
     user_dpt = models.ForeignKey(Department)
-    createTime = models.DateTimeField(auto_now=True)
-    loginLastIp = models.IPAddressField(blank=True)
-    loginLastTime = models.DateField(blank=True)
+    createTime = models.DateTimeField(auto_now_add=True)
+    loginLastIp = models.IPAddressField(blank=True,null=True)
+    loginLastTime = models.DateTimeField(blank=True,null=True)
     def __unicode__(self):
-        return self.userName,self.userMail,self.userPhone
+        return self.userName+" "+self.userMail+" "+str(self.user_dpt)
     def is_authenticated(self):
         try:
             
-            self.make_password(self.password)
-            get_object_or_404(User,username=self.username,password=self.password)
+            self.make_password(self.userPassword)
+            get_object_or_404(User,userName=self.userName,userPassword=self.userPassword)
             
             return True
         except Http404:
-            print self.password
             return False
      
     def make_password(self,raw_password):
         hs = hashlib.md5()
         hs.update(raw_password)
-        self.password = str(hs.hexdigest())
     def get_values(self):
-        return {"username":self.username,"realName":self.realName,"group":self.group.all(),"email":self.email}
+        return {"username":self.userName,"mail":self.userMail,"group":self.group.all(),"phone":self.userPhone,"lastLoginIp":self.loginLastIp,"lastLoginTime":self.loginLastTime,"createTime":self.createTime}
 def hash_password(instance,**kwargs):
-    instance.make_password(instance.password)
+    instance.make_password(instance.userPassword)
 
 post_save.connect(hash_password, sender=User)
 
@@ -68,15 +68,24 @@ class DomainApplicationForm(models.Model):
     proRespon = models.CharField(max_length=30)
     appCategory = models.CharField(max_length=10)
     status = models.CharField(max_length=30)
-    createTime = models.DateTimeField(auto_now=True)
+    createTime = models.DateTimeField(auto_now_add=True)
     effectTime = models.DateTimeField(blank=True,null=True)
     operCategory = models.CharField(max_length=30)
     da_dpt = models.ForeignKey(Department)
     mailList = models.CharField(max_length=200)
+    def get_values(self):
+        return {"applicant":self.da_applicant,
+                "techRespon":self.techRespon,
+                "proRespon":self.proRespon,
+                "createTime":self.createTime,
+                "operCategory":self.operCategory,
+                "appCategory":self.appCategory,
+                "department":self.da_dpt,
+                "status":self.status}
 class ApplicationFormStatus(models.Model):
     status = models.CharField(max_length=30)
     status_user = models.ForeignKey(User)
-    createTime = models.DateTimeField(auto_now=True)
+    createTime = models.DateTimeField(auto_now_add=True)
     status_da = models.ForeignKey(DomainApplicationForm)
 class Zone(models.Model):
     zoneName = models.URLField(max_length=50)

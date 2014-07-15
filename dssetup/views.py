@@ -1,9 +1,10 @@
 #coding=utf-8
 from django.shortcuts import render
-from dssetup.models import Account
+from dssetup.models import User
 from dssetup import staticVar
 from django.http import HttpResponseRedirect 
 from dssetup.decorator import login_required
+from dssetup.service import adminService
 # Create your views here.
 def home(request):
     return render(request,"login.html") 
@@ -11,9 +12,12 @@ def home(request):
 
 def login(request):
     if(request.POST):
-        if(Account(username=request.POST.get("username"),password=request.POST.get("password")).is_authenticated()):
+        if(User(userName=request.POST.get("username"),userPassword=request.POST.get("password")).is_authenticated()):
             request.session["user"] = request.POST.get("username")
-            
+            request.session["ip"] = request.META["REMOTE_ADDR"]
+            import time
+            now = time.localtime()
+            request.session["time"] = now[:6]
             return HttpResponseRedirect("control_center")
         else:
             return render(request,"login.html",{"error":"username or password is not correct"})
@@ -21,13 +25,15 @@ def login(request):
         return render(request,"login.html")
 @login_required
 def logout(request):
+    adminService.logout(request.session["user"],request.session["ip"],request.session["time"])
     del request.session["user"]
     return HttpResponseRedirect("admin")
 @login_required
 def control_center(request):
          
-    user = Account.objects.get(username=request.session.get("user"))
-    if(user.group.get(groupName = staticVar.ADMINISTRATOR)):
+    user = User.objects.get(userName=request.session.get("user"))
+    print user.group.all()
+    if(user.group.filter(groupName = staticVar.ADMINISTRATOR)):
         return HttpResponseRedirect("admin")
     else:
-        return render(request," ")
+        return HttpResponseRedirect("handleForm")

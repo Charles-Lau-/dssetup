@@ -64,7 +64,7 @@
     {%else%}
         <li><a href={%url "show_user"%}><i class="icon icon-home"></i> <span>用户管理</span></a> </li>
     {%endifequal%} 
-    <li><a href={%url "add_user"%}><i class="icon icon-signal"></i> <span>添加用户</span></a> </li>
+    <li><a href={%url "add_user"%}><i class="icon icon-signal"></i> <span>添加用户 </span></a> </li>
     {%ifequal obj "group"%}
          <li class="active"><a href={%url "show_group"%}><i class="icon icon-inbox"></i> <span>群组管理</span></a> </li>
     {%else%}
@@ -116,7 +116,7 @@
 <div id="content">
   <div id="content-header">
     <div id="breadcrumb"> <a href={%url "admin_home"%} title="Go to Home" class="tip-bottom"><i class="icon-home"></i>
-              首页
+              棣栭〉
     </a>  
   </div>
   <div class="container-fluid">
@@ -124,12 +124,12 @@
           <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
            <h5>{%ifequal obj "user"%}
                                              
-                                                                            用户列表
+                                                                            用户管理〃
                 {%else%}
                      {%ifequal obj "group"%}
-                                                                             群组列表
+                                                                           群组管理 
                      {%else%}
-                                                                             权限列表
+                                                                             权限管理
                      {%endifequal%}
                 {%endifequal%}
            </h5>
@@ -164,14 +164,14 @@
                   </th>
                   {%endfor%} 
                   {%with delete='delete_'|strcat:obj edit='edit_'|strcat:obj%}
-                  <td class="center">
-                 　　　　　　　　　　 <a href={%url delete o.id%}><i class="icon icon-remove"></i></a>
+                  <th class="center">
+                    <a href={%url delete o.id%}><i class="icon icon-remove"></i></a>
                   
-                  <a href={%url edit o.id%}><i class="icon icon-edit"></i></a>
+                    <a href={%url edit o.id%}><i class="icon icon-edit"></i></a>
                   </span>
                   {%endwith%}
                  
-                  </td>
+                  </th>
                 </tr>
                 {%endfor%}
               </tbody>

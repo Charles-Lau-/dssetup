@@ -132,8 +132,11 @@
           <h5>{{obj}}-info</h5>
         </div>
         <div class="widget-content nopadding">
-          <form action="#" method="post" class="form-horizontal">
+        {%load filters%}
+        {%with action="add_"|strcat:obj%}
+          <form action={%url action%} method="post" class="form-horizontal">
               {% csrf_token %}
+              {%endwith%}
                {% for field in form%}
                 <div class="control-group">
                    <label class="control-label">{{field.label_tag}}</label>
