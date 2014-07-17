@@ -13,6 +13,7 @@ def home(request):
 def login(request):
     if(request.POST):
         if(User(userName=request.POST.get("username"),userPassword=request.POST.get("password")).is_authenticated()):
+            
             request.session["user"] = request.POST.get("username")
             request.session["ip"] = request.META["REMOTE_ADDR"]
             import time
@@ -32,7 +33,7 @@ def logout(request):
 def control_center(request):
          
     user = User.objects.get(userName=request.session.get("user"))
-    print user.group.all()
+   
     if(user.group.filter(groupName = staticVar.ADMINISTRATOR)):
         return HttpResponseRedirect("admin")
     else:

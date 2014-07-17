@@ -1,7 +1,16 @@
 #coding=utf-8
 from django import forms
 from django.core.exceptions import ValidationError
-from dssetup.models import User,Group,Authority
+from dssetup.models import User,Group,Authority,DomainApplicationForm
+from django.core.validators import EmailValidator
+def InvalidMailList(value):
+    emails = value.split(",")
+  
+    try:
+        for email in emails:
+            EmailValidator(email)
+    except ValidationError:
+        raise ValidationError("Please enter maillist like exmaple@xxx.com,example@xxx.com") 
 def InvalidUsername(value):
     if('@' in value or '+' in value or '-' in value or ' ' in value): 
         raise ValidationError("Please enter valid username")
@@ -50,4 +59,42 @@ class GroupForm(forms.ModelForm):
 class AuthorityForm(forms.ModelForm):
     class Meta:
         model = Authority
+
+class DomainApplicationFormForm(forms.ModelForm):
+    class Meta:
+        model = DomainApplicationForm
+        fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList"]
+    def __init__(self,*args,**kwargs):
+        super(DomainApplicationFormForm,self).__init__(*args,**kwargs)
+        self.fields["mailList"].validators.append(InvalidMailList)
+
+class DomainForm(forms.Form):
+    MODE = (
+            ("1","cname"),
+            ("2","add")
+            )
+    SPNAME = (
+              ("1","dx"),
+              ("2","liantong"),
+              ("3","tietong"),
+              ("4","haiwai"),
+              ("5","yidong"),
+              
+              )
+    domainName = forms.URLField(max_length=50)
+    spName1 = forms.ChoiceField(choices=SPNAME)
+    mode1 = forms.ChoiceField(choices=MODE)
+    aim1 = forms.IPAddressField(max_length=50)
+    spName2 = forms.ChoiceField(choices=SPNAME)
+    mode2 = forms.ChoiceField(choices=MODE)
+    aim2 = forms.IPAddressField(max_length=50)
+    
+    spName3 = forms.ChoiceField(choices=SPNAME)
+    mode3 = forms.ChoiceField(choices=MODE)
+    aim3 = forms.IPAddressField(max_length=50)
+    
+    spName4 = forms.ChoiceField(choices=SPNAME)
+    mode4 = forms.ChoiceField(choices=MODE)
+    aim4 = forms.IPAddressField(max_length=50)
+    
     

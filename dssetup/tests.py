@@ -1,7 +1,6 @@
-from dssetup.models import Authority,Group,User,Department
- 
-import time
-import datetime
+from dssetup.forms import DomainForm
 
-for u in User.objects.all():
-    print u.group.get("")
+form = DomainForm()
+
+for field in form:
+    print field.errors

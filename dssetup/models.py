@@ -61,16 +61,28 @@ def hash_password(instance,**kwargs):
 post_save.connect(hash_password, sender=User)
 
 class DomainApplicationForm(models.Model):
+    APPCATEGORY = (
+                   ("normal","普通"),
+                   ("urge","紧急"),
+                   ("timing","定时"),
+                   
+                   
+                   )
+    OPERCATEGORY =  (
+                     ("add","添加"),
+                     ("delete","删除"),
+                     )
+    
     daDes = models.TextField(blank=True)
     creater = models.ForeignKey(User)
     da_applicant = models.CharField(max_length=30)
     techRespon = models.CharField(max_length=30)
     proRespon = models.CharField(max_length=30)
-    appCategory = models.CharField(max_length=10)
+    appCategory = models.CharField(max_length=10,choices=APPCATEGORY)
     status = models.CharField(max_length=30)
     createTime = models.DateTimeField(auto_now_add=True)
     effectTime = models.DateTimeField(blank=True,null=True)
-    operCategory = models.CharField(max_length=30)
+    operCategory = models.CharField(max_length=30,choices=OPERCATEGORY)
     da_dpt = models.ForeignKey(Department)
     mailList = models.CharField(max_length=200)
     def get_values(self):
@@ -101,8 +113,8 @@ class ServiceProvider(models.Model):
     spName = models.CharField(max_length=30)
     spNameEn = models.CharField(max_length=30)
 class DomainMapping(models.Model):
-    mode = models.CharField(max_length=10)
-    aim = models.IPAddressField(max_length=50)
     dm_domain = models.ForeignKey(DomainForm)
     dm_sp = models.ForeignKey(ServiceProvider)
-        
+    mode = models.CharField(max_length=10)
+    aim = models.IPAddressField(max_length=50)
+       
