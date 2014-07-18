@@ -1,6 +1,5 @@
-from dssetup.forms import DomainForm
+from dssetup.models import DomainMapping
 
-form = DomainForm()
 
-for field in form:
-    print field.errors
+for o in DomainMapping.objects.all():
+    print  o.id

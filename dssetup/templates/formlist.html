@@ -130,10 +130,10 @@
               <tbody>
                 {%for form in form_list%} 
                   <tr>
-                  {%load filters%}
+                   
                   {%for f in form.get_values.values%}
                   <th class="center">
-                  {%if v%}
+                  {%if f%}
                     {{f}}
                   {%else%}
                                                                           无
@@ -142,6 +142,10 @@
                   {%endfor%} 
                   
                   </th>
+                  <th class="center">
+                    <a href={%url "check_form" form.id%}><i class="icon icon-check"></i></a>
+                   
+                    </th>
                 </tr>
                 {%endfor%}
               </tbody>

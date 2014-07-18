@@ -5,17 +5,17 @@ from django.forms.formsets import formset_factory
 from dssetup.models import User
 from dssetup.decorator import login_required
 from dssetup import staticVar
-from dssetup.service import formService
+from dssetup.service import formService,adminService
 @login_required
 def homepage(request):
-    user = User.objects.get(userName=request.session["user"])
+    user = adminService.getUser(request)
  
     if(user.group.get(groupName = staticVar.APPLICANT)):
         form_list = formService.getFormOfApplicant(user)
-    
+        
     
     return render(request,"formlist.html",{
-                  "formlist":form_list,                          
+                  "form_list":form_list,                          
                   "role":staticVar.APPLICANT
                 })
 
@@ -29,8 +29,7 @@ def createForm(request):
         domainForm = DomainFormset(request.POST,prefix="mapping_part")
         
         if(domainApplicationForm.is_valid() and domainForm.is_valid()):
-            for f in domainForm:
-                print f.cleaned_data
+            formService.addDomainApplicationForm(request,domainApplicationForm, domainForm)
             return HttpResponseRedirect("/handleForm")
         else:
             return  render(request,"createform.html",{"main_part":domainApplicationForm,"mapping_part":domainForm})
@@ -40,3 +39,7 @@ def createForm(request):
         domainApplicationForm = DomainApplicationFormset(prefix="main_part")
         domainForm = DomainFormset(prefix="mapping_part")
         return render(request,"createform.html",{"main_part":domainApplicationForm,"mapping_part":domainForm})
+    
+def checkForm(request,Id):
+    formService.getDomainApplicationForm(Id)
+    return render(request,"")

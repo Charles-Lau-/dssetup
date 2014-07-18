@@ -5,13 +5,13 @@ from django.http import Http404
 from django.db.models.signals import post_save
 import hashlib
 # Create your models here.
-
 class Department(models.Model):
     dptName = models.CharField(max_length=30)
     dptLeader = models.TextField(blank=True)
     dpt_parent = models.ForeignKey('self',blank=True,null=True)
     def __unicode__(self):
         return self.dptName
+
 class Authority(models.Model):
     authName = models.CharField(max_length=30)
     authDes = models.TextField(blank=True)
@@ -20,6 +20,7 @@ class Authority(models.Model):
         return self.authName+" : "+self.authDes 
     def get_values(self):
         return {"authName":self.authName,"authDescription":self.authDes,"auth_parent":self.auth_parent}
+
 class Group(models.Model):
     groupName = models.CharField(max_length=30,unique=True)
     groupDes = models.TextField(blank=True)
@@ -28,6 +29,7 @@ class Group(models.Model):
         return self.groupName+" : "+self.groupDes
     def get_values(self):
         return {"groupName":self.groupName,"groupDescription":self.groupDes,"authority":self.authority.all()}
+
 class User(models.Model):
     userName = models.CharField(max_length=30,unique=True)
     userPassword = models.CharField(max_length=100)
@@ -59,6 +61,7 @@ def hash_password(instance,**kwargs):
     instance.make_password(instance.userPassword)
 
 post_save.connect(hash_password, sender=User)
+
 
 class DomainApplicationForm(models.Model):
     APPCATEGORY = (
@@ -93,28 +96,33 @@ class DomainApplicationForm(models.Model):
                 "operCategory":self.operCategory,
                 "appCategory":self.appCategory,
                 "department":self.da_dpt,
+                "description":self.daDes,
                 "status":self.status}
+        
 class ApplicationFormStatus(models.Model):
     status = models.CharField(max_length=30)
     status_user = models.ForeignKey(User)
     createTime = models.DateTimeField(auto_now_add=True)
     status_da = models.ForeignKey(DomainApplicationForm)
+    
 class Zone(models.Model):
     zoneName = models.URLField(max_length=50)
     manageServer = models.IPAddressField(max_length=50)
     zone_dpt = models.ForeignKey(Department)
+    
 class DomainForm(models.Model):
     domainName = models.URLField(max_length=50)
     domainDes = models.TextField(blank=True)
     status = models.CharField(max_length=30)
     domain_zone = models.ForeignKey(Zone)
-    da_domain = models.ManyToManyField(DomainApplicationForm)
+    da_domain = models.ManyToManyField(DomainApplicationForm,blank=True,null=True)
+    
 class ServiceProvider(models.Model):
     spName = models.CharField(max_length=30)
     spNameEn = models.CharField(max_length=30)
+    
 class DomainMapping(models.Model):
     dm_domain = models.ForeignKey(DomainForm)
     dm_sp = models.ForeignKey(ServiceProvider)
     mode = models.CharField(max_length=10)
     aim = models.IPAddressField(max_length=50)
-       

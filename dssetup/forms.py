@@ -63,7 +63,7 @@ class AuthorityForm(forms.ModelForm):
 class DomainApplicationFormForm(forms.ModelForm):
     class Meta:
         model = DomainApplicationForm
-        fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList"]
+        fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList","daDes"]
     def __init__(self,*args,**kwargs):
         super(DomainApplicationFormForm,self).__init__(*args,**kwargs)
         self.fields["mailList"].validators.append(InvalidMailList)
@@ -82,6 +82,7 @@ class DomainForm(forms.Form):
               
               )
     domainName = forms.URLField(max_length=50)
+    domainDes = forms.Textarea()
     spName1 = forms.ChoiceField(choices=SPNAME)
     mode1 = forms.ChoiceField(choices=MODE)
     aim1 = forms.IPAddressField(max_length=50)

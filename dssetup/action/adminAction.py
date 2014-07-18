@@ -32,7 +32,7 @@ def add_object(request,obj):
              
         if(form.is_valid()):
             form.save()
-            print form
+       
             return HttpResponseRedirect("/admin/"+obj)
         
         else:

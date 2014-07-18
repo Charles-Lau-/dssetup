@@ -16,7 +16,11 @@ def deleteObjectById(obj,Id):
         Group.objects.get(id=Id).delete()
     else:
         Authority.objects.get(id=Id).delete() 
-
+        
+def getUser(request):
+    user = User.objects.get(userName=request.session["user"])
+    
+    return user
 def logout(username,ip,time):
     user = User.objects.get(userName=username)
     user.loginLastIp = ip
