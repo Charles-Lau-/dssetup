@@ -68,6 +68,9 @@ class DomainApplicationFormForm(forms.ModelForm):
         super(DomainApplicationFormForm,self).__init__(*args,**kwargs)
         self.fields["mailList"].validators.append(InvalidMailList)
 
+class ShowDomainApplicationForm(forms.ModelForm):
+    class Meta:
+        model =DomainApplicationForm
 class DomainForm(forms.Form):
     MODE = (
             ("1","cname"),

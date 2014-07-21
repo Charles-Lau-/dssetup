@@ -27,7 +27,7 @@ def createForm(request):
     if(request.POST):
         domainApplicationForm = DomainApplicationFormset(request.POST,prefix="main_part")
         domainForm = DomainFormset(request.POST,prefix="mapping_part")
-        
+        print request.POST
         if(domainApplicationForm.is_valid() and domainForm.is_valid()):
             formService.addDomainApplicationForm(request,domainApplicationForm, domainForm)
             return HttpResponseRedirect("/handleForm")
@@ -41,5 +41,11 @@ def createForm(request):
         return render(request,"createform.html",{"main_part":domainApplicationForm,"mapping_part":domainForm})
     
 def checkForm(request,Id):
-    formService.getDomainApplicationForm(Id)
-    return render(request,"")
+    DomainApplicationFormset = formset_factory(DomainApplicationFormForm)
+    DomainFormset = formset_factory(DomainForm)
+    
+    formData = formService.getDomainApplicationForm(Id)
+    main_part = DomainApplicationFormset(formData[0],prefix="main_part")
+    mapping_part =  DomainFormset(formData[1],prefix="mapping_part")
+     
+    return render(request,"showForm.html",{"main_part":main_part,"mapping_part":mapping_part})

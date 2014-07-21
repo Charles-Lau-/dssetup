@@ -1,28 +1,5 @@
 {%extends "base.html"%} 
 {%block sidebar%} 
-<script>
-    function addDomainForm(){
-           var totalForm  = document.getElementById("id_mapping_part-TOTAL_FORMS")
-          
-           var form = document.getElementById("domainForm")
-           
-           var newForm = form.cloneNode(true)
-            
-           var htmlCode = newForm.innerHTML
-           var pattern = /-(\d*?)-/g
-          
-        
-           htmlCode = htmlCode.replace(pattern,function(data){
-                          return "-"+totalForm.value+"-"  
-                       })
-          
-           newForm.innerHTML = htmlCode 
-           document.getElementById("domainForm").insertBefore(newForm)
-           totalForm.value = parseInt(totalForm.value)+1 
-         
-        }
- 
-</script>
 <div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-list"></i>Forms</a>
   <ul>
     <li><a href={%url "handleForm_home"%}><i class="icon icon-home"></i> <span>表单管理</span></a> </li>
@@ -123,4 +100,17 @@
     </div>
    </div>
   </div>
-</div></div>{%endblock%}
+</div></div>
+<script>
+  var input_tags =  document.getElementsByTagName("input");
+  for(var i=0;i<input_tags.length;i++){
+           input_tags[i].readOnly = true;
+           alert(input_tags[i].readOnly)
+           }
+  var select_tags = document.getElementsByTagName("select");
+  for(var i = 0;i<select_tags.length;i++){
+            select_tags[i].readOnly = true;
+            }
+    
+</script>
+{%endblock%}

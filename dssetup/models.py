@@ -98,7 +98,7 @@ class DomainApplicationForm(models.Model):
                 "department":self.da_dpt,
                 "description":self.daDes,
                 "status":self.status}
-        
+   
 class ApplicationFormStatus(models.Model):
     status = models.CharField(max_length=30)
     status_user = models.ForeignKey(User)

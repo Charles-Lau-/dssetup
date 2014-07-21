@@ -40,19 +40,33 @@ def addDomainApplicationForm(request,mainFormset,mappingFormset):
             mapping.save()
 
 def getDomainApplicationForm(Id):
-    applicationForm  = DomainApplicationForm.objects.get(id=Id)       
+    applicationForm  = DomainApplicationForm.objects.get(id=Id) 
+       
     domains = applicationForm.domainform_set.all()
-    domainMappings=[] 
+    main_partData={"main_part-TOTAL_FORMS":"1","main_part-INITIAL_FORMS":"0","main_part-MAX_NUM_FORMS":"1000"}
+    for k,v in applicationForm.get_values().items():
+        main_partData["main_part-0-"+k] = v
+    main_partData["main_part-0-da_applicant"] = applicationForm.da_applicant
+    main_partData["main_part-0-da_dpt"] = applicationForm.da_dpt
+    main_partData["main_part-0-mailList"] = applicationForm.mailList
+    main_partData["main_part-0-daDes"] = applicationForm.daDes
+     
+    
+    mapping_partData={}
+    j=0; 
     for domain in domains:
-        domainMapping={"domainName":domain.domainName}
-        mappings = domain.domainmapping_set.all() 
+        mapping_partData["mapping_part-"+str(j)+"-domainName"] = domain.domainName
+        mappings = DomainMapping.objects.filter(dm_domain =domain)
         i=1
         for mapping in mappings:
-            domainMapping["mode"+str(i)]=mapping.mode
-            domainMapping["aim"+str(i)]=mapping.aim
-            domainMapping["spName"+str(i)]=mapping.dm_sp.spName
+            mapping_partData["mapping_part-"+str(j)+"-mode"+str(i)]=mapping.mode
+            mapping_partData["mapping_part-"+str(j)+"-aim"+str(i)]=mapping.aim
+            mapping_partData["mapping_part-"+str(j)+"-spName"+str(i)]=mapping.dm_sp.spName
             i+=1
-      
-        domainMappings.append(domainMapping)
-        
-        
+        j+=1
+    mapping_partData["mapping_part-TOTAL_FORMS"] = str(j)
+    mapping_partData["mapping_part-INITIAL_FORMS"] = "0"
+    mapping_partData["mapping_part-MAX_NUM_FORMS"] = ""
+    
+    
+    return (main_partData,mapping_partData)
