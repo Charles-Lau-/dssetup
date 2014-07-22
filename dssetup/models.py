@@ -29,7 +29,8 @@ class Group(models.Model):
         return self.groupName+" : "+self.groupDes
     def get_values(self):
         return {"groupName":self.groupName,"groupDescription":self.groupDes,"authority":self.authority.all()}
-
+    
+   
 class User(models.Model):
     userName = models.CharField(max_length=30,unique=True)
     userPassword = models.CharField(max_length=100)
@@ -109,13 +110,26 @@ class Zone(models.Model):
     zoneName = models.URLField(max_length=50)
     manageServer = models.IPAddressField(max_length=50)
     zone_dpt = models.ForeignKey(Department)
-    
+    def __unicode__(self):
+        return "%s-%s-%s" % (self.zoneName,self.manageServer,self.zone_dpt)
+    def get_values(self):
+        return {"zoneName":self.zoneName,
+                "manageServer":self.manageServer,
+                "zone_dpt":self.zone_dpt
+                }
 class DomainForm(models.Model):
     domainName = models.URLField(max_length=50)
     domainDes = models.TextField(blank=True)
     status = models.CharField(max_length=30)
     domain_zone = models.ForeignKey(Zone)
     da_domain = models.ManyToManyField(DomainApplicationForm,blank=True,null=True)
+    def get_values(self):
+        return {"domainName":self.domainName,
+                "domainDes":self.domainDes,
+                "status":self.status,
+                "domain_zone":self.domain_zone,
+                 
+                }
     
 class ServiceProvider(models.Model):
     spName = models.CharField(max_length=30)

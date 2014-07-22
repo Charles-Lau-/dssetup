@@ -1,0 +1,48 @@
+{%extends "index.html"%}
+{%block content%}
+<div id="content">
+
+<div id="content-header">
+  <div id="breadcrumb"> <a href={%url "admin_home"%} title="Go to Home" class="tip-bottom"><i class="icon-home"></i>首页</a>  
+</div>
+<div class="container-fluid">
+  <hr>
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="widget-box">
+        <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
+          <h5>{{obj}}-info</h5>
+        </div>
+        <div class="widget-content nopadding">
+        {%load filters%}
+        {%with action="edit_"|strcat:obj%}
+          <form action={%url action id%} method="post" class="form-horizontal">
+              {% csrf_token %}
+              {%endwith%}
+               {% for field in form%}
+                <div class="control-group">
+                   <label class="control-label">{{field.label_tag}}</label>
+                   <div class="controls">
+                     {{field}}
+                    </div>
+                    <span class="help-inline">{{field.errors}}</span> 
+                </div> 
+                 {% endfor %}
+           <div class="form-actions"> 
+              <button type="submit" class="btn btn-success">Save</button>
+            </div>      
+          </form>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+</div></div>
+<script>
+     var nodes = document.getElementsByTagName("input");
+     
+     nodes[2].readOnly = true;
+    
+     
+</script>
+{%endblock%}

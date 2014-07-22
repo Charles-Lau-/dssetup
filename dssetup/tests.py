@@ -1,5 +1,5 @@
-from dssetup.models import DomainMapping
+from dssetup.models import DomainMapping,DomainApplicationForm,Authority
 
 
-for o in DomainMapping.objects.all():
+for o in Authority.objects.all():
     print  o.id

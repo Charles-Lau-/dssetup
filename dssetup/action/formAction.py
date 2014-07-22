@@ -1,4 +1,4 @@
-from dssetup.forms import DomainApplicationFormForm,DomainForm
+from dssetup.forms import DomainApplicationFormForm,DomainForm,ShowDomainApplicationForm
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect,HttpResponse
 from django.forms.formsets import formset_factory
@@ -41,7 +41,7 @@ def createForm(request):
         return render(request,"createform.html",{"main_part":domainApplicationForm,"mapping_part":domainForm})
     
 def checkForm(request,Id):
-    DomainApplicationFormset = formset_factory(DomainApplicationFormForm)
+    DomainApplicationFormset = formset_factory(ShowDomainApplicationForm)
     DomainFormset = formset_factory(DomainForm)
     
     formData = formService.getDomainApplicationForm(Id)

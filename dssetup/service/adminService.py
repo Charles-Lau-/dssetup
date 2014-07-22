@@ -1,22 +1,31 @@
  #coding=utf-8
-from dssetup.models import User,Group,Authority 
+from dssetup.models import User,Group,Authority,DomainForm,Zone
 def getAllObject(obj):
     if(obj == "user"):
         objs_list = User.objects.all()
     elif(obj == "group"):
         objs_list = Group.objects.all()
-    else:
+    elif(obj == "authority"):
         objs_list = Authority.objects.all()
+    elif(obj =="domain"):
+        objs_list = DomainForm.objects.all()
+    else:
+        objs_list = Zone.objects.all()
     return objs_list
 
 def deleteObjectById(obj,Id):
+    getObjectById(obj,Id).delete() 
+def getObjectById(obj,Id):
     if(obj == "user"):
-        User.objects.get(id=Id).delete()
+        return User.objects.get(id=Id) 
     elif(obj == "group"):
-        Group.objects.get(id=Id).delete()
+        return Group.objects.get(id=Id) 
+    elif(obj=="authority"):
+        return Authority.objects.get(id=Id)
+    elif(obj=="domain"):
+        return DomainForm.objects.get(id=Id)
     else:
-        Authority.objects.get(id=Id).delete() 
-        
+        return Zone.objects.get(id=Id)
 def getUser(request):
     user = User.objects.get(userName=request.session["user"])
     

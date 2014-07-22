@@ -15,9 +15,7 @@ def InvalidUsername(value):
     if('@' in value or '+' in value or '-' in value or ' ' in value): 
         raise ValidationError("Please enter valid username")
 
-def UniqueUsernameIgnoreCaseValidator(value):
-    if(User.objects.filter(userName__iexact=value).exists()):
-        raise ValidationError("User with this Username already exists.")
+   
 def TooEasyPasswordValidator(value):
     if(len(value)<6):
         raise ValidationError("Password should at least longer than 6")
@@ -28,7 +26,8 @@ def InvalidPhoneNumber(value):
     isMatched = bool(re.match(r"^\d{11}$",value))
     if(not isMatched):
         raise ValidationError("Please enter a phone number with 11 digits")
-class UserForm(forms.ModelForm):
+class UserForm(forms.ModelForm): 
+    userPassword =forms.CharField(widget=forms.PasswordInput())
     confirm_password = forms.CharField(widget=forms.PasswordInput(), 
                                           label="Confirm your password",
                                           required=True)
@@ -41,10 +40,21 @@ class UserForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(UserForm,self).__init__(*args,**kwargs)
         self.fields["userName"].validators.append(InvalidUsername)
-        self.fields["userName"].validators.append(UniqueUsernameIgnoreCaseValidator)
         self.fields["userPhone"].validators.append(InvalidPhoneNumber)
         self.fields["userPassword"].validators.append(TooEasyPasswordValidator)
     
+    def full_clean(self):
+        data = self.data.copy() 
+        for k,vs in data.lists():
+            new_vs=[]
+            for v in vs:
+                new_vs.append(v.strip())
+            data.setlist(k,new_vs)
+     
+        self.data = data
+         
+        super(UserForm,self).full_clean()
+        
     def clean(self):
         super(UserForm,self).clean()
         password =  self.cleaned_data.get("userPassword")
@@ -55,10 +65,35 @@ class UserForm(forms.ModelForm):
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
-
+    
+    def full_clean(self):
+        data = self.data.copy() 
+        for k,vs in data.lists():
+            new_vs=[]
+            for v in vs:
+                new_vs.append(v.strip())
+            data.setlist(k,new_vs)
+     
+        self.data = data
+        if(User.objects.filter(userName__iexact=self.userName).exists()):
+            raise ValidationError("User with this Username already exists.") 
+        super(GroupForm,self).full_clean()
+      
 class AuthorityForm(forms.ModelForm):
     class Meta:
         model = Authority
+    
+    def full_clean(self):
+        data = self.data.copy() 
+        for k,vs in data.lists():
+            new_vs=[]
+            for v in vs:
+                new_vs.append(v.strip())
+            data.setlist(k,new_vs)
+     
+        self.data = data
+         
+        super(AuthorityForm,self).full_clean()
 
 class DomainApplicationFormForm(forms.ModelForm):
     class Meta:
@@ -69,8 +104,11 @@ class DomainApplicationFormForm(forms.ModelForm):
         self.fields["mailList"].validators.append(InvalidMailList)
 
 class ShowDomainApplicationForm(forms.ModelForm):
+    createTime = forms.DateTimeField()
     class Meta:
         model =DomainApplicationForm
+        fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList","id","status","daDes"]
+ 
 class DomainForm(forms.Form):
     MODE = (
             ("1","cname"),

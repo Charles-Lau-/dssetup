@@ -9,6 +9,7 @@ def addDomainApplicationForm(request,mainFormset,mappingFormset):
     main = mainform.save(commit=False)
     main.creater = adminService.getUser(request)
     main.createTime = datetime.datetime.now()
+    main.status = "created"
     main.save()
         
     status = ApplicationFormStatus(status="created")
@@ -50,6 +51,7 @@ def getDomainApplicationForm(Id):
     main_partData["main_part-0-da_dpt"] = applicationForm.da_dpt
     main_partData["main_part-0-mailList"] = applicationForm.mailList
     main_partData["main_part-0-daDes"] = applicationForm.daDes
+    main_partData["main_part-0-status"] = applicationForm.status 
      
     
     mapping_partData={}
@@ -68,5 +70,5 @@ def getDomainApplicationForm(Id):
     mapping_partData["mapping_part-INITIAL_FORMS"] = "0"
     mapping_partData["mapping_part-MAX_NUM_FORMS"] = ""
     
-    
+    print mapping_partData
     return (main_partData,mapping_partData)
