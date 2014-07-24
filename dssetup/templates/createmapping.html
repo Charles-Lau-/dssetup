@@ -1,0 +1,138 @@
+{%extends "createform.html"%}
+{%block content%}
+
+<div id="content">
+<div id="content-header">
+  <div id="breadcrumb"> <a href={%url "admin_home"%} title="Go to Home" class="tip-bottom"><i class="icon-home"></i>infoҳ</a>  
+</div>
+<div class="container-fluid" id="main_part">
+  <hr>
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="widget-box">
+        <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
+          <h5>{{obj}}-info</h5>
+        </div>
+        <div class="widget-content nopadding">
+        {%load filters%}
+       
+          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+              {% csrf_token %}
+       
+              {{main_part|safe}} 
+             
+               
+              <a class="btn btn-info" href="#"  onclick="javascript:addDomainForm()">add domain mapping</a>
+            </div>       
+          </form>
+     
+        </div>
+      </div>
+    
+    </div>
+   </div>
+<form action={%url "create_mapping_form"%} method="get" id="domainForm-0" style="display:none">
+ <div class="container-fluid">
+    <hr>
+    <div class="row-fluid">
+      <div class="span12">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
+            domainName: <input type="text" name="domainName-0" >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").submit()'>addMapping</a>
+          </div>
+          <div class="widget-content nopadding">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Sp</th>
+                  <th>Mode</th>
+                  <th>Ip</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="odd gradeX">
+                  <td>Trident</td>
+                  <td>Internet
+                    Explorer 4.0</td>
+                  <td>Win 95+</td>
+               
+                </tr>
+              
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+ </div>
+</form>
+ 
+{%for domainForm in mapping_part%}
+<form action={%url "create_mapping_form"%} method="get" id="domainForm-{{forloop.counter}}">
+ 
+ <div class="container-fluid">
+    <hr>
+    <div class="row-fluid">
+      <div class="span12">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
+            domainName: <input type="text" name="domainName-{{forloop.counter}}" value={{domainForm.values.0}}>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-{{forloop.counter}}").submit()'>addMapping</a>
+          </div>
+          <div class="widget-content nopadding">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Sp</th>
+                  <th>Mode</th>
+                  <th>Ip</th>
+                  <th>Operation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%for mapping in domainForm.mapping%}
+                <tr>    
+               
+                    {%for value in mapping.values%}
+                            <th >{{value}} <th>
+                    {%endfor%}
+                    {%load filters%}
+                    {%with delete='domainName-'|strcat:forloop.parentloop.counter%}
+                    <a href={%url "delete_mapping_form" delete forloop.counter0 %}><i class="icon icon-remove"></i></a>
+                    {%endwith%}
+                </tr>
+               {%endfor%}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+ </div>
+</form>
+
+{%endfor%}
+</div>
+
+</div>
+</div>
+
+
+
+<script>
+    function addDomainForm(){
+     var form =   document.getElementById("domainForm-0")
+     var new_form =  form.cloneNode()
+     new_form.innerHTML = form.innerHTML
+     new_form.style.display="block"
+     new_form.id="domainForm-"+(document.getElementsByTagName("form").length-1)
+     new_form.innerHTML=new_form.innerHTML.replace(/domain\w*-0/g,function(data){
+                                                                      
+                                                                     return data.replace("0",document.getElementsByTagName("form").length-1)
+                                                                   })
+   
+     form.parentNode.appendChild(new_form)
+     }
+</script>
+{%endblock%}

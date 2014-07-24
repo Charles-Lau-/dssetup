@@ -5,4 +5,4 @@ register = template.Library()
 
 @register.filter(name="strcat")
 def strcat(value,arg):
-    return value + arg
+    return str(value) + str(arg)

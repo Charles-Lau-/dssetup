@@ -1,33 +1,11 @@
 {%extends "base.html"%} 
 {%block sidebar%} 
-<script>
-    function addDomainForm(){
-           var totalForm  = document.getElementById("id_mapping_part-TOTAL_FORMS")
-          
-           var form = document.getElementById("domainForm")
-           
-           var newForm = form.cloneNode(true)
-            
-           var htmlCode = newForm.innerHTML
-           var pattern = /-(\d*?)-/g
-          
-        
-           htmlCode = htmlCode.replace(pattern,function(data){
-                          return "-"+totalForm.value+"-"  
-                       })
-          
-           newForm.innerHTML = htmlCode 
-           document.getElementById("domainForm").insertBefore(newForm)
-           totalForm.value = parseInt(totalForm.value)+1 
-         
-        }
  
-</script>
 <div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-list"></i>Forms</a>
   <ul>
     <li><a href={%url "handleForm_home"%}><i class="icon icon-home"></i> <span>表单管理</span></a> </li>
   
-    <li class="active"><a href={%url "create_form"%}><i class="icon icon-home"></i> <span>创建新的表单</span></a> </li>
+    <li class="active"><a href={%url "create_main_form"%}><i class="icon icon-home"></i> <span>创建新的表单</span></a> </li>
   
     <li><a href="buttons.html"><i class="icon icon-tint"></i> <span>Buttons &amp; icons</span></a></li>
     <li><a href="interface.html"><i class="icon icon-pencil"></i> <span>Eelements</span></a></li>
@@ -80,11 +58,15 @@
         </div>
         <div class="widget-content nopadding">
         {%load filters%}
-       
-          <form action={%url "create_form"%} method="post" class="form-horizontal" id="create_form">
+          {%if hidden%} 
+          <form action={%url "create_mapping_form"%} method="post" class="form-horizontal" id="create_form">
+          
+          {%else%}
+          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+          {%endif%}
               {% csrf_token %}
-              {{main_part.management_form}}
-              {%for form in main_part%}
+         
+               <input type="hidden" value={{hidden}} name="domainName">
                {% for field in form%}
                 <div class="control-group">
                    <label class="control-label">{{field.label_tag}}</label>
@@ -94,28 +76,11 @@
                     <span class="help-inline">{{field.errors}}</span> 
                 </div> 
                  {% endfor %}
-                {%endfor%}
+          
               
-              {{mapping_part.management_form}}
-               <div id="domainForm">
-                  <hr size="5"></hr>  
-              
-               {%for form in mapping_part%}
-               {% for field in form%}
-                <div class="control-group">
-                   <label class="control-label">{{field.label_tag}}</label>
-                   <div class="controls">
-                     {{field}}
-                    </div>
-                    <span class="help-inline">{{field.errors}}</span> 
-                </div> 
-                 {% endfor %}
-             {%endfor%}
-               </div>       
-              <div>
-              <a class="btn btn-info" onclick="javascript: document.getElementById('create_form').submit()">save</a>
-              
-              <a class="btn btn-info" onclick="addDomainForm()">add</a>
+             
+              <a class="btn btn-info" onclick="javascript:document.getElementById('create_form').submit()">save</a>
+               
             </div>       
           </form>
         </div>
@@ -123,4 +88,6 @@
     </div>
    </div>
   </div>
-</div></div>{%endblock%}
+</div></div>
+ 
+{%endblock%}

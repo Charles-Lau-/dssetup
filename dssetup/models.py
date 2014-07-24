@@ -134,7 +134,8 @@ class DomainForm(models.Model):
 class ServiceProvider(models.Model):
     spName = models.CharField(max_length=30)
     spNameEn = models.CharField(max_length=30)
-    
+    def __unicode__(self):
+        return self.spName
 class DomainMapping(models.Model):
     dm_domain = models.ForeignKey(DomainForm)
     dm_sp = models.ForeignKey(ServiceProvider)

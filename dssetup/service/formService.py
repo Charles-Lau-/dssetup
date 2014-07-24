@@ -4,6 +4,22 @@ from dssetup.service import adminService
 import datetime
 def getFormOfApplicant(creater):
     return DomainApplicationForm.objects.filter(creater = creater)
+
+def addMainForm(request,main_part):
+    main = main_part.save(commit=False)
+    main.creater = adminService.getUser(request)
+    main.createTime = datetime.datetime.now()
+    main.status = "created"
+    main.save()
+    
+    status = ApplicationFormStatus(status="created")
+    status.status_user = adminService.getUser(request)
+    status.status_da = main
+    status.createTime = datetime.datetime.now()
+    status.save()
+    
+    return main.id
+
 def addDomainApplicationForm(request,mainFormset,mappingFormset):
     mainform = mainFormset[0]
     main = mainform.save(commit=False)
