@@ -1,18 +1,27 @@
 #coding=utf-8
 from dssetup.models import DomainApplicationForm,ApplicationFormStatus,DomainForm,Zone,DomainMapping,ServiceProvider
+from dssetup import staticVar
 from dssetup.service import adminService
 import datetime
 def getFormOfApplicant(creater):
-    return DomainApplicationForm.objects.filter(creater = creater)
+    return DomainApplicationForm.objects.filter(creater = creater).exclude(status=staticVar.CREATED)
+
+def getFormOfVerifier(verifier):
+    return DomainApplicationForm.objects.filter(creater = verifier)
+
+def getFormOfOperator():
+    return DomainApplicationForm.objects.filter(status=staticVar.VERIFIED)
+def getFormOfChecker():
+    return DomainApplicationForm.objects.filter(status=staticVar.OPERATED)
 
 def addMainForm(request,main_part):
     main = main_part.save(commit=False)
     main.creater = adminService.getUser(request)
     main.createTime = datetime.datetime.now()
-    main.status = "created"
+    main.status = staticVar.CREATED
     main.save()
     
-    status = ApplicationFormStatus(status="created")
+    status = ApplicationFormStatus(status=staticVar.CREATED)
     status.status_user = adminService.getUser(request)
     status.status_da = main
     status.createTime = datetime.datetime.now()
@@ -22,8 +31,14 @@ def addMainForm(request,main_part):
 
 def addDomainMappingForm(Id,mapping):
     main = DomainApplicationForm.objects.get(id=Id)
-    main.status = "unverified"
+    main.status = staticVar.WAITINGFORVERIFY
     main.save()
+    
+    status = ApplicationFormStatus(status=staticVar.WAITINGFORVERIFY)
+    status.status_user = main.creater
+    status.status_da = main
+    status.createTime = datetime.datetime.now()
+    status.save()
     
     domainName = mapping.values()[0]
     try:
@@ -31,7 +46,7 @@ def addDomainMappingForm(Id,mapping):
     except DomainForm.DoesNotExist:
         domain = DomainForm(domainName=domainName)
         
-    domain.status = "occupied"
+    domain.status = staticVar.CANNOT_APPLY
     for zone in Zone.objects.all():
         if(domain.domainName.find(zone.zoneName)>=0):
             domain.domain_zone = zone

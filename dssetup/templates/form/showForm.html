@@ -1,0 +1,77 @@
+{%extends "baseForm.html"%} 
+{%block form-content%} 
+  
+        {%load filters%}
+       
+          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+              {% csrf_token %}
+       
+              {{main_part|safe}} 
+         
+            </div>       
+          </form>
+     
+        </div>
+      </div>
+    
+    </div>
+   </div>
+   
+<!--mapping part--->
+
+{%for domainForm in mapping_part%}
+ 
+ <div class="container-fluid">
+    <hr>
+    <div class="row-fluid">
+      <div class="span12">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
+            domainName: <input type="text" value={{domainForm.domainName}} readOnly=true>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+           </div>
+          <div class="widget-content nopadding">
+            <table class="table table-bordered table-striped">
+              <thead>
+                 <tr>
+                  <th>Ip</th>
+                  <th>Mode</th>
+                  <th>Sp</th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+               {%for mapping in domainForm.mapping%}
+             
+                <tr class="odd gradeX">
+                    {%for value in mapping.values%}
+                            <th >{{value}} </th>
+                     {%endfor%}
+                   
+                </tr>
+                 {%endfor%}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+ </div>
+ 
+ 
+
+{%endfor%}
+  
+{%endblock%}
+
+{%block js%}
+{{super.block}}
+<script>
+  var input_tags =  document.getElementsByTagName("input");
+  for(var i=0;i<input_tags.length;i++){
+           input_tags[i].readOnly = true;
+    
+           }
+ 
+    
+</script>
+ {%endblock%}

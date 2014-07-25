@@ -9,7 +9,8 @@ from dssetup.service import adminService
 def home(request):
     return render(request,"login.html") 
 
-
+def index(request):
+    return render(request,"base.html",)
 def login(request):
     if(request.POST):
         if(User(userName=request.POST.get("username"),userPassword=request.POST.get("password")).is_authenticated()):
@@ -19,7 +20,7 @@ def login(request):
             import time
             now = time.localtime()
             request.session["time"] = now[:6]
-            return HttpResponseRedirect("control_center")
+            return HttpResponseRedirect("index")
         else:
             return render(request,"login.html",{"error":"username or password is not correct"})
     else:
@@ -29,12 +30,4 @@ def logout(request):
     adminService.logout(request.session["user"],request.session["ip"],request.session["time"])
     del request.session["user"]
     return HttpResponseRedirect("admin")
-@login_required
-def control_center(request):
-         
-    user = User.objects.get(userName=request.session.get("user"))
-   
-    if(user.group.filter(groupName = staticVar.ADMINISTRATOR)):
-        return HttpResponseRedirect("admin")
-    else:
-        return HttpResponseRedirect("handleForm")
+ 

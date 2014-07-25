@@ -1,0 +1,75 @@
+{%extends "base.html"%}
+{%block content%}
+  {{block.super}}
+ 
+  <div class="container-fluid">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
+           {%block list-title%}
+        
+           <h5>
+            {%ifequal obj "user"%}
+                                             
+                                                                            用户管理〃
+                {%else%}
+                     {%ifequal obj "group"%}
+                                                                           群组管理 
+                     {%else%}
+                                                                             权限管理
+                     {%endifequal%}
+                {%endifequal%}
+           </h5>
+           {%endblock%}
+          </div>
+          <div class="widget-content nopadding">
+            {%block list-content%}
+            <table class="table table-bordered data-table">
+              <thead>
+                <tr>
+                  {%for o in obj_list%}
+                   {%if forloop.first%}
+                      {%for k in o.get_values.keys%}
+                           <th>{{k}}</th>
+                      {%endfor%}
+                   {%else%}
+                   {%endif%}
+                  {%endfor%}
+                  <th>operation</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {%for o in obj_list%} 
+                  <tr>
+                  {%load filters%}
+                  {%for v in o.get_values.values%}
+                  <th class="center">
+                  {%if v%}
+                    {{v}}
+                  {%else%}
+                                                                          无
+                  {%endif%}
+                  </th>
+                  {%endfor%} 
+                  {%with delete='delete_'|strcat:obj edit='edit_'|strcat:obj%}
+                  <th class="center">
+                    <a href={%url delete o.id%}><i class="icon icon-remove"></i></a>
+                  
+                    <a href={%url edit o.id%}><i class="icon icon-edit"></i></a>
+                  </span>
+                  {%endwith%}
+                 
+                  </th>
+                </tr>
+                {%endfor%}
+              </tbody>
+            </table>
+            {%endblock%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock%}

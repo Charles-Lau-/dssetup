@@ -3,13 +3,14 @@ SESSION_EXPIRATION = 1200
 ADMINISTRATOR = "administrator"
 APPLICANT = "applicant"
 
-#±íµ¥×´Ì¬µÄÁ÷×ª
+#ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½×ª
 CREATED = "created"
 WAITINGFORVERIFY = "unverified"
 VERIFIED = "verified"
+OPERATED = "operated"
 CHECKED = "checked"
 CONFIRMED = "confirmed" 
 
-#ÓòÃû×´Ì¬
+#ï¿½ï¿½ï¿½ï¿½×´Ì¬
 CAN_APPLY = "free"
 CANNOT_APPLY = "occupied" 

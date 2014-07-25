@@ -1,6 +1,8 @@
 {%extends "baseList.html"%}
+ 
+
  {%block objectlist-title%}
-        
+     
            <h5>
             {%ifequal obj "user"%}
                                              
@@ -17,6 +19,7 @@
          
            
 {%block list-content%}
+
             <table class="table table-bordered data-table">
               <thead>
                 <tr>
@@ -60,3 +63,4 @@
             </table>
          
 {%endblock%}
+ 
