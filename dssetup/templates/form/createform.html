@@ -1,0 +1,32 @@
+{%extends "baseForm.html"%} 
+ 
+{%block form-content%}
+        
+        {%load filters%}
+          {%if hidden%} 
+          <form action={%url "create_mapping_form"%} method="post" class="form-horizontal" id="create_form">
+          
+          {%else%}
+          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+          {%endif%}
+              {% csrf_token %}
+         
+               <input type="hidden" value={{hidden}} name="domainName">
+               {% for field in form%}
+                <div class="control-group">
+                   <label class="control-label">{{field.label_tag}}</label>
+                   <div class="controls">
+                     {{field}}
+                    </div>
+                    <span class="help-inline">{{field.errors}}</span> 
+                </div> 
+                 {% endfor %}
+          
+              
+             
+              <a class="btn btn-info" onclick="javascript:document.getElementById('create_form').submit()">save</a>
+               
+            </div>       
+          </form>
+ 
+{%endblock%}

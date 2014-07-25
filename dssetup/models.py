@@ -89,14 +89,16 @@ class DomainApplicationForm(models.Model):
     operCategory = models.CharField(max_length=30,choices=OPERCATEGORY)
     da_dpt = models.ForeignKey(Department)
     mailList = models.CharField(max_length=200)
+    def __unicode__(self):
+        return "%s-%s-%s" % (self.creater,self.status,self.createTime)
     def get_values(self):
         return {"applicant":self.da_applicant,
                 "techRespon":self.techRespon,
                 "proRespon":self.proRespon,
-                "createTime":self.createTime,
+                "createTime":str(self.createTime),
                 "operCategory":self.operCategory,
                 "appCategory":self.appCategory,
-                "department":self.da_dpt,
+                "department":self.da_dpt.dptName,
                 "description":self.daDes,
                 "status":self.status}
    

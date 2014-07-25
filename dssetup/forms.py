@@ -1,7 +1,7 @@
 #coding=utf-8
 from django import forms
 from django.core.exceptions import ValidationError
-from dssetup.models import User,Group,Authority,DomainApplicationForm,ServiceProvider
+from dssetup.models import User,Group,Authority,DomainApplicationForm,ServiceProvider,Zone,DomainForm
 from django.core.validators import EmailValidator,validate_ipv46_address
 
 def InvalidIpList(value):
@@ -113,7 +113,7 @@ class DomainApplicationFormForm(forms.ModelForm):
         self.fields["mailList"].validators.append(InvalidMailList)
 
   
-class DomainForm(forms.Form):
+class DomainMappingForm(forms.Form):
     MODE = (
             ("cname","cname"),
             ("a","a")
@@ -126,7 +126,7 @@ class DomainForm(forms.Form):
     aim = forms.CharField(max_length=100) 
     
     def __init__(self,*args,**kwargs):
-        super(DomainForm,self).__init__(*args,**kwargs)
+        super(DomainMappingForm,self).__init__(*args,**kwargs)
     def excludeSelected(self,selected):
         validChoices = ((sp.spName,sp.spName) for sp in ServiceProvider.objects.all() if sp.spName not in selected)
         self.fields["spName"]  = forms.MultipleChoiceField(choices=validChoices,widget=forms.CheckboxSelectMultiple)
@@ -136,3 +136,12 @@ class DomainForm(forms.Form):
             return True
         else:
             return False
+        
+class ZoneForm(forms.ModelForm):
+    class Meta:
+        model = Zone
+        
+class DomainFormForm(forms.ModelForm):
+    class Meta:
+        model = DomainForm
+        

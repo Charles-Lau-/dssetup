@@ -1,9 +1,9 @@
 #coding=utf-8
-from dssetup.forms import DomainApplicationFormForm,DomainForm
+from dssetup.forms import DomainApplicationFormForm,DomainMappingForm
 from django.shortcuts import render 
-from django.http import HttpResponseRedirect,HttpResponse
-from django.forms.formsets import formset_factory
-from dssetup.models import User
+from django.http import HttpResponseRedirect 
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 from dssetup.decorator import login_required
 from dssetup import staticVar
 from dssetup.service import formService,adminService
@@ -25,11 +25,14 @@ def createForm(request,formName):
         return createDomainForm(request)
     else:
         return createMappingForm(request)
-
+       
+        
 def createDomainForm(request):
-        def __getHtmlFromForm(form):
+    def __getHtmlFromForm(form):
+          
             html=""
             for field in form:
+                 
                 html += r"<div class='control-group'><label class='control-label'>"\
                           +field.label\
                           +r"</label><div class='controls'>"\
@@ -37,19 +40,21 @@ def createDomainForm(request):
                           +r"</div></div>"    
             return html
         
-        if(request.POST):
-            main_part = DomainApplicationFormForm(request.POST)
-            if(main_part.is_valid()):
-                formService.addMainForm(request,main_part) 
-                request.session["main_part"] = __getHtmlFromForm(main_part)
-                if("mapping_part" in request.session):
-                    del request.session["mapping_part"]
-                return HttpResponseRedirect("create_mapping_part")
-            else:
-                return render(request,"createform.html",{"form":main_part})
+    if(request.POST):
+        main_part = DomainApplicationFormForm(request.POST)
+        if(main_part.is_valid()):
+            request.session["Id"] = formService.addMainForm(request,main_part) 
+            request.session["main_part"] = __getHtmlFromForm(main_part)
+                
+            if("mapping_part" in request.session):
+                del request.session["mapping_part"]
+            return HttpResponseRedirect("create_mapping_part")
         else:
-            main_part = DomainApplicationFormForm()
             return render(request,"createform.html",{"form":main_part})
+    else:
+        main_part = DomainApplicationFormForm()
+        return render(request,"createform.html",{"form":main_part})\
+            
 def createMappingForm(request):
         def __addDomainNameDataToSession():
             sessionMapping = request.session.get("mapping_part") 
@@ -88,7 +93,7 @@ def createMappingForm(request):
             request.session["mapping"] = sessionMapping
         
         if(request.POST):
-            mapping_part = DomainForm(request.POST)
+            mapping_part = DomainMappingForm(request.POST)
             if(mapping_part.is_valid() ):
                 __addMappingDataToSession()  
                 return render(request,"createmapping.html",{"main_part":request.session["main_part"],"mapping_part":request.session["mapping_part"]})
@@ -97,6 +102,11 @@ def createMappingForm(request):
         else:
             item = request.GET.items()
             if(item):
+                try:
+                    URLValidator(item[0][1])
+                except ValidationError:
+                    return render(request,"createmapping.html",{"main_part":request.session["main_part"],"mapping_part":request.session["mapping_part"],"error":"Invalid URl"}) 
+                
                 __addDomainNameDataToSession()
                 
                 selected=[]
@@ -105,7 +115,7 @@ def createMappingForm(request):
                         for m in mapping.get("mapping"):
                             selected.extend(m.get("spName").split(" "))
                         
-                form = DomainForm()
+                form = DomainMappingForm()
                 form.excludeSelected(selected)
                 if(form.isAllowedToAdd()):
                     return render(request,"createform.html",{"form":form,"hidden":item[0][0]})
@@ -136,7 +146,30 @@ def createMappingPart(request):
             return render(request,"createmapping.html",{"main_part":request.session["main_part"]}) 
         else:
             return HttpResponseRedirect("create_main_form")
+def addFormIntoDatabase(request):
+    if ("Id" in request.session and "mapping_part" in request.session):
+        for mapping in request.session.get("mapping_part"):
+            formService.addDomainMappingForm(request.session.get("Id"),mapping)
+        
+        del request.session["mapping_part"]
+        del request.session["Id"]
+        del request.session["main_part"]
+        
+        return  homepage(request)
+    else:
+        return HttpResponseRedirect("create_mapping_part")
 def checkForm(request,Id):
     
-     
-    return render(request,"showForm.html",{})
+    
+    formDetails = formService.getFormDetails(Id) 
+    
+    html=""
+    for k,v in formDetails[0].items():
+        html += r"<div class='control-group'><label class='control-label'>"\
+                 +k\
+                 +r"</label><div class='controls'>"\
+                 +"<input readOnly=true value="+v+">"\
+                 +r"</div></div>"     
+                 
+    return render(request,"showForm.html",{"main_part":html,"mapping_part":formDetails[1]})
+

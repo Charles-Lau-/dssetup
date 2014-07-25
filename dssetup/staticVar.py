@@ -1,6 +1,15 @@
+#coding=utf-8
 SESSION_EXPIRATION = 1200
 ADMINISTRATOR = "administrator"
 APPLICANT = "applicant"
-NUM_PER_PAGE = 5
-RIGHT_PAGES = 4
-LEFT_PAGES = 5
+
+#表单状态的流转
+CREATED = "created"
+WAITINGFORVERIFY = "unverified"
+VERIFIED = "verified"
+CHECKED = "checked"
+CONFIRMED = "confirmed" 
+
+#域名状态
+CAN_APPLY = "free"
+CANNOT_APPLY = "occupied" 

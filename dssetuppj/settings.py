@@ -53,7 +53,10 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'dssetuppj.urls'
 TEMPLATE_DIRS = (
-                 os.path.join(os.path.dirname(__file__)[:-10],"dssetup\\templates").replace("\\","/")
+                 os.path.join(os.path.dirname(__file__)[:-10],"dssetup\\templates").replace("\\","/"),
+                 os.path.join(os.path.dirname(__file__)[:-10],"dssetup\\templates\\base").replace("\\","/"),
+                 os.path.join(os.path.dirname(__file__)[:-10],"dssetup\\templates\\admin").replace("\\","/"),
+                 os.path.join(os.path.dirname(__file__)[:-10],"dssetup\\templates\\form").replace("\\","/")
                  ) 
 WSGI_APPLICATION = 'dssetuppj.wsgi.application'
 

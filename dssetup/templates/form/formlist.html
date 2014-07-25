@@ -1,0 +1,50 @@
+{%extends "baseList.html"%}
+{%block list-title%}
+   
+ 
+           <h5> 
+                                                        申请表单列表
+           </h5>
+ {%endblock%} 
+  
+ {%block list-content%}        
+            <table class="table table-bordered data-table">
+              <thead>
+                <tr>
+                  {%for form in form_list%}
+                   {%if forloop.first%}
+                      {%for f in form.get_values.keys%}
+                           <th>{{f}}</th>
+                      {%endfor%}
+                   {%else%}
+                   {%endif%}
+                  {%endfor%}
+                  <th>operation</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {%for form in form_list%} 
+                  <tr>
+                   
+                  {%for f in form.get_values.values%}
+                  <th class="center">
+                  {%if f%}
+                    {{f}}
+                  {%else%}
+                                                                          无
+                  {%endif%}
+                  </th>
+                  {%endfor%} 
+                  
+                  </th>
+                  <th class="center">
+                    <a href={%url "check_form" form.id%}><i class="icon icon-check"></i></a>
+                   
+                    </th>
+                </tr>
+                {%endfor%}
+              </tbody>
+            </table>
+   
+{%endblock%}

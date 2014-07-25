@@ -16,9 +16,11 @@ urlpatterns =  patterns('',
        url("^domain/delete=(?P<Id>\d+)$",adminAction.delete_object,{"obj":"domain"},name="delete_domain"),
        url("^domain/edit=(?P<Id>\d+)$",adminAction.edit_object,{"obj":"domain"},name="edit_domain"),
        
-       url("^root/$",adminAction.show_object,{"obj":"root"},name="show_root"),               
-       url("^root/delete=(?P<Id>\d+)$",adminAction.delete_object,{"obj":"root"},name="delete_root"),
-       url("^root/edit=(?P<Id>\d+)$",adminAction.edit_object,{"obj":"root"},name="edit_root"),
+       url("^zone/$",adminAction.show_object,{"obj":"zone"},name="show_zone"),               
+       url("^zone/delete=(?P<Id>\d+)$",adminAction.delete_object,{"obj":"zone"},name="delete_zone"),
+       url("^zone/edit=(?P<Id>\d+)$",adminAction.edit_object,{"obj":"zone"},name="edit_zone"),
+       url("^add_zone$",adminAction.add_object,{"obj":"zone"},name="add_zone"),
+      
                              
        url("^user/delete=(?P<Id>\d+)$",adminAction.delete_object,{"obj":"user"},name="delete_user"),
        url("^group/delete=(?P<Id>\d+)$",adminAction.delete_object,{"obj":"group"},name="delete_group"),

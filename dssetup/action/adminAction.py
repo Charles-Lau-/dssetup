@@ -1,5 +1,5 @@
 #coding=utf-8
-from dssetup.forms import UserForm,GroupForm,AuthorityForm
+from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormForm
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect
 from dssetup.decorator import login_required
@@ -54,7 +54,10 @@ def __generateForm(obj,post=None,instance_=None):
         form = UserForm(data=post,instance=instance_)
     elif(obj == "group"):
         form = GroupForm(data=post,instance=instance_)
-    else:
+    elif(obj == "authority"):
         form = AuthorityForm(data=post,instance=instance_)
-   
+    elif(obj == "zone"):
+        form = ZoneForm(data=post,instance=instance_)
+    elif(obj =="domain"):
+        form = DomainFormForm(data=post,instance=instance_)
     return form

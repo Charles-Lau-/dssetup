@@ -9,7 +9,7 @@ def getAllObject(obj):
         objs_list = Authority.objects.all()
     elif(obj =="domain"):
         objs_list = DomainForm.objects.all()
-    else:
+    elif(obj == "zone"):
         objs_list = Zone.objects.all()
     return objs_list
 
@@ -24,7 +24,7 @@ def getObjectById(obj,Id):
         return Authority.objects.get(id=Id)
     elif(obj=="domain"):
         return DomainForm.objects.get(id=Id)
-    else:
+    elif(obj == "zone"):
         return Zone.objects.get(id=Id)
 def getUser(request):
     user = User.objects.get(userName=request.session["user"])

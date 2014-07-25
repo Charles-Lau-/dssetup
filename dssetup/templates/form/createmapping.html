@@ -1,19 +1,7 @@
-{%extends "createform.html"%}
-{%block content%}
-
-<div id="content">
-<div id="content-header">
-  <div id="breadcrumb"> <a href={%url "admin_home"%} title="Go to Home" class="tip-bottom"><i class="icon-home"></i>infoҳ</a>  
-</div>
-<div class="container-fluid" id="main_part">
-  <hr>
-  <div class="row-fluid">
-    <div class="span12">
-      <div class="widget-box">
-        <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
-          <h5>{{obj}}-info</h5>
-        </div>
-        <div class="widget-content nopadding">
+{%extends "baseForm.html"%}
+ 
+{%block form-content%} 
+ 
         {%load filters%}
        
           <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
@@ -70,7 +58,6 @@
  
 {%for domainForm in mapping_part%}
 <form action={%url "create_mapping_form"%} method="get" id="domainForm-{{forloop.counter}}">
- 
  <div class="container-fluid">
     <hr>
     <div class="row-fluid">
@@ -78,31 +65,33 @@
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
             domainName: <input type="text" name="domainName-{{forloop.counter}}" value={{domainForm.values.0}}>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+           
+      
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-{{forloop.counter}}").submit()'>addMapping</a>
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">
               <thead>
-                <tr>
-                  <th>Sp</th>
-                  <th>Mode</th>
+                 <tr>
                   <th>Ip</th>
+                  <th>Mode</th>
+                  <th>Sp</th>
                   <th>Operation</th>
                 </tr>
               </thead>
               <tbody>
-                {%for mapping in domainForm.mapping%}
-                <tr>    
-               
+               {%for mapping in domainForm.mapping%}
+             
+                <tr class="odd gradeX">
                     {%for value in mapping.values%}
-                            <th >{{value}} <th>
-                    {%endfor%}
-                    {%load filters%}
-                    {%with delete='domainName-'|strcat:forloop.parentloop.counter%}
-                    <a href={%url "delete_mapping_form" delete forloop.counter0 %}><i class="icon icon-remove"></i></a>
-                    {%endwith%}
+                            <th >{{value}} </th>
+                     {%endfor%}
+                     {%load filters%}
+                     {%with delete='domainName-'|strcat:forloop.parentloop.counter%}
+                     <th><a href={%url "delete_mapping_form" delete forloop.counter0 %}><i class="icon icon-remove"></i></a></th>
+                     {%endwith%}
                 </tr>
-               {%endfor%}
+                 {%endfor%}
               </tbody>
             </table>
           </div>
@@ -110,16 +99,18 @@
       </div>
     </div>
  </div>
-</form>
+</form> 
 
 {%endfor%}
-</div>
+        <a class="btn btn-info"  href={%url "add_form"%}>Submit</a>
 
-</div>
-</div>
+{%endblock%}    
+ 
+ 
 
 
-
+{%block js%}
+{{block.super}}
 <script>
     function addDomainForm(){
      var form =   document.getElementById("domainForm-0")

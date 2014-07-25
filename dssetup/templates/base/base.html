@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Matrix Admin</title>
+<title>{%block title%}Matrix Admin{%endblock%}</title>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{%block css%}
 <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
 <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css" />
 <link rel="stylesheet" href="/static/css/uniform.css" />
@@ -11,17 +12,18 @@
 <link rel="stylesheet" href="/static/css/matrix-style.css" />
 <link rel="stylesheet" href="/static/css/matrix-media.css" />
 <link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet" />
- 
+{%endblock%} 
 </head>
 <body>
 
 <!--Header-part-->
 <div id="header">
-  <h1><a href="dashboard.html">Matrix Admin</a></h1>
+  {%block header%}<h1><a href="dashboard.html">Matrix Admin</a></h1>{%endblock%}
 </div>
 <!--close-Header-part--> 
 
 <!--top-Header-menu-->
+{%block headerMenu%}
 <div id="user-nav" class="navbar navbar-inverse">
   <ul class="nav">
     <li  class="dropdown" id="profile-messages" ><a title="" href="#" data-toggle="dropdown" data-target="#profile-messages" class="dropdown-toggle"><i class="icon icon-user"></i>  <span class="text">Welcome User</span><b class="caret"></b></a>
@@ -48,7 +50,7 @@
     <li class=""><a title="" href={%url "logout"%}><i class="icon icon-share-alt"></i> <span class="text">Logout</span></a></li>
   </ul>
 </div>
-
+{%endblock%}
 <!--start-top-serch-->
 <div id="search">
   <input type="text" placeholder="Search here..."/>
@@ -57,14 +59,59 @@
 <!--close-top-serch--> 
 
 <!--sidebar-menu-->
-{%block sidebar%}{%endblock%}
+{%block sidebar%}
+ <div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-th"></i>Tables</a>
+  <ul>
+    <li class="submenu"  id="system_management"> <a href="#" ><i class="icon icon-th-list"></i>系统管理<span>Forms</span></a>
+      
+       <ul>
+    
+        <li><a href={%url "show_user"%}><i class="icon icon-home"></i> <span>用户管理</span></a> </li>
+        <li><a href={%url "add_user"%}><i class="icon icon-signal"></i> <span>添加用户 </span></a> </li>
+        <li><a href={%url "show_group"%}><i class="icon icon-inbox"></i> <span>群组管理</span></a> </li>
+        <li ><a href={%url "add_group"%}><i class="icon icon-th"></i> <span>添加群组</span></a></li>
+        <li><a href={%url "show_authority"%}><i class="icon icon-fullscreen"></i> <span>权限管理</span></a></li>
+        <li><a href={%url "add_authority"%}><i class="icon icon-th"></i> <span>添加权限</span></a></li>
+       </ul>
+    </li>
+    <li class="submenu"> <a href="#"><i class="icon icon-file"></i> <span>域名管理 </span></a>
+      <ul>
+        <li><a href={%url "show_domain"%}>域名</a></li>
+        
+        <li><a href={%url "show_zone"%}>根域管理</a></li>
+        
+        <li><a href={%url "add_zone"%}>添加根域</a></li>
+      </ul>
+    </li>
+    
+    <li><a href={%url "handleForm_home"%}><i class="icon icon-home"></i> <span>申请表单列表</span></a> </li>
+    <li><a href={%url "create_main_form"%}><i class="icon icon-home"></i> <span>创建新的申请表单</span></a> </li>
+    <li><a href="#"><i class="icon icon-home"></i> <span>待审核表单列表</span></a> </li>
+    <li><a href="#"><i class="icon icon-home"></i> <span>待操作表单列表</span></a> </li>
+    <li><a href="#"><i class="icon icon-home"></i> <span>待检查表单列表</span></a> </li>
+     
+     
+    
+</div>
+{%endblock%}
 <!--Content-->
-{%block content%}{%endblock%}
+{%block content%}
+<div id="content">
+<div id="content-header">
+ <div id="breadcrumb"> <a href={%url "admin_home"%} title="Go to Home" class="tip-bottom"><i class="icon-home"></i>infoҳ</a>  
+</div> 
+         
+
+{%endblock%}
+
+
+ 
 <!--Footer-part-->
 <div class="row-fluid">
-  <div id="footer" class="span12"> 2013 &copy; Matrix Admin. Brought to you by <a href="http://themedesigner.in/">Themedesigner.in</a> </div>
+  {%block footer%}<div id="footer" class="span12"> 2013 &copy; Matrix Admin. Brought to you by <a href="http://themedesigner.in/">Themedesigner.in</a> </div>{%endblock%}
 </div>
 <!--end-Footer-part-->
+{%block js%}
 <script src="/static/js/jquery.min.js"></script> 
 <script src="/static/js/jquery.ui.custom.js"></script> 
 <script src="/static/js/bootstrap.min.js"></script> 
@@ -74,4 +121,5 @@
 <script src="/static/js/matrix.js"></script> 
 <script src="/static/js/matrix.tables.js"></script>
 </body>
+{%endblock%}
 </html>

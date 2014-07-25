@@ -1,4 +1,4 @@
-from dssetup.models import DomainMapping,DomainApplicationForm,Authority
+from dssetup.models import DomainMapping,DomainApplicationForm,Authority,DomainForm
 
-
-print u'\u6d77'
+for p in DomainForm.objects.all():
+    p.delete()
