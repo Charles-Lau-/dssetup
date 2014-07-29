@@ -7,7 +7,7 @@
           <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
               {% csrf_token %}
        
-              {{main_part|safe}} 
+              {{request.session.main_part|safe}} 
              
                
               <a class="btn btn-info" href="#"  onclick="javascript:addDomainForm()">add domain mapping</a>
@@ -19,15 +19,22 @@
     
     </div>
    </div>
-<form action={%url "create_mapping_form"%} method="get" id="domainForm-0" style="display:none">
+<form action={%url "store_domainName"%} method="post" id="domainForm-0" style="display:none">
+{% csrf_token %}
  <div class="container-fluid">
     <hr>
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
-            domainName: <input type="text" name="domainName-0" >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").submit()'>addMapping</a>
+              domainName: <input type="text" name="domainName-0" >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+          
+         
+            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").submit()'>保存</a>
+            {%load filters%}
+            {%with domainName="domainForm-"|strcat:0%}            
+            <a class="btn btn-info" href= {%url "create_mapping_form"  domainName%}>创建域名映射</a>
+            {%endwith%}
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">
@@ -40,10 +47,7 @@
               </thead>
               <tbody>
                 <tr class="odd gradeX">
-                  <td>Trident</td>
-                  <td>Internet
-                    Explorer 4.0</td>
-                  <td>Win 95+</td>
+                
                
                 </tr>
               
@@ -56,18 +60,23 @@
  </div>
 </form>
  
-{%for domainForm in mapping_part%}
-<form action={%url "create_mapping_form"%} method="get" id="domainForm-{{forloop.counter}}">
+{%for key,domainForm in request.session.mapping_part.items%}
+<form action={%url "store_domainName"%} method="post" id="domainForm-{{forloop.counter}}">
+{% csrf_token %}
  <div class="container-fluid">
     <hr>
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
-            domainName: <input type="text" name="domainName-{{forloop.counter}}" value={{domainForm.values.0}}>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-           
-      
-            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-{{forloop.counter}}").submit()'>addMapping</a>
+            domainName: <input type="text" name={{key}} value={{domainForm.values.0}}>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+          
+             <span class="badge badge-warning">{{domainForm.error}}</span>
+            
+            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-{{forloop.counter}}").submit()'>保存</a>
+            {%if not domainForm.error%}
+            <a class="btn btn-info" href= {%url "create_mapping_form"  key%}>创建域名映射</a>
+            {%endif%}
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">
@@ -87,9 +96,9 @@
                             <th >{{value}} </th>
                      {%endfor%}
                      {%load filters%}
-                     {%with delete='domainName-'|strcat:forloop.parentloop.counter%}
-                     <th><a href={%url "delete_mapping_form" delete forloop.counter0 %}><i class="icon icon-remove"></i></a></th>
-                     {%endwith%}
+                      
+                     <th><a href={%url "delete_mapping_form" key forloop.counter0 %}><i class="icon icon-remove"></i></a></th>
+                  
                 </tr>
                  {%endfor%}
               </tbody>

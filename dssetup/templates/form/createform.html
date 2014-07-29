@@ -1,13 +1,13 @@
-{%extends "baseForm.html"%} 
+ {%extends "baseForm.html"%} 
  
 {%block form-content%}
         
         {%load filters%}
           {%if hidden%} 
-          <form action={%url "create_mapping_form"%} method="post" class="form-horizontal" id="create_form">
+          <form action={%url "create_mapping_form" hidden%} method="post" class="form-horizontal" id="create_form">
           
           {%else%}
-          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+          <form action={%url "create_main_form" %} method="post" class="form-horizontal" id="create_form">
           {%endif%}
               {% csrf_token %}
          
