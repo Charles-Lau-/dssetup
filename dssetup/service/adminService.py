@@ -30,6 +30,15 @@ def getUser(request):
     user = User.objects.get(userName=request.session["user"])
     
     return user
+
+def getPermOfUser(user):
+    perm = []
+    groups = User.objects.get(id=user.id).group.all()
+    for group in groups:
+        for auth in group.authority.all():
+            if(not auth.authName in perm):
+                perm.append(auth.authName)
+    return perm
 def logout(username,ip,time):
     user = User.objects.get(userName=username)
     user.loginLastIp = ip

@@ -2,8 +2,25 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from dssetup.models import User,Group,Authority,DomainApplicationForm,ServiceProvider,Zone,DomainForm
-from django.core.validators import EmailValidator,validate_ipv46_address
-
+from django.core.validators import validate_email,validate_ipv46_address
+import re
+def validate_url(value):
+    regex = re.compile(
+        r'^((?:http|ftp)s://)?'  # http:// or https://
+        r'(localhost)?'  # localhost...
+        r'(\w*[A-Za-z_]\w*)\.(\w*[A-Za-z_]\w*)\.(\w*[A-Za-z_]\w*)(.(\w*[A-Za-z_]\w*))*'  # ...or ipv4
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE) 
+    if(not regex.match(value)):
+        raise ValidationError("Invalid URL")
+def InvalidRootDomain(value):
+    try:
+       
+        Zone.objects.get(zoneName=value)
+    
+    except Zone.DoesNotExist:
+ 
+        raise ValidationError("This root does not exist")
 def InvalidIpList(value):
     ips = value.split(",")
     try: 
@@ -16,9 +33,13 @@ def InvalidMailList(value):
     emails = value.split(",")
   
     try:
+        
         for email in emails:
-            EmailValidator(email)
+ 
+            validate_email(email)
+         
     except ValidationError:
+      
         raise ValidationError("Please enter maillist like exmaple@xxx.com,example@xxx.com") 
 def InvalidUsername(value):
     if('@' in value or '+' in value or '-' in value or ' ' in value): 
@@ -31,7 +52,7 @@ def TooEasyPasswordValidator(value):
     
 
 def InvalidPhoneNumber(value):
-    import re
+    
     isMatched = bool(re.match(r"^\d{11}$",value))
     if(not isMatched):
         raise ValidationError("Please enter a phone number with 11 digits")
@@ -84,8 +105,7 @@ class GroupForm(forms.ModelForm):
             data.setlist(k,new_vs)
      
         self.data = data
-        if(User.objects.filter(userName__iexact=self.userName).exists()):
-            raise ValidationError("User with this Username already exists.") 
+      
         super(GroupForm,self).full_clean()
       
 class AuthorityForm(forms.ModelForm):
@@ -105,13 +125,15 @@ class AuthorityForm(forms.ModelForm):
         super(AuthorityForm,self).full_clean()
 
 class DomainApplicationFormForm(forms.ModelForm):
+    RootDomain = forms.CharField(max_length=100)
     class Meta:
         model = DomainApplicationForm
         fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList","daDes"]
     def __init__(self,*args,**kwargs):
         super(DomainApplicationFormForm,self).__init__(*args,**kwargs)
         self.fields["mailList"].validators.append(InvalidMailList)
-
+        self.fields["RootDomain"].validators.append(InvalidRootDomain)
+     
   
 class DomainMappingForm(forms.Form):
     MODE = (
@@ -127,6 +149,23 @@ class DomainMappingForm(forms.Form):
     
     def __init__(self,*args,**kwargs):
         super(DomainMappingForm,self).__init__(*args,**kwargs)
+    def clean(self):
+        super(DomainMappingForm,self).clean()
+        if(self.cleaned_data["mode"]=="cname"):
+            try:
+                validate_url(self.cleaned_data["aim"])
+              
+            except  ValidationError:
+               
+                self._errors["aim"] = self.error_class(["This field should input valid URL when the mode is cname"])
+                
+        else:
+            try:
+                validate_ipv46_address(self.cleaned_data["aim"])
+            except ValidationError:
+                self._errors["aim"] = self.error_class(["This field should input IP when the mode is a"])
+        
+        return self.cleaned_data
     def excludeSelected(self,selected):
         validChoices = ((sp.spName,sp.spName) for sp in ServiceProvider.objects.all() if sp.spName not in selected)
         self.fields["spName"]  = forms.MultipleChoiceField(choices=validChoices,widget=forms.CheckboxSelectMultiple)
@@ -136,7 +175,9 @@ class DomainMappingForm(forms.Form):
             return True
         else:
             return False
-        
+   
+   
+            
 class ZoneForm(forms.ModelForm):
     class Meta:
         model = Zone

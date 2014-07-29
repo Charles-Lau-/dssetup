@@ -4,10 +4,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect 
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
-from dssetup.decorator import login_required
 from dssetup import staticVar
 from dssetup.service import formService,adminService
-@login_required
+from copy import copy
 def homepage(request):
     user = adminService.getUser(request)
  
@@ -45,7 +44,7 @@ def createDomainForm(request):
         if(main_part.is_valid()):
             request.session["Id"] = formService.addMainForm(request,main_part) 
             request.session["main_part"] = __getHtmlFromForm(main_part)
-                
+            request.session["root"] = request.POST["RootDomain"]    
             if("mapping_part" in request.session):
                 del request.session["mapping_part"]
             return HttpResponseRedirect("create_mapping_part")
@@ -59,49 +58,51 @@ def createMappingForm(request):
         def __addDomainNameDataToSession():
             sessionMapping = request.session.get("mapping_part") 
             if(sessionMapping):
-                for i in range(0,len(sessionMapping)):
-                        flag = True
-                        mapping = sessionMapping[i]
-                    
-                        if(mapping.has_key(item[0][0])):
-                            mapping[item[0][0]] = item[0][1]
-                            sessionMapping[i] = mapping
-                            flag=False
-                            break
-                if(flag):
-                        sessionMapping.append({item[0][0]:item[0][1]})
+                if(sessionMapping.get(domain_key,"")):
+                    mapping = sessionMapping.get(domain_key)
+                    mapping[domain_key] = domain_value
+                    sessionMapping[domain_key] = mapping
+
+                else:
+                    sessionMapping[domain_key] = {domain_key:domain_value}
             else:
-                    sessionMapping = [{item[0][0]:item[0][1]}]
+                    sessionMapping = {domain_key:{domain_key:domain_value}}
             request.session["mapping_part"] = sessionMapping
                     
             
         def __addMappingDataToSession():
             sessionMapping = request.session["mapping_part"]
-            
-            for i in range(0,len(sessionMapping)):
-                for key in sessionMapping[i].keys():
-                    if(key == request.POST.get("domainName")):
-                        mappingDict = sessionMapping[i]
-                        cleaned_data = mapping_part.cleaned_data
-                        cleaned_data["spName"] = " ".join(cleaned_data["spName"])
-                        if(mappingDict.get("mapping")):
-                            mappingDict["mapping"].append(cleaned_data)
-                        else:
-                            mappingDict["mapping"] = [cleaned_data]
-                        sessionMapping[i] = mappingDict 
-                        break 
+            domainName = request.POST.get("domainName") 
+            if(sessionMapping.get(domainName,"")):
+                mappingDict = sessionMapping.get(domainName)
+                cleaned_data = mapping_part.cleaned_data
+                cleaned_data_spName = " ".join(cleaned_data["spName"])
+                if(not mappingDict.get("mapping")):
+                    mappingDict["mapping"] = []
+                      
+                   
+                for sp in cleaned_data_spName.split(" "):
+                    cleaned_data["spName"] = sp
+                    mappingDict["mapping"].append(copy(cleaned_data))
+                                
+            sessionMapping[domainName] = mappingDict 
+                         
             request.session["mapping"] = sessionMapping
         
         if(request.POST):
             mapping_part = DomainMappingForm(request.POST)
             if(mapping_part.is_valid() ):
                 __addMappingDataToSession()  
-                return render(request,"createmapping.html",{"main_part":request.session["main_part"],"mapping_part":request.session["mapping_part"]})
+                return render(request,"createmapping.html",{"main_part":request.session["main_part"],"mapping_part":request.session["mapping_part"].values()})
             else:
+               
+                
                 return render(request,"createform.html",{"form":mapping_part,"hidden":request.POST["domainName"]})  
         else:
             item = request.GET.items()
             if(item):
+                domain_key = item[0][0]
+                domain_value = item[0][1]
                 try:
                     URLValidator(item[0][1])
                 except ValidationError:
@@ -110,15 +111,15 @@ def createMappingForm(request):
                 __addDomainNameDataToSession()
                 
                 selected=[]
-                for mapping in request.session["mapping_part"]:
-                    if(item[0][0] in mapping and mapping.has_key("mapping")):
+                mapping = request.session["mapping_part"].get(domain_key,"")
+                if(mapping and mapping.has_key("mapping")):
                         for m in mapping.get("mapping"):
                             selected.extend(m.get("spName").split(" "))
                         
                 form = DomainMappingForm()
                 form.excludeSelected(selected)
                 if(form.isAllowedToAdd()):
-                    return render(request,"createform.html",{"form":form,"hidden":item[0][0]})
+                    return render(request,"createform.html",{"form":form,"hidden":domain_key})
                 else:
                     return HttpResponseRedirect("create_mapping_part")      
                     
@@ -127,11 +128,9 @@ def createMappingForm(request):
 def deleteMappingForm(request,domainName,Id):
     if("mapping_part" in request.session):
         sessionMapping = request.session["mapping_part"]
-        for i in range(0,len(sessionMapping)):
-             
-            if(domainName in sessionMapping[i].keys()):
-                del sessionMapping[i]["mapping"][int(Id)]
-                break
+        if(sessionMapping.get(domainName,"")):
+            del sessionMapping.get(domainName)["mapping"][int(Id)]
+              
         request.session["mapping_part"] = sessionMapping
           
     
@@ -141,19 +140,20 @@ def createMappingPart(request):
         pass
     else:
         if("main_part" in request.session and "mapping_part" in request.session):
-            return render(request,"createmapping.html",{"main_part":request.session["main_part"],"mapping_part":request.session["mapping_part"]}) 
+            return render(request,"createmapping.html",{"main_part":request.session["main_part"],"mapping_part":request.session["mapping_part"].values()}) 
         elif("main_part" in request.session):
             return render(request,"createmapping.html",{"main_part":request.session["main_part"]}) 
         else:
             return HttpResponseRedirect("create_main_form")
 def addFormIntoDatabase(request):
     if ("Id" in request.session and "mapping_part" in request.session):
-        for mapping in request.session.get("mapping_part"):
-            formService.addDomainMappingForm(request.session.get("Id"),mapping)
+        for mapping in request.session.get("mapping_part").values():
+            formService.addDomainMappingForm(request.session.get("Id"),mapping,request.session["root"])
         
         del request.session["mapping_part"]
         del request.session["Id"]
         del request.session["main_part"]
+        del request.session["root"]
         
         return  homepage(request)
     else:

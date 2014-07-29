@@ -49,6 +49,8 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dssetup.ware.LoginWare.LoginWare',
+    
 )
 
 ROOT_URLCONF = 'dssetuppj.urls'
@@ -71,6 +73,11 @@ DATABASES = {
     }
 }
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+ 
+     'django.core.context_processors.request',
+  
+ )
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 

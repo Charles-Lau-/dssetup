@@ -62,6 +62,8 @@
 {%block sidebar%}
  <div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-th"></i>Tables</a>
   <ul>
+  
+   
     <li class="submenu"  id="system_management"> <a href="#" ><i class="icon icon-th-list"></i>系统管理<span>Forms</span></a>
       
        <ul>
@@ -74,6 +76,8 @@
         <li><a href={%url "add_authority"%}><i class="icon icon-th"></i> <span>添加权限</span></a></li>
        </ul>
     </li>
+    
+   
     <li class="submenu"> <a href="#"><i class="icon icon-file"></i> <span>域名管理 </span></a>
       <ul>
         <li><a href={%url "show_domain"%}>域名</a></li>
@@ -83,12 +87,25 @@
         <li><a href={%url "add_zone"%}>添加根域</a></li>
       </ul>
     </li>
-    
-    <li><a href={%url "handleForm_home"%}><i class="icon icon-home"></i> <span>申请表单列表</span></a> </li>
+  
+ 
+    <li><a href={%url "handleForm_home"%}><i class="icon icon-home"></i> <span>已申请表单列表</span></a> </li>
+  
+ 
     <li><a href={%url "create_main_form"%}><i class="icon icon-home"></i> <span>创建新的申请表单</span></a> </li>
+ 
+    
+ 
     <li><a href="#"><i class="icon icon-home"></i> <span>待审核表单列表</span></a> </li>
+ 
+    
+ 
     <li><a href="#"><i class="icon icon-home"></i> <span>待操作表单列表</span></a> </li>
+ 
+     
+ l
     <li><a href="#"><i class="icon icon-home"></i> <span>待检查表单列表</span></a> </li>
+  
      
      
     

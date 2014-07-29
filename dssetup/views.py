@@ -7,7 +7,7 @@ from dssetup.decorator import login_required
 from dssetup.service import adminService
 # Create your views here.
 def home(request):
-    return render(request,"login.html") 
+    return HttpResponseRedirect("login") 
 
 def index(request):
     return render(request,"base.html",)
@@ -16,6 +16,7 @@ def login(request):
         if(User(userName=request.POST.get("username"),userPassword=request.POST.get("password")).is_authenticated()):
             
             request.session["user"] = request.POST.get("username")
+            request.session["perm"] = adminService.getPermOfUser(adminService.getUser(request))
             request.session["ip"] = request.META["REMOTE_ADDR"]
             import time
             now = time.localtime()

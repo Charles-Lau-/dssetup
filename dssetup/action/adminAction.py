@@ -4,22 +4,22 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from dssetup.decorator import login_required
 from dssetup.service import adminService
-@login_required
+ 
 def homepage(request):
     return show_object(request,"user")
-@login_required
+ 
 def show_object(request,obj):
     return render(request,"index.html",{
                   "obj_list":adminService.getAllObject(obj),
                   "obj":obj,                     
                 })
  
-@login_required
+ 
 def delete_object(request,Id,obj):
     adminService.deleteObjectById(obj, Id)
     return HttpResponseRedirect("/admin/"+obj+"/")
 
-@login_required
+ 
 def add_object(request,obj):
     if(request.POST):
         form = __generateForm(post=request.POST,obj=obj)
@@ -33,7 +33,7 @@ def add_object(request,obj):
     else:
         form = __generateForm(obj=obj)
         return render(request,"add.html",{"form":form,"obj":obj})
-@login_required
+ 
 def edit_object(request,Id,obj):
     instance_ = adminService.getObjectById(obj, Id) 
     if(request.POST):

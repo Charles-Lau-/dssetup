@@ -1,4 +1,5 @@
-from dssetup.models import DomainMapping,DomainApplicationForm,Authority,DomainForm
+from dssetup.forms import validate_url
 
-for p in DomainForm.objects.all():
-    p.delete()
+
+validate_url("1.2.3.4")
+ 

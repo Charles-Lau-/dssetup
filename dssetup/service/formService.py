@@ -29,7 +29,7 @@ def addMainForm(request,main_part):
     
     return main.id
 
-def addDomainMappingForm(Id,mapping):
+def addDomainMappingForm(Id,mapping,root):
     main = DomainApplicationForm.objects.get(id=Id)
     main.status = staticVar.WAITINGFORVERIFY
     main.save()
@@ -47,10 +47,8 @@ def addDomainMappingForm(Id,mapping):
         domain = DomainForm(domainName=domainName)
         
     domain.status = staticVar.CANNOT_APPLY
-    for zone in Zone.objects.all():
-        if(domain.domainName.find(zone.zoneName)>=0):
-            domain.domain_zone = zone
-            break
+    print root
+    domain.domain_zone =  Zone.objects.get(zoneName=root)
             
     domain.save()
     domain.da_domain.add(main)
