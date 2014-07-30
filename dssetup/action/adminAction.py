@@ -2,11 +2,8 @@
 from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormForm
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect
-from dssetup.decorator import login_required
 from dssetup.service import adminService
  
-def homepage(request):
-    return show_object(request,"user")
  
 def show_object(request,obj):
     return render(request,"index.html",{

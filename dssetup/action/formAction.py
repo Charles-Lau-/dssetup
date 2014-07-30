@@ -7,16 +7,28 @@ from django.core.exceptions import ValidationError
 from dssetup import staticVar
 from dssetup.service import formService,adminService
 from copy import copy
-def homepage(request):
-    user = adminService.getUser(request)
- 
-    if(user.group.get(groupName = staticVar.APPLICANT)):
-        form_list = formService.getFormOfApplicant(user)
-        
-    
+
+def showUncheckedForm(request):
     return render(request,"formlist.html",{
-                  "form_list":form_list,                          
-                  "role":staticVar.APPLICANT
+                  "form_list":formService.getFormOfChecker(),                          
+                  "role":"checker"
+                })
+def showUnimplementedForm(request):
+    return render(request,"formlist.html",{
+                  "form_list":formService.getFormOfOperator(),                          
+                  "role":"operator"
+                })
+def showUnverifiedForm(request):
+    user = adminService.getUser(request)
+    return render(request,"formlist.html",{
+                  "form_list":formService.getFormOfVerifier(user),                          
+                  "role":"verifier"
+                })
+def showAppliedForm(request):
+    user = adminService.getUser(request)
+    return render(request,"formlist.html",{
+                  "form_list":formService.getFormOfApplicant(user),                          
+                  "role":"applicant"
                 })
 
                
@@ -102,10 +114,10 @@ def createMappingForm(request,domainName=None):
                 if(form.isAllowedToAdd()):
                     return render(request,"createform.html",{"form":form,"hidden":domainName})
                 else:
-                    return HttpResponseRedirect("create_mapping_part")      
+                    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
                     
             else:
-                return HttpResponseRedirect("/handleForm/create_mapping_part")
+                return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")
 
 def storeDomainName(request):
     """
@@ -150,9 +162,10 @@ def storeDomainName(request):
                         mapping["error"] = "Same URL"
                         return render(request,"createmapping.html") 
                          
-                del mapping["error"]   
+                if("error" in mapping):
+                    del mapping["error"]   
                      
-    return HttpResponseRedirect("create_mapping_part")      
+    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
                     
 def deleteMappingForm(request,domainName,Id):
     if("mapping_part" in request.session):
@@ -163,7 +176,7 @@ def deleteMappingForm(request,domainName,Id):
         request.session["mapping_part"] = sessionMapping
           
     
-    return HttpResponseRedirect("/handleForm/create_mapping_part")             
+    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")             
 def createMappingPart(request):
     return render(request,"createmapping.html") 
        
@@ -177,10 +190,10 @@ def addFormIntoDatabase(request):
         del request.session["main_part"]
         del request.session["root"]
         
-        return  homepage(request)
+        return HttpResponseRedirect("/handleForm")
     else:
         return HttpResponseRedirect("create_mapping_part")
-def checkForm(request,Id):
+def checkForm(request,Id,role=None):
     
     
     formDetails = formService.getFormDetails(Id) 
@@ -192,6 +205,11 @@ def checkForm(request,Id):
                  +r"</label><div class='controls'>"\
                  +"<input readOnly=true value="+v+">"\
                  +r"</div></div>"     
-                 
-    return render(request,"showForm.html",{"main_part":html,"mapping_part":formDetails[1]})
+                  
+    return render(request,"showForm.html",{"main_part":html,"mapping_part":formDetails[1],"role":role,"Id":Id})
 
+def changeForm(request,Id,operation):
+    url = formService.changeForm(request,Id,operation)
+    return HttpResponseRedirect(url)
+  
+        

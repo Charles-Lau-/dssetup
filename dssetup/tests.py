@@ -1,5 +1,7 @@
-from dssetup.forms import validate_url
+from dssetup.models import  Authority
 
+for auth in Authority.objects.all():
+    print auth.authName
 
-validate_url("www.asdfa.com")
+  
  

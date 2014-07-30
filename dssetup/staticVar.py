@@ -10,7 +10,8 @@ VERIFIED = "verified"
 OPERATED = "operated"
 CHECKED = "checked"
 CONFIRMED = "confirmed" 
-
+REJECTED = "rejected"
+CLOSED = "closed"
 #����״̬
 CAN_APPLY = "free"
 CANNOT_APPLY = "occupied" 

@@ -63,7 +63,8 @@
  <div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-th"></i>Tables</a>
   <ul>
   
-   
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_xtgl-1" perm%}
     <li class="submenu"  id="system_management"> <a href="#" ><i class="icon icon-th-list"></i>系统管理<span>Forms</span></a>
       
        <ul>
@@ -76,8 +77,11 @@
         <li><a href={%url "add_authority"%}><i class="icon icon-th"></i> <span>添加权限</span></a></li>
        </ul>
     </li>
+    {%endifequal%}
+    {%endfor%} 
     
-   
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_ymgl-1" perm%}
     <li class="submenu"> <a href="#"><i class="icon icon-file"></i> <span>域名管理 </span></a>
       <ul>
         <li><a href={%url "show_domain"%}>域名</a></li>
@@ -87,25 +91,38 @@
         <li><a href={%url "add_zone"%}>添加根域</a></li>
       </ul>
     </li>
-  
- 
-    <li><a href={%url "handleForm_home"%}><i class="icon icon-home"></i> <span>已申请表单列表</span></a> </li>
-  
- 
+    {%endifequal%}
+    {%endfor%} 
+    
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_sqbdlb-1" perm%}
+    <li><a href={%url "show_applied_form"%}><i class="icon icon-home"></i> <span>已申请表单列表</span></a> </li>
+    {%endifequal%}
+    {%endfor%} 
+      
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_cjbd-1" perm%}
     <li><a href={%url "create_main_form"%}><i class="icon icon-home"></i> <span>创建新的申请表单</span></a> </li>
- 
+    {%endifequal%}
+    {%endfor%}     
     
- 
-    <li><a href="#"><i class="icon icon-home"></i> <span>待审核表单列表</span></a> </li>
- 
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_dshbd-1" perm%} 
+    <li><a href={%url "show_unverified_form" %}><i class="icon icon-home"></i> <span>待审核表单列表</span></a> </li>
+    {%endifequal%}
+    {%endfor%} 
     
- 
-    <li><a href="#"><i class="icon icon-home"></i> <span>待操作表单列表</span></a> </li>
- 
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_dczbd-1" perm%}
+    <li><a href={% url "show_unimplemented_form"%}><i class="icon icon-home"></i> <span>待操作表单列表</span></a> </li>
+    {%endifequal%}
+    {%endfor%} 
      
- 
+    {%for perm in request.session.perm%}
+    {%ifequal "menu_djcbd-1" perm%}
     <li><a href="#"><i class="icon icon-home"></i> <span>待检查表单列表</span></a> </li>
-  
+    {%endifequal%}
+    {%endfor%} 
      
      
     
@@ -115,7 +132,7 @@
 {%block content%}
 <div id="content">
 <div id="content-header">
- <div id="breadcrumb"> <a href={%url "admin_home"%} title="Go to Home" class="tip-bottom"><i class="icon-home"></i>infoҳ</a>  
+ <div id="breadcrumb"> <a href="/index" title="Go to Home" class="tip-bottom"><i class="icon-home"></i>首页</a>  
 </div> 
        
 {%endblock%}

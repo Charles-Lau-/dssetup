@@ -7,7 +7,7 @@ from dssetup.decorator import login_required
 from dssetup.service import adminService
 # Create your views here.
 def home(request):
-    return HttpResponseRedirect("login") 
+    return HttpResponseRedirect("/index") 
 
 def index(request):
     return render(request,"base.html",)
@@ -21,7 +21,7 @@ def login(request):
             import time
             now = time.localtime()
             request.session["time"] = now[:6]
-            return HttpResponseRedirect("index")
+            return HttpResponseRedirect("/index")
         else:
             return render(request,"login.html",{"error":"username or password is not correct"})
     else:
@@ -31,4 +31,5 @@ def logout(request):
     adminService.logout(request.session["user"],request.session["ip"],request.session["time"])
     del request.session["user"]
     return HttpResponseRedirect("admin")
- 
+def permission(request):
+    return render(request,"permission.html")

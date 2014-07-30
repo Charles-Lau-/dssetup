@@ -51,6 +51,7 @@
                  {%endfor%}
               </tbody>
             </table>
+           
           </div>
         </div>
       </div>
@@ -60,7 +61,22 @@
  
 
 {%endfor%}
-  
+{%ifequal role "verifier"%}
+<a class="btn btn-info"  href={%url "change_form_status"  Id "verify" %} >Verify</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
+{%endifequal%}
+
+{%ifequal role "applicant"%}
+<a class="btn btn-info"  href={%url "change_form_status"  Id "close" %} >Close</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "edit"%}>Edit</a>  
+{%endifequal%}
+ 
+{%ifequal role "operator"%}
+<a class="btn btn-info"  href={%url "change_form_status"  Id "operate" %} >Operate</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
+{%endifequal%}
+
+{%ifequal role "checker"%}
+<a class="btn btn-info"  href={%url "change_form_status"  Id "check" %} >Check</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
+{%endifequal%}
+
 {%endblock%}
 
 {%block js%}

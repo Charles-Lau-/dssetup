@@ -4,10 +4,19 @@ from dssetup import staticVar
 from dssetup.service import adminService
 import datetime
 def getFormOfApplicant(creater):
-    return DomainApplicationForm.objects.filter(creater = creater).exclude(status=staticVar.CREATED)
+    return DomainApplicationForm.objects.filter(creater = creater).exclude(status=staticVar.CREATED).exclude(status=staticVar.CLOSED)
 
 def getFormOfVerifier(verifier):
-    return DomainApplicationForm.objects.filter(creater = verifier)
+    zones = Zone.objects.filter(zone_dpt=verifier.user_dpt)
+    forms = []
+    for zone in zones:
+        for domain in DomainForm.objects.filter(domain_zone=zone):
+            for form in domain.da_domain.all():
+                if(form.status==staticVar.WAITINGFORVERIFY and not form in forms):
+                    forms.append(form)
+                    
+    
+    return forms
 
 def getFormOfOperator():
     return DomainApplicationForm.objects.filter(status=staticVar.VERIFIED)
@@ -73,3 +82,48 @@ def getFormDetails(Id):
             domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"sp":mapping.dm_sp.spName})
         mapping_part.append(domainMapping)
     return (domainApplicationForm.get_values(),mapping_part) 
+
+
+def changeForm(request,Id,operation):
+    def __createStatusRecord(status):
+        user = adminService.getUser(request)
+        
+        status = ApplicationFormStatus(status=status)
+        status.status_user = user
+        status.status_da = form
+        status.createTime = datetime.datetime.now()
+        status.save()
+    
+        
+    form = DomainApplicationForm.objects.get(id=Id)
+    if(operation=="verify"):
+        form.status = staticVar.VERIFIED
+        url = "/handleForm/show_unverified_form"
+    elif(operation=="reject"):
+        if(form.status==staticVar.WAITINGFORVERIFY):
+            form.status = staticVar.REJECTED
+            url =  "/handleForm/show_unverified_form"
+        elif(form.status==staticVar.VERIFIED):
+            form.status = staticVar.REJECTED
+            url =  "/handleForm/show_unimplemented_form"
+        elif(form.status==staticVar.OPERATED):
+            form.status = staticVar.VERIFIED
+            url = "handleForm/show_unchecked_form"
+    elif(operation=="close"):
+        form.status = staticVar.CLOSED
+        url = "/handleForm/show_applied_form"
+    elif(operation=="edit"):
+        if(form.status==staticVar.REJECTED):
+            pass
+        else:
+            pass
+    elif(operation=="operate"):
+        form.status = staticVar.OPERATED
+        url="/handleForm/show_unimplemented_form" 
+    elif(operation=="check"):
+        form.status = staticVar.CONFIRMED
+        url="/handleForm/show_unchecked_form" 
+    __createStatusRecord(form.status)
+    form.save()
+    return url
+    

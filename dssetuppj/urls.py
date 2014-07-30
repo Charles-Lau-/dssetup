@@ -5,9 +5,10 @@ from dssetup import adminURL,formURL
  
 urlpatterns = patterns('',
     url(r'^$', views.home,name="home"),
-    url(r"^index$",views.index,name="index"),
-    url(r"^login$",views.login,name="login"),
-    url(r"^logout$",views.logout,name="logout"), 
+    url(r"^index/$",views.index,name="index"),
+    url(r"^login/$",views.login,name="login"),
+    url(r"^logout/$",views.logout,name="logout"),
+    url(r"^permission/$",views.permission,name="permission"), 
     url(r"^admin/",include(adminURL)),
     url(r"^handleForm/",include(formURL)),
      

@@ -50,7 +50,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dssetup.ware.LoginWare.LoginWare',
-    
+    'dssetup.ware.PermissionWare.PermissionWare', 
 )
 
 ROOT_URLCONF = 'dssetuppj.urls'
