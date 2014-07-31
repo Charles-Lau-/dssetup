@@ -190,7 +190,7 @@ def addFormIntoDatabase(request):
         del request.session["main_part"]
         del request.session["root"]
         
-        return HttpResponseRedirect("/handleForm")
+        return HttpResponseRedirect("/handleForm/show_applied_form")
     else:
         return HttpResponseRedirect("create_mapping_part")
 def checkForm(request,Id,role=None):
