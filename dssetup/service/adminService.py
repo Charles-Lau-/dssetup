@@ -36,8 +36,14 @@ def getPermOfUser(user):
     groups = User.objects.get(id=user.id).group.all()
     for group in groups:
         for auth in group.authority.all():
-            if(not auth.authName in perm):
-                perm.append(auth.authName)
+            auth_children = Authority.objects.filter(auth_parent=auth)
+            if(auth_children):
+                for a in auth_children:
+                    if(not a.authName in perm):
+                        perm .append(auth.authName)
+            else:
+                if(not auth.authName in perm):
+                    perm.append(auth.authName)
     return perm
 def logout(username,ip,time):
     user = User.objects.get(userName=username)

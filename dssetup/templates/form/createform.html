@@ -24,9 +24,68 @@
           
               
              
-              <a class="btn btn-info" onclick="javascript:document.getElementById('create_form').submit()">save</a>
+              <a class="btn btn-info" onclick="submit()">save</a>
                
             </div>       
           </form>
  
+{%endblock%}
+
+{%block js%}
+ {{block.super}}
+ <script>
+       
+       window.onload = initialization()
+       function  initialization(){
+          function deal_effect_time(){
+                   var choice  = document.getElementById("s2id_id_appCategory")
+                   if(choice!=null){ 
+                       var text = choice.innerText
+                  
+                   
+                       if(text.indexOf("定时")!=-1){
+                           document.getElementById("id_effectTime").parentNode.parentNode.style.display = "block"  
+                      }
+                      else{
+                          document.getElementById("id_effectTime").parentNode.parentNode.style.display = "none"  
+                      }
+                 }
+          }
+          
+          
+         
+          
+          var category = document.getElementById("id_appCategory")
+       
+          if(category!=null){
+       
+            category.onclick=deal_effect_time 
+          }
+       }
+       
+       
+       
+       
+       function submit(){
+                      var category = document.getElementById("id_appCategory")
+       
+                      if(category!=null){
+       
+                               var choice  = document.getElementById("s2id_id_appCategory")
+             
+                                var text = choice.innerText
+                  
+                   
+                                if(text.indexOf("定时") ==-1){
+                                         document.getElementById("id_effectTime").parentNode.removeChild(document.getElementById("id_effectTime"))
+                                          }
+                   
+                        }
+            
+                       document.getElementById("create_form").submit()
+       }
+       
+    
+ </script> 
+
 {%endblock%}

@@ -57,9 +57,9 @@ def InvalidPhoneNumber(value):
     if(not isMatched):
         raise ValidationError("Please enter a phone number with 11 digits")
 class UserForm(forms.ModelForm): 
-    userPassword =forms.CharField(widget=forms.PasswordInput())
+    userPassword =forms.CharField(widget=forms.PasswordInput(),label=u"密码")
     confirm_password = forms.CharField(widget=forms.PasswordInput(), 
-                                          label="Confirm your password",
+                                          label=u"确认密码",
                                           required=True)
   
      
@@ -93,6 +93,7 @@ class UserForm(forms.ModelForm):
             self._errors["userPassword"] = self.error_class(["password does not match"])
         return self.cleaned_data
 class GroupForm(forms.ModelForm):
+    authority = forms.ModelMultipleChoiceField(queryset=Authority.objects.all(),widget=forms.CheckboxSelectMultiple,label=u"权限")
     class Meta:
         model = Group
     
@@ -125,10 +126,11 @@ class AuthorityForm(forms.ModelForm):
         super(AuthorityForm,self).full_clean()
 
 class DomainApplicationFormForm(forms.ModelForm):
-    RootDomain = forms.CharField(max_length=100)
+    RootDomain = forms.CharField(max_length=100,label=u"主域名")
+    effectTime = forms.DateTimeField(input_formats=["%Y-%m-%d %H:%M",],label=u"截止时间",error_messages={"required":"This field is required","invalid":"please input like yy-mm-dd HH:MM"},required=False)
     class Meta:
         model = DomainApplicationForm
-        fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList","daDes"]
+        fields = ["da_applicant","techRespon","proRespon","appCategory","operCategory","da_dpt","mailList","effectTime","daDes"]
     def __init__(self,*args,**kwargs):
         super(DomainApplicationFormForm,self).__init__(*args,**kwargs)
         self.fields["mailList"].validators.append(InvalidMailList)
@@ -143,9 +145,9 @@ class DomainMappingForm(forms.Form):
     
     SPNAME = ((sp.spName,sp.spName) for sp in ServiceProvider.objects.all())
     
-    spName = forms.MultipleChoiceField(choices=SPNAME,widget=forms.CheckboxSelectMultiple)
-    mode = forms.ChoiceField(choices=MODE)
-    aim = forms.CharField(max_length=100) 
+    spName = forms.MultipleChoiceField(choices=SPNAME,widget=forms.CheckboxSelectMultiple,label=u"服务供应商")
+    mode = forms.ChoiceField(choices=MODE,label=u"模式")
+    aim = forms.CharField(max_length=100,label=u"IP或域名") 
     
     def __init__(self,*args,**kwargs):
         super(DomainMappingForm,self).__init__(*args,**kwargs)

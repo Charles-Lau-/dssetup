@@ -19,14 +19,14 @@
                    {%else%}
                    {%endif%}
                   {%endfor%}
-                  <th>operation</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               
               <tbody>
+       
                 {%for form in form_list%} 
                   <tr>
-                   
                   {%for f in form.get_values.values%}
                   <th class="center">
                   {%if f%}

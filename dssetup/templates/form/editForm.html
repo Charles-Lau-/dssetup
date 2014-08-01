@@ -1,0 +1,75 @@
+{%extends "baseForm.html"%} 
+{%block form-content%} 
+  
+        {%load filters%}
+       
+          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+              {% csrf_token %}
+         
+               <input type="hidden" value={{hidden}} name="domainName">
+               {% for field in main_part%}
+                <div class="control-group">
+                   <label class="control-label">{{field.label_tag}}</label>
+                   <div class="controls">
+                     {{field}}
+                    </div>
+                    <span class="help-inline">{{field.errors}}</span> 
+                </div> 
+                 {% endfor %}
+         
+            </div> 
+            
+            
+             
+ 
+{%for domainForm in mapping_part%}
+ 
+ <div class="container-fluid">
+    <hr>
+    <div class="row-fluid">
+      <div class="span12">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
+            domainName: <input type="text" value={{domainForm.domainName}} >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+           </div>
+          <div class="widget-content nopadding">
+            <table class="table table-bordered table-striped">
+              <thead>
+                 <tr>
+                  <th>Ip</th>
+                  <th>Mode</th>
+                  <th>Sp</th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+               {%for mapping in domainForm.mapping%}
+             
+                <tr class="odd gradeX">
+                    {%for value in mapping.values%}
+                            <th ><input value={{value}} ></th>
+                     {%endfor%}
+                   
+                </tr>
+                 {%endfor%}
+              </tbody>
+            </table>
+           
+          </div>
+        </div>
+      </div>
+    </div>
+ </div>
+ 
+ 
+
+{%endfor%}        
+          </form>
+     
+        </div>
+      </div>
+    
+    </div>
+   </div>
+{%endblock%}
+  

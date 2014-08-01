@@ -31,10 +31,7 @@
           
          
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").submit()'>保存</a>
-            {%load filters%}
-            {%with domainName="domainForm-"|strcat:0%}            
-            <a class="btn btn-info" href= {%url "create_mapping_form"  domainName%}>创建域名映射</a>
-            {%endwith%}
+             
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">

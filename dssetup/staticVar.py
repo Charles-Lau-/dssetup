@@ -12,6 +12,7 @@ CHECKED = "checked"
 CONFIRMED = "confirmed" 
 REJECTED = "rejected"
 CLOSED = "closed"
+COMPLETED="completed"
 #����״̬
 CAN_APPLY = "free"
 CANNOT_APPLY = "occupied" 

@@ -62,19 +62,24 @@
 
 {%endfor%}
 {%ifequal role "verifier"%}
-<a class="btn btn-info"  href={%url "change_form_status"  Id "verify" %} >Verify</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
+<a class="btn btn-info"  href={%url "change_form_status"  Id "verify" %} >Verify</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
 {%endifequal%}
 
 {%ifequal role "applicant"%}
-<a class="btn btn-info"  href={%url "change_form_status"  Id "close" %} >Close</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "edit"%}>Edit</a>  
+<a class="btn btn-info"  href={%url "change_form_status"  Id "close" %} >Close</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info" id="edit"  href="#">Edit</a> &nbsp&nbsp
+<a class="btn btn-info" id="confirm"   href="#">Confirm</a>  
 {%endifequal%}
  
 {%ifequal role "operator"%}
-<a class="btn btn-info"  href={%url "change_form_status"  Id "operate" %} >Operate</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
+<a class="btn btn-info"  href={%url "change_form_status"  Id "operate" %} >Operate</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
 {%endifequal%}
 
 {%ifequal role "checker"%}
-<a class="btn btn-info"  href={%url "change_form_status"  Id "check" %} >Check</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class="btn btn-info"  href={%url "change_form_status" Id "reject"%}>Reject</a>  
+<a class="btn btn-info"  href={%url "change_form_status"  Id "check" %} >Check</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info" href={%url "change_form_status" Id "reject"%}>Reject</a>  
 {%endifequal%}
 
 {%endblock%}
@@ -82,12 +87,22 @@
 {%block js%}
 {{super.block}}
 <script>
-  var input_tags =  document.getElementsByTagName("input");
-  for(var i=0;i<input_tags.length;i++){
-           input_tags[i].readOnly = true;
-    
-           }
- 
-    
+  
+           
+ var elements =  document.getElementsByClassName("control-label")
+ for(var i=0;i<elements.length;i++){
+     
+          if(elements[i].innerText=="表单状态"){
+              var value = elements[i].nextSibling.childNodes[0].value
+        
+              if(value=="rejected"){
+                   document.getElementById("edit").href="{%url 'change_form_status' Id 'edit'%}"
+                }
+              if(value=="checked"){
+              
+                   document.getElementById("confirm").href="{%url 'change_form_status' Id 'confirm'%}"
+              }
+    }
+    }
 </script>
  {%endblock%}

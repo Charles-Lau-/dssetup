@@ -120,7 +120,7 @@
      
     {%for perm in request.session.perm%}
     {%ifequal "menu_djcbd-1" perm%}
-    <li><a href="#"><i class="icon icon-home"></i> <span>待检查表单列表</span></a> </li>
+    <li><a href={% url "show_unchecked_form"%}><i class="icon icon-home"></i> <span>待检查表单列表</span></a> </li>
     {%endifequal%}
     {%endfor%} 
      
