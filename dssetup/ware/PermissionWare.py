@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
-from dssetup.models import  DomainApplicationForm,DomainForm
-from dssetup.service import adminService
+from dssetup.models import  DomainApplicationForm 
+from dssetup.service import adminService,formService
 
 class PermissionWare():
     def process_view(self,request,view_func,view_args,view_kwargs):
@@ -22,8 +22,8 @@ class PermissionWare():
                     if(view_kwargs["role"]=="applicant" and not DomainApplicationForm.objects.get(id=view_kwargs["Id"]).creater==adminService.getUser(request)):
                         return HttpResponseRedirect("/permission")
                     elif(view_kwargs["role"]=="verifier"):
-                        domain = DomainForm.objects.filter(da_domain=DomainApplicationForm.objects.get(id=view_kwargs["Id"]))    
-                        if(domain and not domain[0].domain_zone.zone_dpt==adminService.getUser(request).user_dpt):
+                        zone = formService.getZoneOfApplicationForm(view_kwargs["Id"])
+                        if(zone and not zone.zone_dpt==adminService.getUser(request).user_dpt):
                             return HttpResponseRedirect("/permission")
                             
                         

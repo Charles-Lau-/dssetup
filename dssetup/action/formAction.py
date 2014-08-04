@@ -235,16 +235,23 @@ def editForm(request,Id):
  
     """
     if(request.POST):
-        return render(request,"")
+        main_form = DomainApplicationFormForm(request.POST)
+        if(main_form.is_valid()):
+            return render(request,"asdfsa")
+        else:
+            return render(request,"editForm.html",{"main_part":main_form})
     
     else:
         mapping_part = formService.getFormDetails(Id)[1]
         main_part = get_object_or_404(DomainApplicationForm,id=Id)
-     
         
         main_form = DomainApplicationFormForm(instance=main_part)
+        main_form.initial["RootDomain"] = formService.getZoneOfApplicationForm(main_part.id).zoneName
         
-        return render(request,"editForm.html",{"main_part":main_form,"mapping_part":mapping_part})
+        request.session["mapping_part"]  = mapping_part
+        request.session["Id"] = Id
+        
+        return render(request,"editForm.html",{"main_part":main_form})
 
 def addFormIntoDatabase(request):
     """

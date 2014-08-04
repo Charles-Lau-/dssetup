@@ -3,7 +3,7 @@
   
         {%load filters%}
        
-          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+          <form action={%url "edit_form" request.session.Id%} method="post" class="form-horizontal" id="create_form">
               {% csrf_token %}
          
                <input type="hidden" value={{hidden}} name="domainName">
@@ -22,7 +22,7 @@
             
              
  
-{%for domainForm in mapping_part%}
+{%for domainForm in request.session.mapping_part%}
  
  <div class="container-fluid">
     <hr>
@@ -63,7 +63,10 @@
  
  
 
-{%endfor%}        
+{%endfor%}    
+
+            
+          <a class="btn btn-info" onclick="javascript:document.getElementById('create_form').submit()">save</a>    
           </form>
      
         </div>
@@ -72,4 +75,40 @@
     </div>
    </div>
 {%endblock%}
+{%block js%}
+ {{block.super}}
+ <script>
+       
+       window.onload = initialization()
+       
+       function  initialization(){
+          function deal_effect_time(){
+                   var choice  = document.getElementById("s2id_id_appCategory")
+                   if(choice!=null){
+                       alert("t")
+                       var text = choice.innerText
+                  
+                   
+                       if(text.indexOf("定时")!=-1){
+                           document.getElementById("id_effectTime").parentNode.parentNode.style.display = "block"  
+                      }
+                      else{
+                          document.getElementById("id_effectTime").parentNode.parentNode.style.display = "none"  
+                      }
+                 }
+          }
+          
+          
+     
+          var category = document.getElementById("id_appCategory")
+       
+          if(category!=null){
+       
+            category.onclick=deal_effect_time 
+          }
+       }
+       
   
+ </script> 
+
+{%endblock%}  

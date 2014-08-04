@@ -195,4 +195,12 @@ def changeForm(request,Id,operation):
     __createStatusRecord(form.status)
     form.save()
     return url
+
+def getZoneOfApplicationForm(Id):
+    domain = DomainForm.objects.filter(da_domain=DomainApplicationForm.objects.get(id=Id))  
+    zone = None
+    if(domain):
+        zone = domain[0].domain_zone
+    return zone 
+        
     
