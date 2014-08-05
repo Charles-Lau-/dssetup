@@ -2,7 +2,8 @@
 from dssetup.forms import DomainApplicationFormForm,DomainMappingForm
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect 
-from dssetup.models import DomainApplicationForm
+from dssetup.models import ServiceProvider
+from django.forms.formsets import formset_factory
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404 
 from dssetup.service import formService,adminService
@@ -60,12 +61,12 @@ def createDomainForm(request):
             """
             html=""
             for field in form:
-                 
-                html += r"<div class='control-group'><label class='control-label'>"\
-                          +field.label\
-                          +r"</label><div class='controls'>"\
-                          +"<input readOnly=true value="+field.data+">"\
-                          +r"</div></div>"    
+                if(field.data):
+                    html += r"<div class='control-group'><label class='control-label'>"\
+                          + field.label\
+                          + r"</label><div class='controls'>"\
+                          + "<input readOnly=true value=" + unicode(field.data) + ">"\
+                          + r"</div></div>"    
             return html
         
     if(request.POST):
@@ -103,10 +104,16 @@ def createMappingForm(request,domainName=None):
                 if(not mappingDict.get("mapping","")):
                     mappingDict["mapping"] = []
                       
-                   
+                  
+                print request.POST.get("hidden_value")
                 for sp in cleaned_data_spName.split(" "): #由于sp是多选框  但是我们显示的时候 需要一个 SP一行的显示 所以这里是分开他们 为每一个创建一行
-                    cleaned_data["spName"] = sp
-                    mappingDict["mapping"].append(copy(cleaned_data))
+                    if(request.POST.get("flag")=="false"):
+                        for sp__ in ServiceProvider.objects.filter(spName__icontains=sp):
+                            cleaned_data["spName"] = sp__.spName
+                            mappingDict["mapping"].append(copy(cleaned_data))
+                    else:
+                        cleaned_data["spName"] = sp
+                        mappingDict["mapping"].append(copy(cleaned_data))
                                 
             sessionMapping[domainName] = mappingDict 
                          
@@ -234,6 +241,7 @@ def editForm(request,Id):
                用于编辑表单，只有状态为REJECTED的时候  表单才允许被再次编辑 提交
  
     """
+    DomainApplicationFormset = formset_factory(DomainApplicationFormForm)
     if(request.POST):
         main_form = DomainApplicationFormForm(request.POST)
         if(main_form.is_valid()):
@@ -242,16 +250,18 @@ def editForm(request,Id):
             return render(request,"editForm.html",{"main_part":main_form})
     
     else:
-        mapping_part = formService.getFormDetails(Id)[1]
-        main_part = get_object_or_404(DomainApplicationForm,id=Id)
-        
-        main_form = DomainApplicationFormForm(instance=main_part)
-        main_form.initial["RootDomain"] = formService.getZoneOfApplicationForm(main_part.id).zoneName
-        
-        request.session["mapping_part"]  = mapping_part
+        domainApplicationForm = DomainApplicationFormset(prefix="main_part")
+        domainForm = []
+        i = 0
+        for mapping_part in formService.getFormDetails(Id)[1]:
+            DomainFormset = formset_factory(DomainMappingForm,extra=len(mapping_part["mapping"]))
+            prefix = mapping_part["domainName"]+str(i)
+            domainForm.append(DomainFormset(prefix=prefix))
+            i+=1
+               
         request.session["Id"] = Id
-        
-        return render(request,"editForm.html",{"main_part":main_form})
+       
+        return render(request,"editForm.html",{"main_part":domainApplicationForm,"mapping_part":domainForm})
 
 def addFormIntoDatabase(request):
     """

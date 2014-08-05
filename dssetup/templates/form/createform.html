@@ -21,9 +21,9 @@
                     <span class="help-inline">{{field.errors}}</span> 
                 </div> 
                  {% endfor %}
-          
-              
              
+              
+              
               <a class="btn btn-info" onclick="submit()">save</a>
                
             </div>       
@@ -76,7 +76,7 @@
                                 var text = choice.innerText
                   
                    
-                                if(text.indexOf("定时") ==-1){
+                                if(text.indexOf("定时") ==-1 &&  document.getElementById("id_effectTime") != null){
                                          document.getElementById("id_effectTime").parentNode.removeChild(document.getElementById("id_effectTime"))
                                           }
                    
@@ -84,8 +84,76 @@
             
                        document.getElementById("create_form").submit()
        }
-       
     
- </script> 
-
+ </script>
+  
+<script>
+          function show_and_hide(){
+              button = document.getElementById("more_options")
+              if(button.innerText=="更多选项"){
+                      var checkbox = document.getElementsByTagName("li")
+                      for(var i=0;i<checkbox.length;i++){
+                              if(checkbox[i] != null && checkbox[i] != undefined && checkbox[i].parentNode.id=="id_spName" && checkbox[i].style.display =="none"){
+                                 
+                                 checkbox[i].style.display = "block"
+                                 }
+                               
+                          }
+                      button.innerText =  "普通模式" 
+                      
+                      var hiddenValue = document.getElementById("hidden_value")
+               
+                      hiddenValue.value = "true"
+            
+               }
+               else{
+                         var checkbox = document.getElementsByTagName("li")
+                          for(var i=0;i<checkbox.length;i++){
+                              if(checkbox[i] != null && checkbox[i] != undefined && checkbox[i].parentNode.id=="id_spName" && checkbox[i].style.display =="block"){
+                                 
+                                 checkbox[i].style.display = "none"
+                                 }
+                               
+                          }
+                          button.innerText =  "更多选项" 
+                       
+                          var hiddenValue = document.getElementById("hidden_value")
+                          hiddenValue.value = "false"
+                         
+               }
+         }
+         
+         
+         function initialization(){
+          var hiddenValue = document.createElement("input")
+          hiddenValue.type = "hidden"
+          hiddenValue.id = "hidden_value"
+          hiddenValue.value = "false"
+          hiddenValue.name = "flag"
+          
+          var form = document.getElementById("create_form")
+          form.appendChild(hiddenValue)
+          
+          var checkbox = document.getElementsByTagName("li")
+          for(var i=0;i<checkbox.length;i++){
+                        
+                           if(checkbox[i].parentNode.id=="id_spName" && checkbox[i].innerText.length > 4){
+                                 checkbox[i].style.display = "none"
+                               }
+                               
+           }
+          var more_options = document.createElement("a")
+          more_options.setAttribute("class","btn btn-info")
+          more_options.innerText = "更多选项"
+          more_options.id = "more_options"
+          
+          var refore = document.getElementById("id_spName")
+          refore.parentNode.appendChild(more_options)
+          
+          more_options.onclick = show_and_hide
+          }
+          
+          initialization()
+  </script>
+  
 {%endblock%}

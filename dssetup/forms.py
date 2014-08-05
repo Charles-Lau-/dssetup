@@ -145,9 +145,10 @@ class DomainMappingForm(forms.Form):
     
     SPNAME = ((sp.spName,sp.spName) for sp in ServiceProvider.objects.all())
     
-    spName = forms.MultipleChoiceField(choices=SPNAME,widget=forms.CheckboxSelectMultiple,label=u"服务供应商")
+   
     mode = forms.ChoiceField(choices=MODE,label=u"模式")
     aim = forms.CharField(max_length=100,label=u"IP或域名") 
+    spName = forms.MultipleChoiceField(choices=SPNAME,widget=forms.CheckboxSelectMultiple,label=u"服务供应商")
     
     def __init__(self,*args,**kwargs):
         super(DomainMappingForm,self).__init__(*args,**kwargs)

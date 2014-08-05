@@ -5,9 +5,9 @@
        
           <form action={%url "edit_form" request.session.Id%} method="post" class="form-horizontal" id="create_form">
               {% csrf_token %}
-         
-               <input type="hidden" value={{hidden}} name="domainName">
-               {% for field in main_part%}
+              {{main_part.management_form}}
+              {%for form in main_part%}
+               {% for field in form%}
                 <div class="control-group">
                    <label class="control-label">{{field.label_tag}}</label>
                    <div class="controls">
@@ -16,16 +16,18 @@
                     <span class="help-inline">{{field.errors}}</span> 
                 </div> 
                  {% endfor %}
+                 {%endfor%}
          
             </div> 
             
             
              
  
-{%for domainForm in request.session.mapping_part%}
+{%for domainForm in mapping_part%}
  
  <div class="container-fluid">
     <hr>
+    
     <div class="row-fluid">
       <div class="span12">
         <div class="widget-box">
@@ -33,6 +35,7 @@
             domainName: <input type="text" value={{domainForm.domainName}} >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
            </div>
           <div class="widget-content nopadding">
+            {{domainForm.management_form}}
             <table class="table table-bordered table-striped">
               <thead>
                  <tr>
@@ -43,11 +46,12 @@
                 </tr>
               </thead>
               <tbody>
-               {%for mapping in domainForm.mapping%}
-             
+              
+               {%for mapping_form in domainForm%}
                 <tr class="odd gradeX">
-                    {%for value in mapping.values%}
-                            <th ><input value={{value}} ></th>
+                  {%for field in mapping_form%}
+               
+                             <th >{{field}}</th>
                      {%endfor%}
                    
                 </tr>
