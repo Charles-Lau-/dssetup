@@ -45,10 +45,16 @@ def getPermOfUser(user):
                 if(not auth.authName in perm):
                     perm.append(auth.authName)
     return perm
-def logout(username,ip,time):
+def logout(request):
+    username = request.session["user"]
+    ip = request.session["ip"]
+    time = request.session["time"]
     user = User.objects.get(userName=username)
     user.loginLastIp = ip
     import datetime
     user.loginLastTime = datetime.datetime(*time)
-     
     user.save()
+    
+    from django.contrib.sessions.models import  Session
+    Session.objects.get(pk=request.COOKIES["sessionid"]).delete()
+    

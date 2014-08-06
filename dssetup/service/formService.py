@@ -197,10 +197,46 @@ def changeForm(request,Id,operation):
     return url
 
 def getZoneOfApplicationForm(Id):
-    domain = DomainForm.objects.filter(da_domain=DomainApplicationForm.objects.get(id=Id))  
-    zone = None
-    if(domain):
-        zone = domain[0].domain_zone
-    return zone 
+    """ 
+          通过申请单ID 查到 改申请单对应的主域名
         
+    """ 
+    domain = DomainForm.objects.filter(da_domain=DomainApplicationForm.objects.get(id=Id))  
+  
     
+    
+    zone = domain[0].domain_zone
+     
+    return zone 
+
+def getMappingDetailsForEdit(Id):
+    """
+                返回申请表单映射关系详细信息
+              用于表单再编辑 
+     
+     Id:申请表单Id
+  
+    """
+    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    mapping_part={}
+    waiting_for_delete={"domain":[],"mapping":[]}
+    i = 0
+    for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):   #构建一个类似于 session["mapping_part"] 的数据结构的表单数据 并且返回
+        waiting_for_delete["domain"].append(domain.id)
+        domainMapping ={}
+        domainMapping["domainName-"+str(i)] = domain.domainName
+        domainMapping["mapping"] = []
+        for mapping in DomainMapping.objects.filter(dm_domain=domain):
+            domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"spName":mapping.dm_sp.spName})
+            waiting_for_delete["mapping"].append(mapping.id)
+        mapping_part["domainName-"+str(i)] = domainMapping
+        i +=1
+     
+    return (waiting_for_delete,mapping_part)   #表单的映射信息        
+
+def deleteOldMappingForm(Id,Ids):
+    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    for i in Ids["mapping"]:    
+        DomainMapping.objects.get(id=i).delete()
+    for i in Ids["domain"]:
+        DomainForm.objects.get(id=i).da_domain.remove(domainApplicationForm)

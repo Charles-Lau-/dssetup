@@ -2,10 +2,10 @@
 from dssetup.forms import DomainApplicationFormForm,DomainMappingForm
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect 
-from dssetup.models import ServiceProvider
-from django.forms.formsets import formset_factory
+from dssetup.models import ServiceProvider,DomainApplicationForm
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404 
+from django.http import Http404
 from dssetup.service import formService,adminService
 from copy import copy
 
@@ -140,6 +140,7 @@ def createMappingForm(request,domainName=None):
             if(domainName and request.session["mapping_part"].get(domainName,"")): #防止通过URL进行攻击 进行domainName审核
                  
                 selected=[]              #如果你已经选择了联通 移动，那么返回的表格里面SP字段 就应该排除掉这两个选项 只显示其他剩下的选项给你选择
+                print request.session["mapping_part"]
                 mapping = request.session["mapping_part"].get(domainName,"")
                 if(mapping and mapping.has_key("mapping")): #selected 里面放的是已经选择了的sp的名字   
                         for m in mapping.get("mapping"):
@@ -211,7 +212,18 @@ def storeDomainName(request):
                 del mapping["error"]    #经过两重检测  提交的域名 没有问题 则删除掉 mapping中error字段 返回
     
     return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
-                    
+
+def deleteDomainForm(request,domainName):
+    if("mapping_part" in request.session):
+        sessionMapping =request.session["mapping_part"]
+        if(sessionMapping.get(domainName,"")):
+            del sessionMapping[domainName] 
+                
+        request.session["mapping_part"] = sessionMapping
+        
+    
+    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")        
+            
 def deleteMappingForm(request,domainName,Id):
     """
      删除某个映射关系 如 132.123.123.123  a 联通
@@ -236,38 +248,54 @@ def createMappingPart(request):
     """
     return render(request,"createmapping.html") 
 
-def editForm(request,Id):
+def editForm(request,Id,step):
     """
                用于编辑表单，只有状态为REJECTED的时候  表单才允许被再次编辑 提交
  
     """
-    DomainApplicationFormset = formset_factory(DomainApplicationFormForm)
-    if(request.POST):
-        main_form = DomainApplicationFormForm(request.POST)
-        if(main_form.is_valid()):
-            return render(request,"asdfsa")
+    try:
+        step = int(step)
+    except ValueError:
+        step = 1
+        
+    if(step==1): 
+        if(request.POST):
+            form = DomainApplicationFormForm(data=request.POST,instance=get_object_or_404(DomainApplicationForm,id=Id))
+            if(form.is_valid()):
+                form.save()
+                return HttpResponseRedirect("/handleForm/edit_form/"+str(Id)+"/2")
+            else:
+                return render(request,"editForm.html",{"form":form,"Id":Id})
+            
         else:
-            return render(request,"editForm.html",{"main_part":main_form})
-    
+            form = DomainApplicationFormForm(instance=get_object_or_404(DomainApplicationForm,id=Id))
+            form.initial["RootDomain"] = formService.getZoneOfApplicationForm(Id).zoneName
+            return render(request,"editForm.html",{"form":form,"Id":Id})
+    elif(step==2):
+        if(request.POST):
+            return render(request,"")
+        else:
+            if(not "mapping_part" in request.session):
+                details = formService.getMappingDetailsForEdit(Id)
+                request.session["mapping_part"] = details[1]
+                request.session["waiting_for_delete"] = details[0]
+            if(not "Id" in request.session):
+                request.session["Id"] = Id
+            if(not "RootDomain" in request.session):
+                request.session["root"] = formService.getZoneOfApplicationForm(Id).zoneName
+            return render(request,"editMappingForm.html",{"step":2})
     else:
-        domainApplicationForm = DomainApplicationFormset(prefix="main_part")
-        domainForm = []
-        i = 0
-        for mapping_part in formService.getFormDetails(Id)[1]:
-            DomainFormset = formset_factory(DomainMappingForm,extra=len(mapping_part["mapping"]))
-            prefix = mapping_part["domainName"]+str(i)
-            domainForm.append(DomainFormset(prefix=prefix))
-            i+=1
-               
-        request.session["Id"] = Id
-       
-        return render(request,"editForm.html",{"main_part":domainApplicationForm,"mapping_part":domainForm})
-
+        raise Http404
+  
 def addFormIntoDatabase(request):
     """
            将所有的SESSION里面的申请表单域名映射部分的信息 存入数据库里面
 
     """
+    if("waiting_for_delete" in request.session):
+        formService.deleteOldMappingForm(request.session["Id"],request.session["waiting_for_delete"])
+        del request.session["waiting_for_delete"]
+        
     if ("Id" in request.session and "mapping_part" in request.session):
         for mapping in request.session.get("mapping_part").values():
             if("error" in mapping):
@@ -275,11 +303,17 @@ def addFormIntoDatabase(request):
             
         for mapping in request.session.get("mapping_part").values():
             formService.addDomainMappingForm(request.session.get("Id"),mapping,request.session["root"])
+        
+     
          
         del request.session["mapping_part"]  #一个申请表单成功完成后 一个删除掉其对应的SESSION
         del request.session["Id"]
-        del request.session["main_part"]
-        del request.session["root"]
+        
+        if("main_part" in request.session):
+            del request.session["main_part"]
+        if("root" in request.session):
+            del request.session["root"]
+     
         
         return HttpResponseRedirect("/handleForm/show_applied_form")
     else:

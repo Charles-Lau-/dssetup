@@ -3,12 +3,14 @@
 {%block form-content%}
         
         {%load filters%}
+         {%block form-action%}
           {%if hidden%} 
           <form action={%url "create_mapping_form" hidden%} method="post" class="form-horizontal" id="create_form">
           
           {%else%}
           <form action={%url "create_main_form" %} method="post" class="form-horizontal" id="create_form">
           {%endif%}
+          {%endblock%}
               {% csrf_token %}
          
                <input type="hidden" value={{hidden}} name="domainName">
@@ -124,7 +126,7 @@
          }
          
          
-         function initialization(){
+         function initial(){
           var hiddenValue = document.createElement("input")
           hiddenValue.type = "hidden"
           hiddenValue.id = "hidden_value"
@@ -153,7 +155,7 @@
           more_options.onclick = show_and_hide
           }
           
-          initialization()
+          initial()
   </script>
   
 {%endblock%}

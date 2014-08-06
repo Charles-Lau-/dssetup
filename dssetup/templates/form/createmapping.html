@@ -31,7 +31,8 @@
           
          
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").submit()'>保存</a>
-             
+            <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").parentNode.removeChild(document.getElementById("domainForm-0"))'>删除</a>
+            
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">
@@ -74,6 +75,7 @@
             {%if not domainForm.error%}
             <a class="btn btn-info" href= {%url "create_mapping_form"  key%}>创建域名映射</a>
             {%endif%}
+            <a class="btn btn-info" href= {%url "delete_domain_form"  key%}>删除域名</a>
           </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">

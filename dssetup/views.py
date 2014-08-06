@@ -26,10 +26,10 @@ def login(request):
             return render(request,"login.html",{"error":"username or password is not correct"})
     else:
         return render(request,"login.html")
-@login_required
+
 def logout(request):
-    adminService.logout(request.session["user"],request.session["ip"],request.session["time"])
-    del request.session["user"]
-    return HttpResponseRedirect("admin")
+    adminService.logout(request)
+    
+    return HttpResponseRedirect("/index")
 def permission(request):
     return render(request,"permission.html")
