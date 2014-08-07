@@ -1,4 +1,14 @@
 {%extends "createmapping.html"%}
 
 
+
+{%block form-submit%}
+
+         {{block.super}}
+
+        <a class="btn btn-info" href={%url "cancel_edit"%} >取消</a>
+        
+{%endblock%}
+
+
  

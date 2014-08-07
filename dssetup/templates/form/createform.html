@@ -26,7 +26,7 @@
              
               
               
-              <a class="btn btn-info" onclick="submit()">save</a>
+             {%block form-submit%} <a class="btn btn-info" onclick="submit()">save</a>  {%endblock%}
                
             </div>       
           </form>
@@ -125,6 +125,30 @@
                }
          }
          
+         function  select_and_cancel(){
+                var checkbox = document.getElementsByTagName("li")
+                var button = document.getElementById("select_all")
+                for(var i=0;i<checkbox.length;i++){
+                    if(checkbox[i] != null && checkbox[i] != undefined && checkbox[i].parentNode.id=="id_spName" && checkbox[i].style.display !="none")
+                        {
+                                var span = checkbox[i].childNodes[0].childNodes[0].childNodes[0]
+                                if(button.innerText=="选中所有"){
+                                        span.setAttribute("class","checked")
+                                }
+                                else{
+                                        span.setAttribute("class","")
+                                }
+                        
+                        }
+                     }
+                if(button.innerText=="选中所有"){
+                button.innerText = "取消所有"
+                }
+                else{
+                button.innerText = "选中所有"
+                }
+         
+         }
          
          function initial(){
           var hiddenValue = document.createElement("input")
@@ -151,11 +175,21 @@
           
           var refore = document.getElementById("id_spName")
           refore.parentNode.appendChild(more_options)
-          
           more_options.onclick = show_and_hide
+          
+          
+          var all = document.createElement("a")
+          all.setAttribute("class","btn btn-info")
+          all.innerText = "选中所有"
+          all.id = "select_all"
+          
+          all.onclick = select_and_cancel
+          
+          refore.parentNode.appendChild(all)
+          
           }
           
-          initial()
+          initial() 
   </script>
   
 {%endblock%}

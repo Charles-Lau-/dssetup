@@ -17,5 +17,6 @@ urlpatterns =  patterns('',
        url(r"^apply_form/submit$",formAction.addFormIntoDatabase,name="add_form"),                 
        url(r"^check_form/(?P<Id>\d+)/(?P<role>\S*)$",formAction.checkForm,name="check_form"),
        url(r"^change_form/(?P<Id>\d+)/(?P<operation>\S+)$",formAction.changeForm,name="change_form_status"),
-       url(r"^edit_form/(?P<Id>\d+)/(?P<step>\d*)$",formAction.editForm,name="edit_form"),                
+       url(r"^edit_form/(?P<Id>\d+)/(?P<step>\d*)$",formAction.editForm,name="edit_form"),
+       url(r"^cancel_edit$",formAction.cancelEdit,name="cancel_edit"),
             )

@@ -11,6 +11,8 @@ def validate_url(value):
         r'(\w*[A-Za-z_]\w*)\.(\w*[A-Za-z_]\w*)\.(\w*[A-Za-z_]\w*)(.(\w*[A-Za-z_]\w*))*'  # ...or ipv4
         r'(?::\d+)?'  # optional port
         r'(?:/?|[/?]\S+)$', re.IGNORECASE) 
+    if(not value):
+        raise ValidationError("This field is required")
     if(not regex.match(value)):
         raise ValidationError("Invalid URL")
 def InvalidRootDomain(value):
@@ -147,16 +149,18 @@ class DomainMappingForm(forms.Form):
     
    
     mode = forms.ChoiceField(choices=MODE,label=u"模式")
-    aim = forms.CharField(max_length=100,label=u"IP或域名") 
+    aim = forms.CharField(max_length=100,label=u"IP或域名",required=True) 
     spName = forms.MultipleChoiceField(choices=SPNAME,widget=forms.CheckboxSelectMultiple,label=u"服务供应商")
     
     def __init__(self,*args,**kwargs):
         super(DomainMappingForm,self).__init__(*args,**kwargs)
     def clean(self):
         super(DomainMappingForm,self).clean()
+        print self.cleaned_data
         if(self.cleaned_data["mode"]=="cname"):
             try:
-                validate_url(self.cleaned_data["aim"])
+                if(self.cleaned_data.get("aim")):
+                    validate_url(self.cleaned_data["aim"])
               
             except  ValidationError:
                
@@ -169,6 +173,7 @@ class DomainMappingForm(forms.Form):
                 self._errors["aim"] = self.error_class(["This field should input IP when the mode is a"])
         
         return self.cleaned_data
+    
     def excludeSelected(self,selected):
         validChoices = ((sp.spName,sp.spName) for sp in ServiceProvider.objects.all() if sp.spName not in selected)
         self.fields["spName"]  = forms.MultipleChoiceField(choices=validChoices,widget=forms.CheckboxSelectMultiple)

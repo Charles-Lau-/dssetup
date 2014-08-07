@@ -352,4 +352,14 @@ def changeForm(request,Id,operation):
     url = formService.changeForm(request,Id,operation)
     return HttpResponseRedirect(url)
   
+def cancelEdit(request):
+    if("waiting_for_delete" in request.session):
+        del request.session["waiting_for_delete"]
+    if("root" in request.session):
+        del request.session["root"] 
+    if("Id" in request.session):
+        del request.session["Id"]
+    if("mapping_part" in request.session["mapping_part"]):
+        del request.session["mapping_part"]
         
+    return HttpResponseRedirect("/handleForm/show_applied_form")     

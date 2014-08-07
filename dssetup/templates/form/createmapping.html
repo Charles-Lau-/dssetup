@@ -110,8 +110,8 @@
 </form> 
 
 {%endfor%}
-        <a class="btn btn-info"  href={%url "add_form"%}>Submit</a>
-
+      {%block form-submit%}  <a class="btn btn-info"  href={%url "add_form"%}>Submit</a>     {%endblock%}
+         
 {%endblock%}    
  
  
