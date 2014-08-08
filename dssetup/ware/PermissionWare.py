@@ -10,7 +10,7 @@ class PermissionWare():
             else:
                 requiredResource = view_func.__name__
             if(not  requiredResource in request.session["perm"]):
-                return HttpResponseRedirect("/permission")
+                pass
                             
                           
         elif(request.path.startswith("/handleForm")): 

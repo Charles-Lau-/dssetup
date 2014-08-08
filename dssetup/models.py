@@ -124,7 +124,7 @@ class ApplicationFormStatus(models.Model):
         
         
 class Zone(models.Model):
-    zoneName = models.URLField(max_length=50,verbose_name=u"域名名字")
+    zoneName = models.CharField(max_length=50,verbose_name=u"域名名字")
     manageServer = models.IPAddressField(max_length=50,verbose_name=u"管理服务器")
     zone_dpt = models.ForeignKey(Department,verbose_name=u"管理该域名的部门")
     def __unicode__(self):

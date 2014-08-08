@@ -27,9 +27,10 @@
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
-              domainName: <input type="text" name="domainName-0" >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+              domainName: <input type="text" name="domainName-0" >  <input type="text" value={{request.session.root}} readOnly="true"> 
           
-         
+          
+            &nbsp&nbsp&nbsp&nbsp
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").submit()'>保存</a>
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-0").parentNode.removeChild(document.getElementById("domainForm-0"))'>删除</a>
             
@@ -67,10 +68,10 @@
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
-            domainName: <input type="text" name={{key}} value={{domainForm.values.0}}>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-          
+            domainName: <input type="text" name={{key}} value={{domainForm.values.0}}>
+             <input type="text" value={{request.session.root}} readOnly="true"> 
              <span class="badge badge-warning">{{domainForm.error}}</span>
-            
+            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp  
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-{{forloop.counter}}").submit()'>保存</a>
             {%if not domainForm.error%}
             <a class="btn btn-info" href= {%url "create_mapping_form"  key%}>创建域名映射</a>

@@ -6,13 +6,9 @@ from django.core.validators import validate_email,validate_ipv46_address
 import re
 def validate_url(value):
     regex = re.compile(
-        r'^((?:http|ftp)s://)?'  # http:// or https://
-        r'(localhost)?'  # localhost...
-        r'(\w*[A-Za-z_]\w*)\.(\w*[A-Za-z_]\w*)\.(\w*[A-Za-z_]\w*)(.(\w*[A-Za-z_]\w*))*'  # ...or ipv4
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE) 
-    if(not value):
-        raise ValidationError("This field is required")
+                r'(\w+)(\.(\w+))*$', re.IGNORECASE) 
+    if(not regex.match(value)):
+        raise ValidationError("Invalid URL")
     if(not regex.match(value)):
         raise ValidationError("Invalid URL")
 def InvalidRootDomain(value):
@@ -156,11 +152,11 @@ class DomainMappingForm(forms.Form):
         super(DomainMappingForm,self).__init__(*args,**kwargs)
     def clean(self):
         super(DomainMappingForm,self).clean()
-        print self.cleaned_data
         if(self.cleaned_data["mode"]=="cname"):
             try:
                 if(self.cleaned_data.get("aim")):
-                    validate_url(self.cleaned_data["aim"])
+                    for url in self.cleaned_data.get("aim"):
+                        validate_url(url)
               
             except  ValidationError:
                
@@ -168,7 +164,7 @@ class DomainMappingForm(forms.Form):
                 
         else:
             try:
-                validate_ipv46_address(self.cleaned_data["aim"])
+                InvalidIpList(self.cleaned_data["aim"])
             except ValidationError:
                 self._errors["aim"] = self.error_class(["This field should input IP when the mode is a"])
         
@@ -190,6 +186,10 @@ class ZoneForm(forms.ModelForm):
     class Meta:
         model = Zone
         
+    def __init__(self,*args,**kwargs):
+        super(ZoneForm,self).__init__(*args,**kwargs)
+        self.fields["zoneName"].validators.append(validate_url)
+  
 class DomainFormForm(forms.ModelForm):
     class Meta:
         model = DomainForm

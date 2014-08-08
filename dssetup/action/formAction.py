@@ -1,5 +1,5 @@
 #coding=utf-8
-from dssetup.forms import DomainApplicationFormForm,DomainMappingForm
+from dssetup.forms import DomainApplicationFormForm,DomainMappingForm,validate_url
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect 
 from dssetup.models import ServiceProvider,DomainApplicationForm
@@ -185,11 +185,8 @@ def storeDomainName(request):
      
     def __validateDomain():
         try:
-            import re
-            regex = re.compile(
-                r'(\w+)(\.(\w+))*$', re.IGNORECASE) 
-            if(not regex.match(domain_value)):
-                raise ValidationError("Invalid URL")  #检测 提交的域名是不是合法的域名格式
+          
+            validate_url(domain_value)        #检测 提交的域名是不是合法的域名格式
             if(formService.domainIsOccupied(domain_value)):
                 raise ValidationError("This domain is being applied")
         except ValidationError,e:
