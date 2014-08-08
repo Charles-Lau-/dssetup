@@ -134,9 +134,11 @@
                                 var span = checkbox[i].childNodes[0].childNodes[0].childNodes[0]
                                 if(button.innerText=="选中所有"){
                                         span.setAttribute("class","checked")
+                                        span.childNodes[0].checked = "checked"
                                 }
                                 else{
                                         span.setAttribute("class","")
+                                        span.childNodes[0].checked = ""
                                 }
                         
                         }

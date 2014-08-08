@@ -143,19 +143,23 @@ def changeForm(request,Id,operation):
       返回一个Url用来指引action部分的跳转
       
     """
-    def __createStatusRecord(status):
+    def __createStatusRecord():
         """
           创建表单状态流转记录 由于每一次改变表单状态都需要创建这么一条记录 所以 写成函数会方便很多
 
         """
         user = adminService.getUser(request)
         
-        status = ApplicationFormStatus(status=status)
+        status = ApplicationFormStatus(status=form.status)
         status.status_user = user
         status.status_da = form
         status.createTime = datetime.datetime.now()
+        if(request.POST and request.POST.get("comment")):
+            status.statusDes = request.POST.get("comment")
+            
         status.save()
  
+   
     root = "/handleForm/"    
     form = DomainApplicationForm.objects.get(id=Id)
     if(operation=="verify"):
@@ -173,12 +177,15 @@ def changeForm(request,Id,operation):
             url = root + "show_unchecked_form"
     elif(operation=="close"):
         form.status = staticVar.CLOSED
+        for domain in DomainForm.objects.filter(da_domain=form):
+                domain.status = staticVar.CAN_APPLY
         url = root + "show_applied_form"
     elif(operation=="edit"):
         if(form.status==staticVar.REJECTED):
             url  = root +"edit_form/"+str(Id)
         else:
             url = "/index"
+        return url
     elif(operation=="operate"):
         form.status = staticVar.OPERATED
         url=root + "show_unimplemented_form" 
@@ -189,10 +196,12 @@ def changeForm(request,Id,operation):
        
         if(form.status==staticVar.CHECKED):
             form.status = staticVar.COMPLETED
+            for domain in DomainForm.objects.filter(da_domain=form):
+                domain.status = staticVar.CAN_APPLY
             url = root + "show_applied_form"
         else:
             url = "/index"
-    __createStatusRecord(form.status)
+    __createStatusRecord()
     form.save()
     return url
 
@@ -240,3 +249,18 @@ def deleteOldMappingForm(Id,Ids):
         DomainMapping.objects.get(id=i).delete()
     for i in Ids["domain"]:
         DomainForm.objects.get(id=i).da_domain.remove(domainApplicationForm)
+        
+def domainIsOccupied(domainName):
+    try:                                          
+        domain = DomainForm.objects.get(domainName=domainName)
+        if(domain.status == staticVar.CANNOT_APPLY):
+            return True
+        else:
+            return False
+    except DomainForm.DoesNotExist:
+        return False
+    
+def getStatusListOfForm(Id):
+    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    return ApplicationFormStatus.objects.filter(status_da=domainApplicationForm)
+    

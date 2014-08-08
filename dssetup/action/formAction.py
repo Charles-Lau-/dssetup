@@ -150,6 +150,7 @@ def createMappingForm(request,domainName=None):
                 form.excludeSelected(selected)  #从form的sp字段 可以选择的值里面排除掉selected数组里面存放的已经被选择了的SP名字
                 
                 if(form.isAllowedToAdd()):  #如果排除掉已经选择的选项后  还有剩余的选项可选择
+                    print form
                     return render(request,"createform.html",{"form":form,"hidden":domainName})
                 else:
                     return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
@@ -182,24 +183,18 @@ def storeDomainName(request):
                     sessionMapping = {domain_key:{domain_key:domain_value}}
             request.session["mapping_part"] = sessionMapping
      
-    if(request.POST):
-        for key in request.POST.keys():
-            if(key.find("domainName")>=0):
-                domain_key = key            #需要被处理的域名的标记 如domainName-1 或者 domainName-2 标记着域名1 和域名2
-                domain_value = request.POST.get(key)  #代表需要被处理的域名的值
-     
-      
-        __addDomainNameDataToSession()
-                
+    def __validateDomain():
         try:
             import re
             regex = re.compile(
                 r'(\w+)(\.(\w+))*$', re.IGNORECASE) 
             if(not regex.match(domain_value)):
                 raise ValidationError("Invalid URL")  #检测 提交的域名是不是合法的域名格式
-        except ValidationError:
+            if(formService.domainIsOccupied(domain_value)):
+                raise ValidationError("This domain is being applied")
+        except ValidationError,e:
             mapping = request.session["mapping_part"].get(domain_key)
-            mapping["error"] = "Invalid URL"
+            mapping["error"] = e.message
             return render(request,"createmapping.html") 
         else:
             mapping = request.session["mapping_part"].get(domain_key) #检测提交的域名是不是重复了  如果是的就返回错误
@@ -210,6 +205,16 @@ def storeDomainName(request):
                          
             if("error" in mapping):
                 del mapping["error"]    #经过两重检测  提交的域名 没有问题 则删除掉 mapping中error字段 返回
+         
+    if(request.POST):
+        for key in request.POST.keys():
+            if(key.find("domainName")>=0):
+                domain_key = key            #需要被处理的域名的标记 如domainName-1 或者 domainName-2 标记着域名1 和域名2
+                domain_value = request.POST.get(key)  #代表需要被处理的域名的值
+     
+      
+        __addDomainNameDataToSession()
+        __validateDomain()    
     
     return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
 
@@ -340,7 +345,7 @@ def checkForm(request,Id,role=None):
          
     return render(request,"showForm.html",{"main_part":html,"mapping_part":mapping_part,"role":role,"Id":Id})
 
-def changeForm(request,Id,operation):
+def changeForm(request):
     """
     用来处理  改变表单状态 这种类型的操作
     
@@ -348,8 +353,12 @@ def changeForm(request,Id,operation):
     operation:操作的类型 如 审核  检查
     url: 返回的跳转url
     
-    """
-    url = formService.changeForm(request,Id,operation)
+    """ 
+    if(request.POST):
+        print request.POST
+        url = formService.changeForm(request,request.POST["Id"],request.POST["operation"])
+    else:
+        url="/index"
     return HttpResponseRedirect(url)
   
 def cancelEdit(request):
@@ -363,3 +372,7 @@ def cancelEdit(request):
         del request.session["mapping_part"]
         
     return HttpResponseRedirect("/handleForm/show_applied_form")     
+
+def showFormHistory(request,Id):
+    return render(request,"show_form_history.html",{"status_list":formService.getStatusListOfForm(Id)})
+    

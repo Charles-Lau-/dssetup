@@ -55,7 +55,13 @@
                     <a href={%url edit o.id%}><i class="icon icon-edit"></i></a>
                   </span>
                   {%endwith%}
-                 
+                   
+                  {%ifequal obj "group"%}
+                  
+                    <a href={%url "add_user_to_group" o.id%}><i class="icon icon-arrow-up"></i></a>      
+                          
+                  {%endifequal%}
+                  
                   </th>
                 </tr>
                 {%endfor%}

@@ -1,0 +1,46 @@
+{%extends "base.html"%}
+
+
+{%block content%}
+ {{block.super}}
+  <div class="widget-box">
+          <div class="widget-title"> <span class="icon">
+            <input type="checkbox" id="title-checkbox" name="title-checkbox" />
+            </span>
+            <h5>全选</h5>
+          </div>
+          <div class="widget-content nopadding">
+          <form action={%url "add_user_to_group" Id%} method="post">
+          {%csrf_token%}
+            <table class="table table-bordered table-striped with-check">
+              <thead>
+                <tr>
+                   <th><i class="icon-resize-vertical"></i></th>
+                   <th>用户名</th>
+                   <th>邮箱</th>
+                   <th>电话号码</th>
+                   <th>所属部门</th>
+                </tr>
+              </thead>
+              <tbody>
+                 {%for user in users%}
+                <tr>
+                  <td><input type="checkbox" name="userIds" value={{user.id}}></td>
+              
+                    <th>{{user.userName}}</th>
+                    <th>{{user.userMail}}</th>
+                    <th>{{user.userPhone}}</th>
+                    <th>{{user.user_dpt}}</th>
+                    
+                  
+                </tr>
+                {%endfor%}
+              </tbody>
+       
+            </table>
+                   <input type="submit" value="提交">
+            </form>
+          </div>
+        </div>
+
+{%endblock%}

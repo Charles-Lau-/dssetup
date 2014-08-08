@@ -1,0 +1,47 @@
+ {%extends "baseList.html"%}
+   {%block list-title%}
+        
+       <h5>表单状态历史</h5> 
+        
+    {%endblock%}
+ 
+ 
+ {%block list-content%}
+         <table class="table table-bordered data-table">
+              <thead>
+                <tr> 
+                  {%for status in status_list%}
+                    
+                   {%if forloop.first%}
+            
+                      {%for k in status.get_values.keys%}
+                           <th>{{k}}</th>
+                      {%endfor%}
+                   {%else%}
+                   {%endif%}
+                  {%endfor%}
+         
+                </tr>
+              </thead>
+              
+              <tbody>
+                {%for status in status_list%} 
+                  <tr>
+                  {%load filters%}
+                  {%for v in status.get_values.values%}
+                  <th class="center">
+                  {%if v%}
+                    {{v}}
+                  {%else%}
+                                                                          无
+                  {%endif%}
+                  </th>
+                  {%endfor%} 
+          
+                </tr>
+                {%endfor%}
+              </tbody>
+            </table>
+ 
+ 
+ {%endblock%}

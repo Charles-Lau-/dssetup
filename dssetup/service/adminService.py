@@ -38,12 +38,13 @@ def getPermOfUser(user):
         for auth in group.authority.all():
             auth_children = Authority.objects.filter(auth_parent=auth)
             if(auth_children):
-                for a in auth_children:
-                    if(not a.authName in perm):
-                        perm .append(auth.authName)
+                for auth_child in auth_children:
+                    if(not auth_child.authName in perm):
+                        perm .append(auth_child.authName)
             else:
                 if(not auth.authName in perm):
                     perm.append(auth.authName)
+    print perm
     return perm
 def logout(request):
     username = request.session["user"]
@@ -57,4 +58,10 @@ def logout(request):
     
     from django.contrib.sessions.models import  Session
     Session.objects.get(pk=request.COOKIES["sessionid"]).delete()
+
+def addUserIntoGroup(groupId,userId):
+    user = User.objects.get(id=userId)
+    user.group.add(Group.objects.get(id=groupId))
     
+def getUsersNotInThisGroup(Id):
+    return User.objects.exclude(group = Group.objects.get(id=Id))

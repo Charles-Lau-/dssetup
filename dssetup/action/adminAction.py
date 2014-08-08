@@ -58,3 +58,10 @@ def __generateForm(obj,post=None,instance_=None):
     elif(obj =="domain"):
         form = DomainFormForm(data=post,instance=instance_)
     return form
+def addUserToGroup(request,Id):
+    if(request.POST):
+        for userId in request.POST.getlist("userIds"):
+            adminService.addUserIntoGroup(Id, userId)
+        return render(request,"/admin/group/")
+    else:
+        return render(request,"user_into_group.html",{"users":adminService.getUsersNotInThisGroup(Id),"Id":Id})

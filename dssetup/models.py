@@ -112,10 +112,17 @@ class ApplicationFormStatus(models.Model):
     status_user = models.ForeignKey(User,verbose_name=u"将表单改变为目前状态的人")
     createTime = models.DateTimeField(auto_now_add=True,verbose_name=u"创建时间 ")
     status_da = models.ForeignKey(DomainApplicationForm,verbose_name=u"该记录对应的申请单")
-    
+    statusDes = models.CharField(max_length=50,verbose_name=u"状态改变描述",blank=True,null=True)
     class Meta:
         ordering = ["createTime",]
-    
+    def get_values(self):
+        return {u"表单状态":self.status,
+                u"将表单改变为目前状态的人":self.status_user.userName,
+                u"状态改变描述":self.statusDes,
+                u"操作时间": str(self.createTime)
+                }
+        
+        
 class Zone(models.Model):
     zoneName = models.URLField(max_length=50,verbose_name=u"域名名字")
     manageServer = models.IPAddressField(max_length=50,verbose_name=u"管理服务器")
@@ -127,6 +134,7 @@ class Zone(models.Model):
                 u"管理服务器":self.manageServer,
                 u"域名所属部门":self.zone_dpt
                 }
+        
 class DomainForm(models.Model):
     domainName = models.URLField(max_length=50,verbose_name=u"域名名字")
     domainDes = models.TextField(blank=True,verbose_name=u"域名描述")
