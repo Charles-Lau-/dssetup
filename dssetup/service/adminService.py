@@ -1,6 +1,11 @@
  #coding=utf-8
 from dssetup.models import User,Group,Authority,DomainForm,Zone
+
 def getAllObject(obj):
+    """ 
+       根据obj 来返回相应的对象列表
+
+    """
     if(obj == "user"):
         objs_list = User.objects.all()
     elif(obj == "group"):
@@ -14,8 +19,16 @@ def getAllObject(obj):
     return objs_list
 
 def deleteObjectById(obj,Id):
+    """
+      根据obj 和Id 来删除相应对象
+
+    """
     getObjectById(obj,Id).delete() 
 def getObjectById(obj,Id):
+    """
+      根据obj 和 Id 返回 某个对象
+
+    """
     if(obj == "user"):
         return User.objects.get(id=Id) 
     elif(obj == "group"):
@@ -27,26 +40,38 @@ def getObjectById(obj,Id):
     elif(obj == "zone"):
         return Zone.objects.get(id=Id)
 def getUser(request):
+    """
+      从request里面获得user对象
+
+    """
     user = User.objects.get(userName=request.session["user"])
-    
     return user
 
 def getPermOfUser(user):
+    """
+       获得用户的权限列表
+       当用户的权限里面含有父权限的时候 返回的是该父权限下的所有子权限
+
+    """
     perm = []
     groups = User.objects.get(id=user.id).group.all()
     for group in groups:
         for auth in group.authority.all():
             auth_children = Authority.objects.filter(auth_parent=auth)
-            if(auth_children):
+            if(auth_children):#如果是父权限 就返回该父权限对应的所有子权限
                 for auth_child in auth_children:
                     if(not auth_child.authName in perm):
                         perm .append(auth_child.authName)
             else:
                 if(not auth.authName in perm):
                     perm.append(auth.authName)
-    print perm
     return perm
+
 def logout(request):
+    """
+      处理登出
+
+    """
     username = request.session["user"]
     ip = request.session["ip"]
     time = request.session["time"]
@@ -60,8 +85,16 @@ def logout(request):
     Session.objects.get(pk=request.COOKIES["sessionid"]).delete()
 
 def addUserIntoGroup(groupId,userId):
+    """
+      将user添加到某个权限组
+
+    """
     user = User.objects.get(id=userId)
     user.group.add(Group.objects.get(id=groupId))
     
 def getUsersNotInThisGroup(Id):
+    """
+        获得所有不在Id表示的权限组的user
+      
+    """
     return User.objects.exclude(group = Group.objects.get(id=Id))

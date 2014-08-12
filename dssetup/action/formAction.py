@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from dssetup.service import formService,adminService
 from copy import copy
+from dssetup import staticVar
 
 def showUncheckedForm(request):
     """
@@ -298,10 +299,13 @@ def addFormIntoDatabase(request):
         formService.deleteOldMappingForm(request.session["Id"],request.session["waiting_for_delete"])
         del request.session["waiting_for_delete"]
         
-    if ("Id" in request.session and "mapping_part" in request.session):
+    if ("Id" in request.session and "mapping_part" in request.session and request.session.get("mapping_part")):
         for mapping in request.session.get("mapping_part").values():
             if("error" in mapping):
                 return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")
+            if(not mapping.get("mapping")):
+                return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")
+             
             
         for mapping in request.session.get("mapping_part").values():
             formService.addDomainMappingForm(request.session.get("Id"),mapping,request.session["root"])
@@ -330,7 +334,7 @@ def checkForm(request,Id,role=None):
     """
     
     main_part,mapping_part = formService.getFormDetails(Id) 
-    
+ 
     html=""
     for k,v in main_part.items():
        
@@ -338,9 +342,21 @@ def checkForm(request,Id,role=None):
                  +k\
                  +r"</label><div class='controls'>"\
                  +"<input readOnly=true value='"+v+"'>"\
-                 +r"</div></div>"     
-         
-    return render(request,"showForm.html",{"main_part":html,"mapping_part":mapping_part,"role":role,"Id":Id})
+                 +r"</div></div>"  
+    
+    root = formService.getZoneOfApplicationForm(Id).zoneName
+                    
+    html += r"<div class='control-group'><label class='control-label'>"\
+                 +u"主域名"\
+                 +r"</label><div class='controls'>"\
+                 +"<input readOnly=true value='"+root +"'>"\
+                 +r"</div></div>"   
+    
+     
+    if(role=="operator"):
+        return render(request,"showForm.html",{"main_part":html,"mapping_part":mapping_part,"role":role,"Id":Id,"root":root,"formattedData":formService.getFormatMappingData(Id)})
+    else:
+        return render(request,"showForm.html",{"main_part":html,"mapping_part":mapping_part,"role":role,"Id":Id,"root":root})
 
 def changeForm(request):
     """
@@ -359,17 +375,25 @@ def changeForm(request):
     return HttpResponseRedirect(url)
   
 def cancelEdit(request):
+    """
+        取消表单修改
+
+    """
     if("waiting_for_delete" in request.session):
         del request.session["waiting_for_delete"]
     if("root" in request.session):
         del request.session["root"] 
     if("Id" in request.session):
         del request.session["Id"]
-    if("mapping_part" in request.session["mapping_part"]):
+    if("mapping_part" in request.session):
         del request.session["mapping_part"]
         
     return HttpResponseRedirect("/handleForm/show_applied_form")     
 
 def showFormHistory(request,Id):
+    """
+      展示表单的状态流转历史
+ 
+    """
     return render(request,"show_form_history.html",{"status_list":formService.getStatusListOfForm(Id)})
     

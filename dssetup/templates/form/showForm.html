@@ -1,8 +1,12 @@
 {%extends "baseForm.html"%} 
+
+ {%block form-title%}
+ <h5>表单主要信息</h5>
+ {%endblock%}
 {%block form-content%} 
   
         {%load filters%}
-       
+      
           <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
               {% csrf_token %}
        
@@ -27,15 +31,15 @@
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
-            domainName: <input type="text" value={{domainForm.domainName}} readOnly=true>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            域名: <input type="text" value={{domainForm.domainName}} readOnly=true>  <input type="text" value= .{{root}} readOnly="true"> 
            </div>
           <div class="widget-content nopadding">
             <table class="table table-bordered table-striped">
               <thead>
                  <tr>
                   <th>Ip</th>
-                  <th>Mode</th>
-                  <th>Sp</th>
+                  <th>服务供应商</th>
+                  <th>模式</th>
                   
                 </tr>
               </thead>
@@ -67,28 +71,56 @@
        
     </form> 
 {%ifequal role "verifier"%}
-<a class="btn btn-info"  href="#" onclick="write_comment(this)" id="verify">Verify</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
-<a class="btn btn-info"  href="#"  onclick="write_comment(this)" id="reject">Reject</a>  
+<a class="btn btn-info"  href="#" onclick="write_comment(this)" id="verify">验证</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info"  href="#"  onclick="write_comment(this)" id="reject">拒绝</a>  
 {%endifequal%}
 
 {%ifequal role "applicant"%}
-<a class="btn btn-info"  href="#"  id="close" onclick="javascript:submit(this);">Close</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
-<a class="btn btn-info" id="edit"  href="#" >Edit</a> &nbsp&nbsp
-<a class="btn btn-info" id="confirm"   href="#" >Confirm</a>  
+<a class="btn btn-info"  href="#"  id="close" onclick="javascript:submit(this);" style="display:none;float:left" >关闭</a> &nbsp&nbsp
+<a class="btn btn-info" id="edit"  href="#"  onclick="javascript:submit(this);" style="display:none;float:left">编辑</a> &nbsp&nbsp
+<a class="btn btn-info" id="confirm"   href="#"  onclick="javascript:submit(this);" style="display:none;float:left">确认</a>  
 {%endifequal%}
  
 {%ifequal role "operator"%}
-<a class="btn btn-info"  id="operate" href="#"  onclick="write_comment(this)">Operate</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
-<a class="btn btn-info" id="reject" href="#"  onclick="write_comment(this)">Reject</a>  
+<a class="btn btn-info"  id="operate" href="#"  onclick="write_comment(this)">操作</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info" id="reject" href="#"  onclick="write_comment(this)">拒绝</a>
+ 
 {%endifequal%}
 
 {%ifequal role "checker"%}
-<a class="btn btn-info"  id="check"  href="#"  onclick="write_comment(this)">Check</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
-<a class="btn btn-info" id="reject" href="#"  onclick="write_comment(this)">Reject</a>  
+<a class="btn btn-info"  id="check"  href="#"  onclick="write_comment(this)">检查</a> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+<a class="btn btn-info" id="reject" href="#"  onclick="write_comment(this)">拒绝</a>  
 {%endifequal%}
 &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
 <a class="btn btn-info" href={%url "show_form_history" Id%}  target="_blank">查看表单历史记录</a>  
+
+ 
+
+<!--格式化数据部分-->
+ 
+{%if formattedData %}
+<div class="row-fluid"  id="format">
+    <div class="widget-box">
+      <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
+        <h5>wysihtml5</h5>
+      </div>
+      <div class="widget-content">
+        <div class="control-group">
+          <form>
+            <div class="controls">
+              <textarea class="textarea_editor span12" rows="30">{{formattedData}}</textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{%endif%}
+
 {%endblock%}
+
+
+
 
 {%block js%}
 {{super.block}}
@@ -125,12 +157,16 @@
               var value = elements[i].nextSibling.childNodes[0].value
         
               if(value=="rejected"){
-                   document.getElementById("edit").onclick = function (){submit(this)}
+                   document.getElementById("edit").style.display = "block"
                 }
-              if(value=="checked"){
+              else if(value=="checked"){
               
-                   document.getElementById("confirm").onclick = function (){submit(this)}
+                   document.getElementById("confirm").style.display = "block"
               }
+              else if(value=="unverified"){
+                   document.getElementById("close").style.display = "block"
+              }
+           
     }
     }
     

@@ -1,5 +1,7 @@
 {%extends "baseForm.html"%}
  
+
+
 {%block form-content%} 
  
         {%load filters%}
@@ -10,7 +12,7 @@
               {{request.session.main_part|safe}} 
              
                
-              <a class="btn btn-info" href="#"  onclick="javascript:addDomainForm()">add domain mapping</a>
+              <a class="btn btn-info" href="#"  onclick="javascript:addDomainForm()">添加域名</a>
             </div>       
           </form>
      
@@ -27,7 +29,7 @@
       <div class="span12">
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
-              domainName: <input type="text" name="domainName-0" >  <input type="text" value={{request.session.root}} readOnly="true"> 
+              domainName: <input type="text" name="domainName-0" >  <input type="text" value= .{{request.session.root}} readOnly="true"> 
           
           
             &nbsp&nbsp&nbsp&nbsp
@@ -69,7 +71,7 @@
         <div class="widget-box">
           <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
             domainName: <input type="text" name={{key}} value={{domainForm.values.0}}>
-             <input type="text" value={{request.session.root}} readOnly="true"> 
+             <input type="text" value= .{{request.session.root}} readOnly="true"> 
              <span class="badge badge-warning">{{domainForm.error}}</span>
             &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp  
             <a class="btn btn-info"  onclick='javascript:document.getElementById("domainForm-{{forloop.counter}}").submit()'>保存</a>
@@ -111,7 +113,7 @@
 </form> 
 
 {%endfor%}
-      {%block form-submit%}  <a class="btn btn-info"  href={%url "add_form"%}>Submit</a>     {%endblock%}
+      {%block form-submit%}  <a class="btn btn-info"  href={%url "add_form"%}>提交</a>{%endblock%}
          
 {%endblock%}    
  

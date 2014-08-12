@@ -1,5 +1,6 @@
  {%extends "baseForm.html"%} 
  
+ 
 {%block form-content%}
         
         {%load filters%}
@@ -26,7 +27,7 @@
              
               
               
-             {%block form-submit%} <a class="btn btn-info" onclick="submit()">save</a>  {%endblock%}
+             {%block form-submit%} <a class="btn btn-info" onclick="submit()">提交</a>  {%endblock%}
                
             </div>       
           </form>
@@ -165,7 +166,7 @@
           var checkbox = document.getElementsByTagName("li")
           for(var i=0;i<checkbox.length;i++){
                         
-                           if(checkbox[i].parentNode.id=="id_spName" && checkbox[i].innerText.length > 4){
+                           if(checkbox[i].parentNode.id=="id_spName" && checkbox[i].innerText.length > 3){
                                  checkbox[i].style.display = "none"
                                }
                                

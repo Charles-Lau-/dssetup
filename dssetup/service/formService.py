@@ -102,11 +102,11 @@ def addDomainMappingForm(Id,mapping,root):
     
     mappingData = mapping.values()[1]                      #将ip mode sp 这样的映射关系存入数据库
     for m in mappingData:
-        for ip_ in m.get("aim").split(","):
-            domainMapping = DomainMapping(mode=m.get("mode"),aim=ip_)
-            domainMapping.dm_domain = domain
-            domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName"))
-            domainMapping.save()
+        domainMapping = DomainMapping(mode=m.get("mode"),aim= m.get("aim"))
+        domainMapping.dm_domain = domain
+        domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName"))
+        domainMapping.dm_appform = main
+        domainMapping.save()
 
 def getFormDetails(Id):
     """
@@ -121,7 +121,7 @@ def getFormDetails(Id):
         domainMapping ={}
         domainMapping["domainName"] = domain.domainName
         domainMapping["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_domain=domain):
+        for mapping in DomainMapping.objects.filter(dm_appform=domainApplicationForm):
             domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"sp":mapping.dm_sp.spName})
         mapping_part.append(domainMapping)
     
@@ -129,7 +129,8 @@ def getFormDetails(Id):
     if(domainApplicationForm.effectTime):
         
         main_part[u"截止时间"] = str(domainApplicationForm.effectTime)
-     
+    
+      
     return (main_part,mapping_part)   #第一个是表单的主要信息，第二个是表单的映射信息
 
 
@@ -179,6 +180,7 @@ def changeForm(request,Id,operation):
         form.status = staticVar.CLOSED
         for domain in DomainForm.objects.filter(da_domain=form):
                 domain.status = staticVar.CAN_APPLY
+                domain.save()
         url = root + "show_applied_form"
     elif(operation=="edit"):
         if(form.status==staticVar.REJECTED):
@@ -198,9 +200,13 @@ def changeForm(request,Id,operation):
             form.status = staticVar.COMPLETED
             for domain in DomainForm.objects.filter(da_domain=form):
                 domain.status = staticVar.CAN_APPLY
+                domain.save()
             url = root + "show_applied_form"
         else:
             url = "/index"
+    else:
+        return "/index"
+    
     __createStatusRecord()
     form.save()
     return url
@@ -263,4 +269,39 @@ def domainIsOccupied(domainName):
 def getStatusListOfForm(Id):
     domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
     return ApplicationFormStatus.objects.filter(status_da=domainApplicationForm)
+
+def getFormatMappingData(Id):
+  
     
+    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    formattedData=[]
+    for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):
+        mappingData={}
+        mappingData["domainName"] = domain.domainName
+        mappingData["mapping"] = []
+        for mapping in DomainMapping.objects.filter(dm_domain=domain):
+            mappingData["mapping"].append(mapping.get_values())
+        
+        #验证 是否 所有的view都映射到一个ip 或域名
+        tempt=[]
+        for mapping in mappingData["mapping"]:
+            if(not mapping["aim"] in tempt ):
+                tempt.append(mapping["aim"])
+        
+        if(len(tempt)==1 and len(mappingData["mapping"])==len(ServiceProvider.objects.all())):
+            mappingData["mapping"] = [{"dm_sp":"a","aim":tempt[-1]}] #如果所有的view都映射到同一个域名 则进行替换
+        
+        
+        
+        formattedData.append(mappingData)
+        
+    print formattedData
+    data=""
+    root = getZoneOfApplicationForm(Id).zoneName
+    for domainMapping in formattedData:
+        data += domainMapping["domainName"]+"."+root+"\n"
+        for mapping in domainMapping["mapping"]:
+                data += mapping["dm_sp"]+"\n"
+                data += mapping["aim"]+"\n"
+
+    return data  
