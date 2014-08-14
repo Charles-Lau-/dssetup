@@ -7,8 +7,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404 
 from django.http import Http404
 from dssetup.service import formService,adminService
-from copy import copy
-from dssetup import staticVar
+from copy import copy 
 
 def showUncheckedForm(request):
     """
@@ -161,12 +160,12 @@ def createMappingForm(request,domainName=None):
 
 def storeDomainName(request):
     """
-       将域名存入SESSION里面
+               将域名存入SESSION里面
        
     """
     def __addDomainNameDataToSession():
             """
-              将域名存入SESSION里面
+                                                           将域名存入SESSION里面
 
               session里面的mapping_part的数据结构是这样的：{"domainName-x"：{"domainName-x":xxxURL,"mapping":[{"ip":xxxx,"mode":xx,"sp":xx},{...}],"error":xxx},"domainName-y":.....}
               
@@ -185,11 +184,15 @@ def storeDomainName(request):
             request.session["mapping_part"] = sessionMapping
      
     def __validateDomain():
+        """
+                                         验证域名的合法性
+        
+        """ 
         try:
           
             validate_url(domain_value)        #检测 提交的域名是不是合法的域名格式
             if(formService.domainIsOccupied(domain_value)):
-                raise ValidationError("This domain is being applied")
+                raise ValidationError(u"域名正在被申请")
         except ValidationError,e:
             mapping = request.session["mapping_part"].get(domain_key)
             mapping["error"] = e.message
@@ -217,6 +220,10 @@ def storeDomainName(request):
     return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
 
 def deleteDomainForm(request,domainName):
+    """
+                   从session里面 删除某个域名 及其对应的映射
+    
+    """
     if("mapping_part" in request.session):
         sessionMapping =request.session["mapping_part"]
         if(sessionMapping.get(domainName,"")):
@@ -261,7 +268,7 @@ def editForm(request,Id,step):
     except ValueError:
         step = 1
         
-    if(step==1): 
+    if(step==1):   #表单主要部分内容的编辑
         if(request.POST):
             form = DomainApplicationFormForm(data=request.POST,instance=get_object_or_404(DomainApplicationForm,id=Id))
             if(form.is_valid()):
@@ -271,10 +278,11 @@ def editForm(request,Id,step):
                 return render(request,"editForm.html",{"form":form,"Id":Id})
             
         else:
-            form = DomainApplicationFormForm(instance=get_object_or_404(DomainApplicationForm,id=Id))
-            form.initial["RootDomain"] = formService.getZoneOfApplicationForm(Id).zoneName
+            domainApplicationForm = get_object_or_404(DomainApplicationForm,id=Id)
+            form = DomainApplicationFormForm(instance=domainApplicationForm)
+            form.initial["RootDomain"] = domainApplicationForm.getZoneOfApplicationForm().zoneName
             return render(request,"editForm.html",{"form":form,"Id":Id})
-    elif(step==2):
+    elif(step==2):  #映射部分的编辑  我们直接借用创建表单的页面   通过删除原有的域名绑定  插入编辑后的新的域名绑定记录 的方式来实现编辑功能
         if(request.POST):
             return render(request,"")
         else:
@@ -285,7 +293,7 @@ def editForm(request,Id,step):
             if(not "Id" in request.session):
                 request.session["Id"] = Id
             if(not "RootDomain" in request.session):
-                request.session["root"] = formService.getZoneOfApplicationForm(Id).zoneName
+                request.session["root"] = get_object_or_404(DomainApplicationForm,id=Id).getZoneOfApplicationForm().zoneName
             return render(request,"editMappingForm.html",{"step":2})
     else:
         raise Http404
@@ -344,7 +352,7 @@ def checkForm(request,Id,role=None):
                  +"<input readOnly=true value='"+v+"'>"\
                  +r"</div></div>"  
     
-    root = formService.getZoneOfApplicationForm(Id).zoneName
+    root = get_object_or_404(DomainApplicationForm,id=Id).getZoneOfApplicationForm().zoneName
                     
     html += r"<div class='control-group'><label class='control-label'>"\
                  +u"主域名"\
@@ -353,7 +361,7 @@ def checkForm(request,Id,role=None):
                  +r"</div></div>"   
     
      
-    if(role=="operator"):
+    if(role=="operator"): #当时操纵人员的时候  我们还需要显示格式化后的数据给他们使用
         return render(request,"showForm.html",{"main_part":html,"mapping_part":mapping_part,"role":role,"Id":Id,"root":root,"formattedData":formService.getFormatMappingData(Id)})
     else:
         return render(request,"showForm.html",{"main_part":html,"mapping_part":mapping_part,"role":role,"Id":Id,"root":root})
@@ -368,7 +376,6 @@ def changeForm(request):
     
     """ 
     if(request.POST):
-        print request.POST
         url = formService.changeForm(request,request.POST["Id"],request.POST["operation"])
     else:
         url="/index"
@@ -395,5 +402,5 @@ def showFormHistory(request,Id):
       展示表单的状态流转历史
  
     """
-    return render(request,"show_form_history.html",{"status_list":formService.getStatusListOfForm(Id)})
+    return render(request,"show_form_history.html",{"status_list":get_object_or_404(DomainApplicationForm,id=Id).getStatusListOfForm()})
     

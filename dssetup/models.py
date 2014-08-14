@@ -119,7 +119,26 @@ class DomainApplicationForm(models.Model):
                 u"表单状态":self.status}
     class Meta:
         ordering = ["createTime",]
+    
+    def getZoneOfApplicationForm(self):
+        """ 
+                                得到到 改申请单对应的主域名
+                 
+        """ 
+        domain  = DomainForm.objects.filter(da_domain=self)  
+        if(domain):
+            zone = domain[0].domain_zone
+        else:
+            zone=Zone(zoneName=u"无域名")
+        return zone  
    
+    def getStatusListOfForm(self):
+        """  
+                                    得到记录该表单的状态流转记录
+          
+        """
+        return ApplicationFormStatus.objects.filter(status_da=self)
+
 class ApplicationFormStatus(models.Model):
     status = models.CharField(max_length=30,verbose_name=u"表单状态")
     status_user = models.ForeignKey(User,verbose_name=u"将表单改变为目前状态的人")
@@ -181,7 +200,8 @@ class DomainMapping(models.Model):
     dm_sp = models.ForeignKey(ServiceProvider,verbose_name=u"服务供应商")
     mode = models.CharField(max_length=10,verbose_name=u"模式")
     aim = models.CharField(max_length=50,verbose_name=u"IP或域名")
-    dm_appform = models.ForeignKey(DomainApplicationForm)
+    dm_da = models.ForeignKey(DomainApplicationForm,blank=True,null=True)
     def get_values(self):
         return {"dm_sp":self.dm_sp.spNameEn,
+                "mode":self.mode,
                  "aim":self.aim}

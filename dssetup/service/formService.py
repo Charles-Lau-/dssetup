@@ -105,7 +105,7 @@ def addDomainMappingForm(Id,mapping,root):
         domainMapping = DomainMapping(mode=m.get("mode"),aim= m.get("aim"))
         domainMapping.dm_domain = domain
         domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName"))
-        domainMapping.dm_appform = main
+        domainMapping.dm_da = main
         domainMapping.save()
 
 def getFormDetails(Id):
@@ -121,7 +121,7 @@ def getFormDetails(Id):
         domainMapping ={}
         domainMapping["domainName"] = domain.domainName
         domainMapping["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_appform=domainApplicationForm):
+        for mapping in DomainMapping.objects.filter(dm_domain=domain,dm_da=domainApplicationForm):
             domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"sp":mapping.dm_sp.spName})
         mapping_part.append(domainMapping)
     
@@ -211,18 +211,7 @@ def changeForm(request,Id,operation):
     form.save()
     return url
 
-def getZoneOfApplicationForm(Id):
-    """ 
-          通过申请单ID 查到 改申请单对应的主域名
-        
-    """ 
-    domain = DomainForm.objects.filter(da_domain=DomainApplicationForm.objects.get(id=Id))  
-  
-    
-    
-    zone = domain[0].domain_zone
-     
-    return zone 
+
 
 def getMappingDetailsForEdit(Id):
     """
@@ -241,7 +230,7 @@ def getMappingDetailsForEdit(Id):
         domainMapping ={}
         domainMapping["domainName-"+str(i)] = domain.domainName
         domainMapping["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_domain=domain):
+        for mapping in DomainMapping.objects.filter(dm_domain=domain,dm_da=domainApplicationForm):
             domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"spName":mapping.dm_sp.spName})
             waiting_for_delete["mapping"].append(mapping.id)
         mapping_part["domainName-"+str(i)] = domainMapping
@@ -250,6 +239,10 @@ def getMappingDetailsForEdit(Id):
     return (waiting_for_delete,mapping_part)   #表单的映射信息        
 
 def deleteOldMappingForm(Id,Ids):
+    """
+                 我们编辑的思路是把编辑之前的旧内容删除掉  新的 插入数据库  这个函数用来删除插入新数据后 把  原来的给删除掉
+    
+    """
     domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
     for i in Ids["mapping"]:    
         DomainMapping.objects.get(id=i).delete()
@@ -257,6 +250,10 @@ def deleteOldMappingForm(Id,Ids):
         DomainForm.objects.get(id=i).da_domain.remove(domainApplicationForm)
         
 def domainIsOccupied(domainName):
+    """
+                        看某个域名能否被申请
+    
+    """
     try:                                          
         domain = DomainForm.objects.get(domainName=domainName)
         if(domain.status == staticVar.CANNOT_APPLY):
@@ -266,10 +263,6 @@ def domainIsOccupied(domainName):
     except DomainForm.DoesNotExist:
         return False
     
-def getStatusListOfForm(Id):
-    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
-    return ApplicationFormStatus.objects.filter(status_da=domainApplicationForm)
-
 def getFormatMappingData(Id):
   
     
@@ -279,7 +272,7 @@ def getFormatMappingData(Id):
         mappingData={}
         mappingData["domainName"] = domain.domainName
         mappingData["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_domain=domain):
+        for mapping in DomainMapping.objects.filter(dm_domain=domain,dm_da=domainApplicationForm):
             mappingData["mapping"].append(mapping.get_values())
         
         #验证 是否 所有的view都映射到一个ip 或域名
@@ -289,19 +282,28 @@ def getFormatMappingData(Id):
                 tempt.append(mapping["aim"])
         
         if(len(tempt)==1 and len(mappingData["mapping"])==len(ServiceProvider.objects.all())):
-            mappingData["mapping"] = [{"dm_sp":"a","aim":tempt[-1]}] #如果所有的view都映射到同一个域名 则进行替换
+            if(domainApplicationForm.operCategory == u"删除"):
+                mappingData["mapping"] = [{"dm_sp":"ad","mode":mappingData["mapping"][0]["mode"],"aim":tempt[-1]}] #如果所有的view都映射到同一个域名 则进行替换
+            else:
+                mappingData["mapping"] = [{"dm_sp":"a","mode":mappingData["mapping"][0]["mode"],"aim":tempt[-1]}] #如果所有的view都映射到同一个域名 则进行替换
         
         
         
         formattedData.append(mappingData)
         
-    print formattedData
+ 
     data=""
-    root = getZoneOfApplicationForm(Id).zoneName
+    root = domainApplicationForm.getZoneOfApplicationForm().zoneName
     for domainMapping in formattedData:
-        data += domainMapping["domainName"]+"."+root+"\n"
+        if(domainApplicationForm.operCategory == u"删除" and not domainMapping["mapping"][0]["dm_sp"] == "ad"):
+            continue
+        data += domainMapping["domainName"]+"."+root+".\n"
         for mapping in domainMapping["mapping"]:
                 data += mapping["dm_sp"]+"\n"
-                data += mapping["aim"]+"\n"
-
+                if(mapping["mode"]=="cname"):
+                    for a in mapping["aim"].split(" "):
+                        data += a+". "
+                    data += "\n"
+                else:
+                    data += mapping["aim"]+"\n"
     return data  

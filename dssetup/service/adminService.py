@@ -1,5 +1,5 @@
  #coding=utf-8
-from dssetup.models import User,Group,Authority,DomainForm,Zone
+from dssetup.models import User,Group,Authority,DomainForm,Zone,DomainApplicationForm
 
 def getAllObject(obj):
     """ 
@@ -98,3 +98,23 @@ def getUsersNotInThisGroup(Id):
       
     """
     return User.objects.exclude(group = Group.objects.get(id=Id))
+
+def getDomainStatistics(year):
+    """ 
+              统计出 year年份的每个月的申请域名的数目
+    
+    """
+    counter = []
+    for i in range(1,13):
+        num=0
+        if(i>9):
+           
+            for form in DomainApplicationForm.objects.filter(createTime__contains=str(year)+"-"+str(i)):
+                num += len(DomainForm.objects.filter(da_domain=form))
+            
+        else:
+            for form in DomainApplicationForm.objects.filter(createTime__contains=str(year)+"-0"+str(i)):
+                num += len(DomainForm.objects.filter(da_domain=form))
+        counter.append(num)
+            
+    return counter

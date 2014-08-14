@@ -30,7 +30,7 @@ urlpatterns =  patterns('',
        url(r"^authority/edit=(?P<Id>\d+)/$",adminAction.edit_object,{"obj":"authority"},name="edit_authority"),  
        
        url(r"^add_user_to_group/(?P<Id>\d+)/$",adminAction.addUserToGroup,name="add_user_to_group"),  
-                     
+       url(r"^domain_statistics/(?P<year>\d*)?$",adminAction.domainStatistics,name="domain_statistics")             
                        
                        
                        )

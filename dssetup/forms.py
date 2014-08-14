@@ -13,7 +13,7 @@ def validate_url(value):
     regex = re.compile(
                 r'(\w+)(\.(\w+))*$', re.IGNORECASE) 
     if(not regex.match(value)):
-        raise ValidationError(u"不合法的URL")
+        raise ValidationError(u"请输入空格为间隔的url列表  如： url1 url2 url3")
    
 def InvalidRootDomain(value):
     """
@@ -232,16 +232,16 @@ class DomainMappingForm(forms.Form):
         if(self.cleaned_data["mode"]=="cname"):
             try:
                 if(self.cleaned_data.get("aim")):
-                    for url in self.cleaned_data.get("aim").split(","):
+                    for url in self.cleaned_data.get("aim").split(" "):
                         validate_url(url)
               
-            except  ValidationError:
+            except  ValidationError,e:
                
-                self._errors["aim"] = self.error_class([u"当为cname格式的时候 请输入url列表"])
+                self._errors["aim"] = self.error_class([e.message])
             else:
                 try:
                     for url in self.cleaned_data.get("aim").split(","):
-                        validate_url(url)
+                        validate_ipv46_address (url)
                 except ValidationError:
                     pass
                 else:

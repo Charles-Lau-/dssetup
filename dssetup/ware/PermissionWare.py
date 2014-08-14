@@ -1,7 +1,8 @@
 #coding=utf-8
 from django.http import HttpResponseRedirect
 from dssetup.models import  DomainApplicationForm 
-from dssetup.service import adminService,formService
+from dssetup.service import adminService
+from django.shortcuts import get_object_or_404
 
 class PermissionWare():
     """
@@ -15,8 +16,8 @@ class PermissionWare():
             else:
                 requiredResource = view_func.__name__       #后台部分的其他操作 权限名都和view function的名字一样
             if(not  requiredResource in request.session["perm"]):
-                pass
-                            
+                return HttpResponseRedirect("/permission")
+                          
                           
         elif(request.path.startswith("/handleForm")): #表单部分有三种情况的view访问：apply_form,show_xx_form,和 change form
             if(request.path.startswith("/handleForm/apply_form/") and not "apply_form" in request.session["perm"]):
@@ -32,7 +33,7 @@ class PermissionWare():
                     if(view_kwargs["role"]=="applicant" and not DomainApplicationForm.objects.get(id=view_kwargs["Id"]).creater==adminService.getUser(request)):
                         return HttpResponseRedirect("/permission")
                     elif(view_kwargs["role"]=="verifier"):
-                        zone = formService.getZoneOfApplicationForm(view_kwargs["Id"])
+                        zone = get_object_or_404(DomainApplicationForm,id=view_kwargs["Id"]).getZoneOfApplicationForm()
                         if(zone and not zone.zone_dpt==adminService.getUser(request).user_dpt):
                             return HttpResponseRedirect("/permission")
                             

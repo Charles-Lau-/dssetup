@@ -3,6 +3,7 @@
  {%block form-title%}
  <h5>表单主要信息</h5>
  {%endblock%}
+ <!--申请表单详细信心的显示-->
 {%block form-content%} 
   
         {%load filters%}
@@ -126,6 +127,7 @@
 {{super.block}}
 <script>
     
+  //控制评论的编写
   function write_comment(obj){
      var comment = prompt("请写操作备注","请填写操作备注（可为空）")
      var comm = document.getElementById("comment")
@@ -149,7 +151,7 @@
 
 <script>
   
-           
+//根据表单状态 控制 按钮的显示          
  var elements =  document.getElementsByClassName("control-label")
  for(var i=0;i<elements.length;i++){
      

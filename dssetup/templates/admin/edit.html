@@ -1,5 +1,5 @@
 {%extends "baseForm.html"%}
- 
+<!--编辑用户 权限组 域名 权限等等--> 
         {%block form-content%}
         {%load filters%}
         {%with action="edit_"|strcat:obj%}
@@ -23,6 +23,7 @@
    
 {%block js%}
 {{block.super}}
+<!--对于编辑部分而言 第一个Input是ReadOnly 不能被编辑的-->
 <script>
      var nodes = document.getElementsByTagName("input");
      

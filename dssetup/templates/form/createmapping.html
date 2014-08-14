@@ -1,7 +1,6 @@
 {%extends "baseForm.html"%}
  
-
-
+<!--用于显示创建表单流程中间部分的数据 相当于中转页面-->
 {%block form-content%} 
  
         {%load filters%}
@@ -21,6 +20,7 @@
     
     </div>
    </div>
+ <!--被JS使用的FORM模板 每添加一个映射 JS就COPY这个模板一次-->
 <form action={%url "store_domainName"%} method="post" id="domainForm-0" style="display:none">
 {% csrf_token %}
  <div class="container-fluid">
@@ -123,6 +123,7 @@
 {%block js%}
 {{block.super}}
 <script>
+   //用来控制 添加域名映射
     function addDomainForm(){
      var form =   document.getElementById("domainForm-0")
      var new_form =  form.cloneNode()

@@ -89,6 +89,7 @@
         <li><a href={%url "show_zone"%}>根域管理</a></li>
         
         <li><a href={%url "add_zone"%}>添加根域</a></li>
+        <li><a href={%url "domain_statistics"%}>域名统计</a></li>
       </ul>
     </li>
     {%endifequal%}
@@ -122,7 +123,9 @@
     {%ifequal "menu_djcbd-1" perm%}
     <li><a href={% url "show_unchecked_form"%}><i class="icon icon-home"></i> <span>待检查表单列表</span></a> </li>
     {%endifequal%}
-    {%endfor%} 
+    
+    {%endfor%}
+   
      
      
     
@@ -136,11 +139,7 @@
 </div> 
        
 {%endblock%}
-{%block welcome%}
-<p>Welcome to Domain System </p> 
-
-{%endblock%}
-
+ 
  
 <!--Footer-part-->
 <div class="row-fluid">

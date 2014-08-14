@@ -491,7 +491,7 @@ hr{ border-top-color:#dadada;}
 }
 /* Charts & graphs **/
 .chart, .pie, .bars, #donut, #interactive, #placeholder, #placeholder2 {
-	height: 300px;
+	height: 700px;
 	max-width: 100%;
 }
 #choices{ border-top:1px solid #dcdcdc; margin:10px 0; padding:10px;}

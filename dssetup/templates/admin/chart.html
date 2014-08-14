@@ -1,0 +1,86 @@
+{%extends "base.html"%}
+
+{%block content%}
+{{block.super}}
+   <div class="container-fluid">
+    <hr>
+     <div class="row-fluid" >
+      <div class="span10" style="margin-left:100px;margin-right:auto">
+        <form action={%url "domain_statistics" %} id="form">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"> <i class="icon-signal"></i> </span>
+            <h5>域名统计</h5> 
+            <select name="year" id="year"> 
+                
+            </select>
+          </div>  
+          <div class="widget-content">
+            <div class="bars"></div>
+          </div>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock%}
+{%block js%}
+<script src="/static/js/jquery.min.js"></script> 
+<script src="/static/js/bootstrap.min.js"></script> 
+<script src="/static/js/jquery.flot.min.js"></script> 
+<script src="/static/js/jquery.flot.pie.min.js"></script> 
+<script src="/static/js/jquery.flot.resize.min.js"></script> 
+<script src="/static/js/matrix.js"></script> 
+<script src="/static/js/jquery.peity.min.js"></script> 
+
+<!--用来加载select 并且控制select绑定的函数-->
+<script type="text/javascript">
+   var year= new Date().getFullYear()
+   var select = document.getElementById("year")
+   for(var i=10;i>-15;i--){
+        var op = document.createElement("option")
+        op.value = year+i
+        op.innerText = year+i
+        if(year+i=={{year}}){ 
+             op.setAttribute("selected","selected") 
+        }
+        select.appendChild(op)
+   }
+   select.onchange = function (){
+          var form = document.getElementById("form")
+          form.action =form.action + select.value
+          form.submit()
+   }
+
+</script>
+
+<!--柱形图的显示部分JS-->
+<script type="text/javascript">
+ 
+$(document).ready(function(){
+	
+	
+    var d1 = [];
+    {%for count in counter_array%} 
+          d1.push([{{forloop.counter}}, {{count}}]);
+    {%endfor%}
+	var data = new Array(); 
+	data.push({
+		data:d1,
+        bars: {
+            show: true, 
+            barWidth: 0.4, 
+            order: 1,
+        }
+    });    
+	
+	
+    //Display graph
+    var bar = $.plot($(".bars"), data, {
+		legend: true
+	});
+	
+});
+</script>
+{%endblock%}

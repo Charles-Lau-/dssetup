@@ -1,6 +1,6 @@
  {%extends "baseForm.html"%} 
  
- 
+<!--用于显示创建申请单主要部分的表单 和 创建申请单域名映射部分的表单-->
 {%block form-content%}
         
         {%load filters%}
@@ -20,7 +20,8 @@
                    <label class="control-label">{{field.label_tag}}</label>
                    <div class="controls">
                      {{field}}
-                    </div>
+                    </div>   
+                     
                     <span class="help-inline">{{field.errors}}</span> 
                 </div> 
                  {% endfor %}
@@ -36,9 +37,13 @@
 
 {%block js%}
  {{block.super}}
+ 
  <script>
-       
+       //申请表单主要部分的JS代码
+      
+       //控制 截止日期部分的显示和隐藏
        window.onload = initialization()
+    
        function  initialization(){
           function deal_effect_time(){
                    var choice  = document.getElementById("s2id_id_appCategory")
@@ -57,7 +62,7 @@
           
           
          
-          
+          //绑定函数 
           var category = document.getElementById("id_appCategory")
        
           if(category!=null){
@@ -68,7 +73,7 @@
        
        
        
-       
+       //提交
        function submit(){
                       var category = document.getElementById("id_appCategory")
        
@@ -91,6 +96,9 @@
  </script>
   
 <script>
+   //申请表单 映射部分的JS代码
+   
+   //控制更多选项的显示和隐藏
           function show_and_hide(){
               button = document.getElementById("more_options")
               if(button.innerText=="更多选项"){
@@ -125,7 +133,7 @@
                          
                }
          }
-         
+         //控制全选和取消
          function  select_and_cancel(){
                 var checkbox = document.getElementsByTagName("li")
                 var button = document.getElementById("select_all")
@@ -171,6 +179,7 @@
                                }
                                
            }
+           //初始化
           var more_options = document.createElement("a")
           more_options.setAttribute("class","btn btn-info")
           more_options.innerText = "更多选项"

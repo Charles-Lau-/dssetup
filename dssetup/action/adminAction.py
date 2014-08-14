@@ -3,6 +3,7 @@ from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormFo
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect
 from dssetup.service import adminService
+import time
 
 def show_object(request,obj):
     """
@@ -96,6 +97,15 @@ def addUserToGroup(request,Id):
     if(request.POST):
         for userId in request.POST.getlist("userIds"):
             adminService.addUserIntoGroup(Id, userId)
-        return render(request,"/admin/group/")
+        return HttpResponseRedirect("/admin/group/")
     else:
         return render(request,"user_into_group.html",{"users":adminService.getUsersNotInThisGroup(Id),"Id":Id})
+
+def domainStatistics(request,year):
+    """ 
+                   显示year 年份的域名申请的统计 
+    
+    """
+    if(not year):
+        year=time.localtime()[0]
+    return render(request,"chart.html",{"counter_array":adminService.getDomainStatistics(year),"year":year})
