@@ -97,3 +97,5 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(os.path.dirname(__file__),"../static").replace("\\","/")
+
+APPEND_SLASH = True

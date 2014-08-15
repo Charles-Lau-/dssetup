@@ -33,7 +33,7 @@ class Group(models.Model):
         return self.groupName+" : "+self.groupDes
 
     def get_values(self):
-        return {u"组名":self.groupName,u"组描述":self.groupDes,u"拥有的权限":self.authority.all()}
+        return {u"组名":self.groupName,u"组描述":self.groupDes,u"拥有的权限":[ a.authName for a in self.authority.all()]}
 
     class Meta:
         ordering = ["groupName",]
@@ -67,7 +67,7 @@ class User(models.Model):
         hs.update(raw_password)
 
     def get_values(self):
-        return {u"用户名":self.userName,u"邮件":self.userMail,u"权限组":self.group.all(),u"电话号码":self.userPhone,u"上次登录的IP":self.loginLastIp,u"上次登录的时间":self.loginLastTime,u"创建时间":self.createTime}
+        return {u"用户名":self.userName,u"邮件":self.userMail,u"权限组":[ g.groupName for g in self.group.all()],u"电话号码":self.userPhone,u"上次登录的IP":self.loginLastIp,u"上次登录的时间":self.loginLastTime,u"创建时间":self.createTime}
 
 def hash_password(instance,**kwargs):
     instance.make_password(instance.userPassword)

@@ -1,10 +1,8 @@
 #coding=utf-8
 from dssetup.forms import DomainApplicationFormForm,DomainMappingForm,validate_url
-from django.shortcuts import render 
-from django.http import HttpResponseRedirect 
 from dssetup.models import ServiceProvider,DomainApplicationForm
 from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404 
+from django.shortcuts import get_object_or_404,redirect,render
 from django.http import Http404
 from dssetup.service import formService,adminService
 from copy import copy 
@@ -77,7 +75,7 @@ def createDomainForm(request):
             request.session["root"] = request.POST["RootDomain"]               #记录该申请表单所操作的主域名 用于后续的操作 
             if("mapping_part" in request.session):
                 del request.session["mapping_part"]                            #在创建一个新的申请表单的时候 如果域名映射部分有缓存 则应该删掉                          
-            return HttpResponseRedirect("create_mapping_part")
+            return redirect("create_mapping_part")
         else:
             return render(request,"createform.html",{"form":main_part})
     else:
@@ -153,10 +151,10 @@ def createMappingForm(request,domainName=None):
                     print form
                     return render(request,"createform.html",{"form":form,"hidden":domainName})
                 else:
-                    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
+                    return redirect("/handleForm/apply_form/create_mapping_part")      
                     
             else:
-                return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")
+                return redirect("/handleForm/apply_form/create_mapping_part")
 
 def storeDomainName(request):
     """
@@ -217,7 +215,7 @@ def storeDomainName(request):
         __addDomainNameDataToSession()
         __validateDomain()    
     
-    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")      
+    return redirect("/handleForm/apply_form/create_mapping_part")      
 
 def deleteDomainForm(request,domainName):
     """
@@ -232,7 +230,7 @@ def deleteDomainForm(request,domainName):
         request.session["mapping_part"] = sessionMapping
         
     
-    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")        
+    return redirect("/handleForm/apply_form/create_mapping_part")        
             
 def deleteMappingForm(request,domainName,Id):
     """
@@ -250,7 +248,7 @@ def deleteMappingForm(request,domainName,Id):
         request.session["mapping_part"] = sessionMapping
           
     
-    return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")             
+    return redirect("/handleForm/apply_form/create_mapping_part")             
 def createMappingPart(request):
     """
       跳转中转
@@ -273,7 +271,7 @@ def editForm(request,Id,step):
             form = DomainApplicationFormForm(data=request.POST,instance=get_object_or_404(DomainApplicationForm,id=Id))
             if(form.is_valid()):
                 form.save()
-                return HttpResponseRedirect("/handleForm/edit_form/"+str(Id)+"/2")
+                return redirect("/handleForm/edit_form/"+str(Id)+"/2")
             else:
                 return render(request,"editForm.html",{"form":form,"Id":Id})
             
@@ -310,9 +308,9 @@ def addFormIntoDatabase(request):
     if ("Id" in request.session and "mapping_part" in request.session and request.session.get("mapping_part")):
         for mapping in request.session.get("mapping_part").values():
             if("error" in mapping):
-                return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")
+                return redirect("/handleForm/apply_form/create_mapping_part")
             if(not mapping.get("mapping")):
-                return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")
+                return redirect("/handleForm/apply_form/create_mapping_part")
              
             
         for mapping in request.session.get("mapping_part").values():
@@ -329,9 +327,9 @@ def addFormIntoDatabase(request):
             del request.session["root"]
      
         
-        return HttpResponseRedirect("/handleForm/show_applied_form")
+        return redirect("/handleForm/show_applied_form")
     else:
-        return HttpResponseRedirect("/handleForm/apply_form/create_mapping_part")  #如果SESSION失效则让他重新填写域名映射信息
+        return redirect("/handleForm/apply_form/create_mapping_part")  #如果SESSION失效则让他重新填写域名映射信息
 def checkForm(request,Id,role=None):
     """
      返回某个表单的详细信息给HTML页面
@@ -379,7 +377,7 @@ def changeForm(request):
         url = formService.changeForm(request,request.POST["Id"],request.POST["operation"])
     else:
         url="/index"
-    return HttpResponseRedirect(url)
+    return redirect(url)
   
 def cancelEdit(request):
     """
@@ -395,7 +393,7 @@ def cancelEdit(request):
     if("mapping_part" in request.session):
         del request.session["mapping_part"]
         
-    return HttpResponseRedirect("/handleForm/show_applied_form")     
+    return redirect("/handleForm/show_applied_form")     
 
 def showFormHistory(request,Id):
     """

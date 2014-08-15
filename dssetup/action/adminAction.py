@@ -1,7 +1,6 @@
 #coding=utf-8
 from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormForm
-from django.shortcuts import render 
-from django.http import HttpResponseRedirect
+from django.shortcuts import render,redirect
 from dssetup.service import adminService,formService
 import time
 
@@ -26,7 +25,7 @@ def delete_object(request,Id,obj):
 
     """
     adminService.deleteObjectById(obj, Id)
-    return HttpResponseRedirect("/admin/"+obj+"/")
+    return redirect("/admin/"+obj+"/")
 
  
 def add_object(request,obj):
@@ -40,7 +39,7 @@ def add_object(request,obj):
         form = __generateForm(post=request.POST,obj=obj) #生成obj对应的表单
         if(form.is_valid()):
             form.save()
-            return HttpResponseRedirect("/admin/"+obj)
+            return redirect("/admin/"+obj)
         
         else:
             return render(request,"add.html",{"form":form,"obj":obj})
@@ -57,17 +56,22 @@ def edit_object(request,Id,obj):
     """
     instance_ = adminService.getObjectById(obj, Id) 
     if(request.POST):
-        form = __generateForm(post=request.POST,instance_=instance_,obj=obj)#生成相应的表单       
+        form = __generateForm(post=request.POST,instance_=instance_,obj=obj)#生成相应的表单
+       
         if(form.is_valid()):
             form.save()
-            return HttpResponseRedirect("/admin/"+obj)
+            return redirect("/admin/"+obj)
         else: 
             return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
 
     else:
-        form = __generateForm(instance_=instance_,obj=obj)         
-        return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
-
+        form = __generateForm(instance_=instance_,obj=obj)
+        if(obj=="group"):
+            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":adminService.getFormattedAuthOfGroup(Id)})
+        else:
+            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
+        
+            
 def __generateForm(obj,post=None,instance_=None):
     """
       根据参数生成不同需求的表单
@@ -97,7 +101,7 @@ def addUserToGroup(request,Id):
     if(request.POST):
         for userId in request.POST.getlist("userIds"):
             adminService.addUserIntoGroup(Id, userId)
-        return HttpResponseRedirect("/admin/group/")
+        return redirect("/admin/group/")
     else:
         return render(request,"user_into_group.html",{"users":adminService.getUsersNotInThisGroup(Id),"Id":Id})
 
