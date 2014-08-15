@@ -1,0 +1,61 @@
+{%extends "baseForm.html"%}
+
+ {%block form-title%}
+ <h5>域名当前的细节和绑定的IP</h5>
+ {%endblock%}
+ 
+{%block form-content%} 
+         
+       
+    
+          <form action="" method="post" class="form-horizontal">
+              {% csrf_token %}
+               {% for field in domain%}
+                <div class="control-group">
+                   <label class="control-label">{{field.label_tag}}</label>
+                   <div class="controls">
+                     {{field}}
+                    </div>
+                    <span class="help-inline">{{field.errors}}</span> 
+                </div> 
+                 {% endfor %}
+            
+          </form>
+   
+ 
+   <div class="container-fluid">
+    <hr>
+    <div class="row-fluid">
+      <div class="span12">
+        <div class="widget-box">
+          <div class="widget-title"> <span class="icon"> <i class="icon-th"></i> </span>
+                 </div>
+          <div class="widget-content nopadding">
+            <table class="table table-bordered table-striped">
+              <thead>
+                 <tr>
+                  <th>Ip</th>
+                  <th>服务供应商</th>
+                  <th>模式</th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+               {%for m in mapping%}
+             
+                <tr class="odd gradeX">
+                    <th>{{m.aim}}</th>
+                    <th>{{m.dm_sp}}</th>
+                    <th>{{m.mode}}</th> 
+                </tr>
+                 {%endfor%}
+              </tbody>
+            </table>
+           
+          </div>
+        </div>
+      </div>
+    </div>
+ </div>
+ 
+{%endblock%}

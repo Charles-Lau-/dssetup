@@ -294,4 +294,8 @@ class DomainFormForm(forms.ModelForm):
     """
     class Meta:
         model = DomainForm
+        fields = ["domainName",
+                  "status",
+                  "domain_zone",
+                  "domainType"]
         

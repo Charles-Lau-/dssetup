@@ -15,6 +15,7 @@ urlpatterns =  patterns('',
        url(r"^domain/$",adminAction.show_object,{"obj":"domain"},name="show_domain"),               
        url(r"^domain/delete=(?P<Id>\d+)/$",adminAction.delete_object,{"obj":"domain"},name="delete_domain"),
        url(r"^domain/edit=(?P<Id>\d+)/$",adminAction.edit_object,{"obj":"domain"},name="edit_domain"),
+       url(r"^domain/(?P<Id>\d+)/$",adminAction.showDetailOfDomain,name="show_detail_of_domain"),
        
        url(r"^zone/$",adminAction.show_object,{"obj":"zone"},name="show_zone"),               
        url(r"^zone/delete=(?P<Id>\d+)/$",adminAction.delete_object,{"obj":"zone"},name="delete_zone"),

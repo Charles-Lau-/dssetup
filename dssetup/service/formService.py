@@ -1,6 +1,7 @@
 #coding=utf-8
 from dssetup.models import DomainApplicationForm,ApplicationFormStatus,DomainForm,Zone,DomainMapping,ServiceProvider
 from dssetup import staticVar
+from dssetup.forms import DomainFormForm
 from dssetup.service import adminService
 import datetime
 
@@ -88,14 +89,19 @@ def addDomainMappingForm(Id,mapping,root):
     status.save()
     
     domainName = mapping.values()[0]
-    try:                                                      #如果域名存在 则查出来 没有就创建一条新的
-        domain = DomainForm.objects.get(domainName=domainName)
+    try:                                                       #如果域名存在 则查出来 没有就创建一条新的  这里创建的是  Type=1的域名
+        domain1 = DomainForm.objects.get(domainName=domainName,domainType=1)
+        
     except DomainForm.DoesNotExist:
-        domain = DomainForm(domainName=domainName)
-         
-    domain.status = staticVar.CANNOT_APPLY                    #正在申请中的域名是不能再被申请了的 
+        domain1 = DomainForm(domainName=domainName,domainType=1)
+    
+    domain1.domain_zone = Zone.objects.get(zoneName=root)
+    domain1.status = staticVar.CANNOT_APPLY
+    domain1.save()
+    
+    domain = DomainForm(domainName=domainName,domainType=0)
     domain.domain_zone =  Zone.objects.get(zoneName=root)
-            
+    domain.status = staticVar.CANNOT_APPLY        
     domain.save()
     domain.da_domain.add(main)
     domain.save()
@@ -105,9 +111,18 @@ def addDomainMappingForm(Id,mapping,root):
         domainMapping = DomainMapping(mode=m.get("mode"),aim= m.get("aim"))
         domainMapping.dm_domain = domain
         domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName"))
-        domainMapping.dm_da = main
         domainMapping.save()
-
+    
+    if(DomainMapping.objects.filter(dm_domain=domain1)):  #如果该域名有绑定的映射  就删除掉映射 然后  再绑定新的 如果没有  就直接创建新的域名绑定
+        for m in DomainMapping.objects.filter(dm_domain=domain1):
+            m.delete()
+    for m in mappingData:
+        domainMapping = DomainMapping(mode=m.get("mode"),aim= m.get("aim"))
+        domainMapping.dm_domain = domain1
+        domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName")) 
+        domainMapping.save()
+   
+        
 def getFormDetails(Id):
     """
      返回申请表单详细信息
@@ -121,7 +136,7 @@ def getFormDetails(Id):
         domainMapping ={}
         domainMapping["domainName"] = domain.domainName
         domainMapping["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_domain=domain,dm_da=domainApplicationForm):
+        for mapping in DomainMapping.objects.filter(dm_domain=domain):
             domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"sp":mapping.dm_sp.spName})
         mapping_part.append(domainMapping)
     
@@ -178,8 +193,11 @@ def changeForm(request,Id,operation):
             url = root + "show_unchecked_form"
     elif(operation=="close"):
         form.status = staticVar.CLOSED
-        for domain in DomainForm.objects.filter(da_domain=form):
+        for domain in DomainForm.objects.filter(da_domain=form):  #改变表单对应的DOMAIN的状态
                 domain.status = staticVar.CAN_APPLY
+                domain1 = DomainForm.objects.get(domainName=domain.domainName,domainType=1)
+                domain1.status = staticVar.CAN_APPLY
+                domain1.save()
                 domain.save()
         url = root + "show_applied_form"
     elif(operation=="edit"):
@@ -198,8 +216,11 @@ def changeForm(request,Id,operation):
        
         if(form.status==staticVar.CHECKED):
             form.status = staticVar.COMPLETED
-            for domain in DomainForm.objects.filter(da_domain=form):
+            for domain in DomainForm.objects.filter(da_domain=form):   #改变表单对应的DOMAIN的状态
                 domain.status = staticVar.CAN_APPLY
+                domain1 = DomainForm.objects.get(domainName=domain.domainName,domainType=1)
+                domain1.status = staticVar.CAN_APPLY
+                domain1.save()  
                 domain.save()
             url = root + "show_applied_form"
         else:
@@ -230,7 +251,7 @@ def getMappingDetailsForEdit(Id):
         domainMapping ={}
         domainMapping["domainName-"+str(i)] = domain.domainName
         domainMapping["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_domain=domain,dm_da=domainApplicationForm):
+        for mapping in DomainMapping.objects.filter(dm_domain=domain):
             domainMapping["mapping"].append({"aim":mapping.aim,"mode":mapping.mode,"spName":mapping.dm_sp.spName})
             waiting_for_delete["mapping"].append(mapping.id)
         mapping_part["domainName-"+str(i)] = domainMapping
@@ -255,7 +276,7 @@ def domainIsOccupied(domainName):
     
     """
     try:                                          
-        domain = DomainForm.objects.get(domainName=domainName)
+        domain = DomainForm.objects.get(domainName=domainName,domainType=1)
         if(domain.status == staticVar.CANNOT_APPLY):
             return True
         else:
@@ -272,7 +293,7 @@ def getFormatMappingData(Id):
         mappingData={}
         mappingData["domainName"] = domain.domainName
         mappingData["mapping"] = []
-        for mapping in DomainMapping.objects.filter(dm_domain=domain,dm_da=domainApplicationForm):
+        for mapping in DomainMapping.objects.filter(dm_domain=domain):
             mappingData["mapping"].append(mapping.get_values())
         
         #验证 是否 所有的view都映射到一个ip 或域名
@@ -307,3 +328,16 @@ def getFormatMappingData(Id):
                 else:
                     data += mapping["aim"]+"\n"
     return data  
+
+def showDetailOfDomain(Id):
+    """
+              这个函数是为了后台的  显示域名的详细绑定信息而使用的 
+    
+    """
+    domain = DomainForm.objects.get(id=Id)
+    form = DomainFormForm(instance=domain)
+    domainMapping=[]
+    for mapping in DomainMapping.objects.filter(dm_domain=domain):
+        domainMapping.append(mapping.get_values())
+    return (form,domainMapping)
+    

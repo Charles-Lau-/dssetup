@@ -61,6 +61,11 @@
                     <a href={%url "add_user_to_group" o.id%}><i class="icon icon-arrow-up"></i></a>      
                           
                   {%endifequal%}
+                  {%ifequal obj "domain"%}
+                  
+                    <a href={%url "show_detail_of_domain" o.id%}><i class="icon icon-arrow-up"></i></a>      
+                          
+                  {%endifequal%}
                   
                   </th>
                 </tr>

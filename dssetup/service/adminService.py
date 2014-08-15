@@ -13,7 +13,7 @@ def getAllObject(obj):
     elif(obj == "authority"):
         objs_list = Authority.objects.all()
     elif(obj =="domain"):
-        objs_list = DomainForm.objects.all()
+        objs_list = DomainForm.objects.filter(domainType=1)
     elif(obj == "zone"):
         objs_list = Zone.objects.all()
     return objs_list

@@ -2,7 +2,7 @@
 from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormForm
 from django.shortcuts import render 
 from django.http import HttpResponseRedirect
-from dssetup.service import adminService
+from dssetup.service import adminService,formService
 import time
 
 def show_object(request,obj):
@@ -109,3 +109,7 @@ def domainStatistics(request,year):
     if(not year):
         year=time.localtime()[0]
     return render(request,"chart.html",{"counter_array":adminService.getDomainStatistics(year),"year":year})
+
+def showDetailOfDomain(request,Id):
+    detail = formService.showDetailOfDomain(Id)
+    return render(request,"show_detail_of_domain.html",{"domain":detail[0],"mapping":detail[1]})

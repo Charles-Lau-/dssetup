@@ -6,9 +6,7 @@
  <!--申请表单详细信心的显示-->
 {%block form-content%} 
   
-        {%load filters%}
-      
-          <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
+        <form action={%url "create_main_form"%} method="post" class="form-horizontal" id="create_form">
               {% csrf_token %}
        
               {{main_part|safe}} 

@@ -177,14 +177,14 @@ class DomainForm(models.Model):
     status = models.CharField(max_length=30,verbose_name=u"域名状态")
     domain_zone = models.ForeignKey(Zone,verbose_name=u"域名的父域名")
     da_domain = models.ManyToManyField(DomainApplicationForm,blank=True,null=True,verbose_name=u"该域名对应的申请单")
-
+    domainType = models.CharField(max_length=10,blank=True,null=True)
     def get_values(self):
         return {
                 u"域名":self.domainName,
                 u"域名描述":self.domainDes,
                 u"域名状态":self.status,
                 u"父域名":self.domain_zone,
-                 
+             
                 }
     
     
@@ -199,8 +199,7 @@ class DomainMapping(models.Model):
     dm_domain = models.ForeignKey(DomainForm,verbose_name=u"域名映射对应的域名")
     dm_sp = models.ForeignKey(ServiceProvider,verbose_name=u"服务供应商")
     mode = models.CharField(max_length=10,verbose_name=u"模式")
-    aim = models.CharField(max_length=50,verbose_name=u"IP或域名")
-    dm_da = models.ForeignKey(DomainApplicationForm,blank=True,null=True)
+    aim = models.CharField(max_length=50,verbose_name=u"IP或域名") 
     def get_values(self):
         return {"dm_sp":self.dm_sp.spNameEn,
                 "mode":self.mode,
