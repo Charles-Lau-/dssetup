@@ -50,7 +50,7 @@
                   {%endfor%} 
                   {%with delete='delete_'|strcat:obj edit='edit_'|strcat:obj%}
                   <th class="center">
-                    <a href={%url delete o.id%}><i class="icon icon-remove"></i></a>
+                    <a href=" {%url delete o.id%}"><i class="icon icon-remove" onclick="javascritp:return checkinput()"></i></a>
                   
                     <a href={%url edit o.id%}><i class="icon icon-edit"></i></a>
                   </span>

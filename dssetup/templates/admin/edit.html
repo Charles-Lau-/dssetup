@@ -3,7 +3,7 @@
 {%block form-content%}
         
 {%ifequal obj "group"%}
-      <form action={%url "edit_group" id%} method="post" class="form-horizontal" id="form">
+      <form action={%url "edit_group" id%} method="post" class="form-horizontal" id="form" >
               {% csrf_token %}
                {% for field in form%}
                 {%if forloop.last%}
@@ -43,7 +43,7 @@
 {%else%}
         {%load filters%}
         {%with action="edit_"|strcat:obj%}
-          <form action={%url action id%} method="post" class="form-horizontal">
+          <form action={%url action id%} method="post" class="form-horizontal" onsubmit="javascript:return checkinput()">
               {% csrf_token %}
               {%endwith%}
                {% for field in form%}
@@ -94,8 +94,8 @@
                          document.getElementById("input_"+auth_parent[i].id).checked = ""
                         
              }
-            
-             document.getElementById("form").submit()
+             if(confirm("确认执行此操作么"))
+                  document.getElementById("form").submit()
      
      }
      function select_and_cancel_parent(){

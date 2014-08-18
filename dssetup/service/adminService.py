@@ -109,17 +109,17 @@ def getDomainStatistics(year):
         num=0
         if(i>9):
            
-            for form in DomainApplicationForm.objects.filter(createTime__contains=str(year)+"-"+str(i)):
+            for form in DomainApplication.objects.filter(createTime__contains=str(year)+"-"+str(i)):
                 num += len(DomainForm.objects.filter(da_domain=form))
             
         else:
-            for form in DomainApplicationForm.objects.filter(createTime__contains=str(year)+"-0"+str(i)):
+            for form in DomainApplication.objects.filter(createTime__contains=str(year)+"-0"+str(i)):
                 num += len(DomainForm.objects.filter(da_domain=form))
         counter.append(num)
             
     return counter
 
-def getFormattedAuthOfGroup(Id):
+def getFormattedAuth():
     formattedAuth=[]
     auth_parent = []
     for auth in Authority.objects.all():
@@ -133,4 +133,5 @@ def getFormattedAuthOfGroup(Id):
         formattedAuth.append(f_auth)
    
      
-    return (formattedAuth,[ a.id  for a in Group.objects.get(id=Id).authority.all()])
+    print formattedAuth
+    return formattedAuth

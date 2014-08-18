@@ -113,7 +113,7 @@
 </form> 
 
 {%endfor%}
-      {%block form-submit%}  <a class="btn btn-info"  href={%url "add_form"%}>提交</a>{%endblock%}
+      {%block form-submit%}  <a class="btn btn-info"  href={%url "add_form"%} onclick="javascript:return checkinput()">提交</a>{%endblock%}
          
 {%endblock%}    
  

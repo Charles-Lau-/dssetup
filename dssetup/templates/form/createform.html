@@ -6,10 +6,10 @@
         {%load filters%}
          {%block form-action%}
           {%if hidden%} 
-          <form action={%url "create_mapping_form" hidden%} method="post" class="form-horizontal" id="create_form">
+          <form action={%url "create_mapping_form" hidden%} method="post" class="form-horizontal" id="create_form" onsubmit="javascript:return checkinput()">
           
           {%else%}
-          <form action={%url "create_main_form" %} method="post" class="form-horizontal" id="create_form">
+          <form action={%url "create_main_form" %} method="post" class="form-horizontal" id="create_form" onsubmit="javascript:return checkinput()">
           {%endif%}
           {%endblock%}
               {% csrf_token %}
@@ -89,8 +89,8 @@
                                           }
                    
                         }
-            
-                       document.getElementById("create_form").submit()
+                       if(confirm("确认执行此操作么"))
+                         document.getElementById("create_form").submit()
        }
     
  </script>

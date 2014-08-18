@@ -1,10 +1,49 @@
 {%extends "baseForm.html"%}
 <!--添加用户  权限组  权限 域名 等等-->
 {%block form-content%}
- 
+        
+{%ifequal obj "group"%}
+      <form action={%url "add_group"%} method="post" class="form-horizontal" id="form">
+              {% csrf_token %}
+               {% for field in form%}
+                {%if forloop.last%}
+                   <div class="control-group" >
+                     <label class="control-label">组权限</label>
+                      <div class="controls" id="auth">
+                     {%for auth in authority.0%}
+                         <div class="control-group" id="auth_parent_{{forloop.counter}}">
+                          {%for a in auth%}
+                             {%if forloop.first%}
+                                   &nbsp&nbsp&nbsp<input name="authority" type="checkbox" value="{{a.id}}" id="input_auth_parent_{{forloop.parentloop.counter}}">{{a.authName}}<br></br>                           
+                               {%else%}
+                            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            <input name="authority" type="checkbox" value="{{a.id}}"  id="input_auth_child_{{forloop.counter0}}">{{a.authName}}<br></br>
+                           {%endif%}
+                          {%endfor%}
+                          </div>
+                     {%endfor%}
+                      </div> 
+                   </div> 
+                {%else%}
+                <div class="control-group">
+                   <label class="control-label">{{field.label_tag}}</label>
+                   <div class="controls">
+                     {{field}}
+                    </div>
+                    <span class="help-inline">{{field.errors}}</span> 
+                </div> 
+                 {%endif%}
+                 {% endfor %}
+           <div class="form-actions"> 
+              <a  class="btn btn-success" onclick="submit()">Save</a>
+            </div>      
+          </form>
+
+
+{%else%} 
         {%load filters%}
         {%with action="add_"|strcat:obj%}
-          <form action={%url action%} method="post" class="form-horizontal">
+          <form action={%url action%} method="post" class="form-horizontal" onsubmit="javascript:return checkinput()">
               {% csrf_token %}
               {%endwith%}
                {% for field in form%}
@@ -20,5 +59,73 @@
               <button type="submit" class="btn btn-success">Save</button>
             </div>      
           </form>
+{%endifequal%}
+{%endblock%}
+{%block js%}
+{{block.super}}
+<!--权限部分的选择 控制-->
+<script>
+     function submit(){
+             var control_group = document.getElementById("auth")
+    
+              
+             var auth_parent = control_group.children
+             for(var i=0;i<auth_parent.length;i++){
+                    flag=false
+                    
+                    for(var j=1;j<auth_parent[i].children.length;j++){
+                          if(auth_parent[i].children[j].tagName=="DIV")
+                               flag=true
+                        
+                         }
+                 
+                     if(flag)
+                         document.getElementById("input_"+auth_parent[i].id).checked = ""
+                        
+             }
+             if(confirm("确认执行此操作么"))
+                 document.getElementById("form").submit()
+             
+     }
+     function select_and_cancel_parent(){
+            var siblings = this.parentNode.parentNode.parentNode.children
+          
+             
+            for(var i=1;i<siblings.length;i++){
+                    if(siblings[i].tagName=="DIV"){  
+                             if(this.parentNode.getAttribute("class")=="checked"){
+                                siblings[i].children[0].setAttribute("class","")
+                                siblings[i].children[0].children[0].checked=""
+                               
+                                }
+                             else{
+                                 siblings[i].children[0].setAttribute("class","checked")  
+                                 siblings[i].children[0].children[0].checked="checked"
+                                
+                              }
+                            }
+            } 
+      
+           
+     }
+     var control_group = document.getElementById("auth")
+     var auth_parent = control_group.children
+     for(var i=0;i<auth_parent.length;i++){
+            var parent = document.getElementById("input_"+auth_parent[i].id)
+            parent.onclick =  select_and_cancel_parent
+    }
+    
+     var selection = document.getElementsByTagName("input")
+     
+     {%for id in authority.1%}
+     for(var i=0;i<selection.length;i++){
+             if(selection[i].value=={{id}}){
+                     selection[i].parentNode.setAttribute("class","checked")
+                     selection[i].checked = "checked"
+                     }
+      }
+     {%endfor%}
+</script>
+
 {%endblock%}
  

@@ -2,6 +2,7 @@
 from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormForm
 from django.shortcuts import render,redirect
 from dssetup.service import adminService,formService
+from dssetup.models import Group
 import time
 
 def show_object(request,obj):
@@ -42,10 +43,17 @@ def add_object(request,obj):
             return redirect("/admin/"+obj)
         
         else:
-            return render(request,"add.html",{"form":form,"obj":obj})
+            if(obj=="group"):
+                return render(request,"add.html",{"form":form,"obj":obj,"authority":[adminService.getFormattedAuth(),request.REQUEST.getlist("authority")]})
+            else:
+                return render(request,"add.html",{"form":form,"obj":obj})
     else:
         form = __generateForm(obj=obj)
-        return render(request,"add.html",{"form":form,"obj":obj})
+        if(obj=="group"):
+            return render(request,"add.html",{"form":form,"obj":obj,"authority":[adminService.getFormattedAuth()]})
+   
+        else:
+            return render(request,"add.html",{"form":form,"obj":obj})
  
 def edit_object(request,Id,obj):
     """
@@ -62,12 +70,15 @@ def edit_object(request,Id,obj):
             form.save()
             return redirect("/admin/"+obj)
         else: 
-            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
-
+            if(obj=="group"):
+                return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[adminService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
+            else:
+                return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
+        
     else:
         form = __generateForm(instance_=instance_,obj=obj)
         if(obj=="group"):
-            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":adminService.getFormattedAuthOfGroup(Id)})
+            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[adminService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
         else:
             return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
         
