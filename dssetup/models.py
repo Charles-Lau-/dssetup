@@ -39,12 +39,12 @@ class Group(models.Model):
         ordering = ["groupName",]
    
 class User(models.Model):
-    userName = models.CharField(max_length=30,unique=True,verbose_name=u"用户名")
+    userName = models.CharField(max_length=30,unique=True,verbose_name=u"用户名",null=True,blank=True)
     userPassword = models.CharField(max_length=100,verbose_name=u"密码")
     group = models.ManyToManyField(Group,blank=True,null=True,verbose_name=u"权限组")
     userMail = models.EmailField(unique=True,verbose_name=u"用户邮箱")
-    userPhone = models.CharField(max_length=11, blank=True,verbose_name=u"用户联系电话")
-    user_dpt = models.ForeignKey(Department,verbose_name=u"用户所在部门")
+    userPhone = models.CharField(max_length=11,verbose_name=u"用户联系电话",null=True,blank=True)
+    user_dpt = models.ForeignKey(Department,verbose_name=u"用户所在部门",null=True,blank=True)
     createTime = models.DateTimeField(auto_now_add=True,verbose_name=u"创建时间")
     loginLastIp = models.IPAddressField(blank=True,null=True,verbose_name=u"上次登录IP")
     loginLastTime = models.DateTimeField(blank=True,null=True,verbose_name=u"上次登录的时间")
@@ -75,7 +75,7 @@ def hash_password(instance,**kwargs):
 post_save.connect(hash_password, sender=User)
 
 
-class DomainApplicationForm(models.Model):
+class DomainApplication(models.Model):
 
     APPCATEGORY = (
                    (u"普通","普通"),
@@ -137,13 +137,13 @@ class DomainApplicationForm(models.Model):
                                     得到记录该表单的状态流转记录
           
         """
-        return ApplicationFormStatus.objects.filter(status_da=self)
+        return FormStatus.objects.filter(status_da=self)
 
-class ApplicationFormStatus(models.Model):
+class FormStatus(models.Model):
     status = models.CharField(max_length=30,verbose_name=u"表单状态")
     status_user = models.ForeignKey(User,verbose_name=u"将表单改变为目前状态的人")
     createTime = models.DateTimeField(auto_now_add=True,verbose_name=u"创建时间 ")
-    status_da = models.ForeignKey(DomainApplicationForm,verbose_name=u"该记录对应的申请单")
+    status_da = models.ForeignKey(DomainApplication,verbose_name=u"该记录对应的申请单")
     statusDes = models.CharField(max_length=50,verbose_name=u"状态改变描述",blank=True,null=True)
 
     class Meta:
@@ -176,7 +176,7 @@ class DomainForm(models.Model):
     domainDes = models.TextField(blank=True,verbose_name=u"域名描述")
     status = models.CharField(max_length=30,verbose_name=u"域名状态")
     domain_zone = models.ForeignKey(Zone,verbose_name=u"域名的父域名")
-    da_domain = models.ManyToManyField(DomainApplicationForm,blank=True,null=True,verbose_name=u"该域名对应的申请单")
+    da_domain = models.ManyToManyField(DomainApplication,blank=True,null=True,verbose_name=u"该域名对应的申请单")
     domainType = models.CharField(max_length=10,blank=True,null=True)
     def get_values(self):
         return {

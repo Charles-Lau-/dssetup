@@ -1,10 +1,10 @@
 #coding=utf-8
-from dssetup.forms import DomainApplicationFormForm,DomainMappingForm,validate_url
-from dssetup.models import ServiceProvider,DomainApplicationForm
+from dssetup.forms import DomainApplicationForm,DomainMappingForm,validate_url
+from dssetup.models import ServiceProvider
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404,redirect,render
 from django.http import Http404
-from dssetup.service import formService,adminService
+from dssetup.service import formService,userService,domainService
 from copy import copy 
 
 def showUncheckedForm(request):
@@ -30,7 +30,7 @@ def showUnverifiedForm(request):
              显示待审核申请单列表
      
     """
-    user = adminService.getUser(request)
+    user = userService.getUser(request)
     return render(request,"formlist.html",{
                   "form_list":formService.getFormOfVerifier(user),                          
                   "role":"verifier"
@@ -40,7 +40,7 @@ def showAppliedForm(request):
              显示已申请单列表
      
     """
-    user = adminService.getUser(request)
+    user = userService.getUser(request)
     return render(request,"formlist.html",{
                   "form_list":formService.getFormOfApplicant(user),                          
                   "role":"applicant"
@@ -68,7 +68,7 @@ def createDomainForm(request):
             return html
         
     if(request.POST):
-        main_part = DomainApplicationFormForm(request.POST) 
+        main_part = DomainApplicationForm(request.POST) 
         if(main_part.is_valid()):
             request.session["Id"] = formService.addMainForm(request,main_part) #将申请表单的主要信息存入数据库 并且返回Id
             request.session["main_part"] = __getHtmlFromForm(main_part)        #记录该申请表单的主要信息的HTML显示 用于显示在页面上面
@@ -79,7 +79,7 @@ def createDomainForm(request):
         else:
             return render(request,"createform.html",{"form":main_part})
     else:
-        main_part = DomainApplicationFormForm()
+        main_part = DomainApplicationForm()
         return render(request,"createform.html",{"form":main_part})
             
 def createMappingForm(request,domainName=None):
@@ -189,7 +189,7 @@ def storeDomainName(request):
         try:
           
             validate_url(domain_value)        #检测 提交的域名是不是合法的域名格式
-            if(formService.domainIsOccupied(domain_value)):
+            if(domainService.domainIsOccupied(domain_value)):
                 raise ValidationError(u"域名正在被申请")
         except ValidationError,e:
             mapping = request.session["mapping_part"].get(domain_key)
@@ -268,7 +268,7 @@ def editForm(request,Id,step):
         
     if(step==1):   #表单主要部分内容的编辑
         if(request.POST):
-            form = DomainApplicationFormForm(data=request.POST,instance=get_object_or_404(DomainApplicationForm,id=Id))
+            form = DomainApplicationForm(data=request.POST,instance=get_object_or_404(DomainApplicationForm,id=Id))
             if(form.is_valid()):
                 form.save()
                 return redirect("/handleForm/edit_form/"+str(Id)+"/2")
@@ -277,7 +277,7 @@ def editForm(request,Id,step):
             
         else:
             domainApplicationForm = get_object_or_404(DomainApplicationForm,id=Id)
-            form = DomainApplicationFormForm(instance=domainApplicationForm)
+            form = DomainApplicationForm(instance=domainApplicationForm)
             form.initial["RootDomain"] = domainApplicationForm.getZoneOfApplicationForm().zoneName
             return render(request,"editForm.html",{"form":form,"Id":Id})
     elif(step==2):  #映射部分的编辑  我们直接借用创建表单的页面   通过删除原有的域名绑定  插入编辑后的新的域名绑定记录 的方式来实现编辑功能

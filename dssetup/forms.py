@@ -1,7 +1,7 @@
 #coding=utf-8
 from django import forms
 from django.core.exceptions import ValidationError
-from dssetup.models import User,Group,Authority,DomainApplicationForm,ServiceProvider,Zone,DomainForm
+from dssetup.models import User,Group,Authority,DomainApplication,ServiceProvider,Zone,DomainForm
 from django.core.validators import validate_email,validate_ipv46_address
 import re
 
@@ -176,7 +176,7 @@ class AuthorityForm(forms.ModelForm):
          
         super(AuthorityForm,self).full_clean()
 
-class DomainApplicationFormForm(forms.ModelForm):
+class DomainApplicationForm(forms.ModelForm):
     """
       域名申请表单的主要部分对应的表单
       
@@ -189,7 +189,7 @@ class DomainApplicationFormForm(forms.ModelForm):
                                                      "invalid":"please input like yy-mm-dd HH:MM"},
                                      required=False)
     class Meta:
-        model = DomainApplicationForm
+        model = DomainApplication
         fields = ["da_applicant",
                   "techRespon",
                   "proRespon",
@@ -201,7 +201,7 @@ class DomainApplicationFormForm(forms.ModelForm):
                   "daDes"]
         
     def __init__(self,*args,**kwargs):
-        super(DomainApplicationFormForm,self).__init__(*args,**kwargs)
+        super(DomainApplicationForm,self).__init__(*args,**kwargs)
         self.fields["mailList"].validators.append(InvalidMailList)
         self.fields["RootDomain"].validators.append(InvalidRootDomain)
      

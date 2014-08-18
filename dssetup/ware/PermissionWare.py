@@ -1,7 +1,7 @@
 #coding=utf-8
 from django.http import HttpResponseRedirect
-from dssetup.models import  DomainApplicationForm 
-from dssetup.service import adminService
+from dssetup.models import  DomainApplication
+from dssetup.service import userService
 from django.shortcuts import get_object_or_404
 
 class PermissionWare():
@@ -30,11 +30,11 @@ class PermissionWare():
                 if(not requiredResource in request.session["perm"]):
                     return HttpResponseRedirect("/permission")
                 else: #检查是否以在地址栏输入表单id的方式 试图访问自己权限外的表单 主要针对申请者和审核者
-                    if(view_kwargs["role"]=="applicant" and not DomainApplicationForm.objects.get(id=view_kwargs["Id"]).creater==adminService.getUser(request)):
+                    if(view_kwargs["role"]=="applicant" and not DomainApplication.objects.get(id=view_kwargs["Id"]).creater==userService.getUser(request)):
                         return HttpResponseRedirect("/permission")
                     elif(view_kwargs["role"]=="verifier"):
-                        zone = get_object_or_404(DomainApplicationForm,id=view_kwargs["Id"]).getZoneOfApplicationForm()
-                        if(zone and not zone.zone_dpt==adminService.getUser(request).user_dpt):
+                        zone = get_object_or_404(DomainApplication,id=view_kwargs["Id"]).getZoneOfApplicationForm()
+                        if(zone and not zone.zone_dpt==userService.getUser(request).user_dpt):
                             return HttpResponseRedirect("/permission")
                             
                         

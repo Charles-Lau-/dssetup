@@ -1,6 +1,6 @@
 #coding=utf-8
 from django.conf.urls import patterns, url
-from dssetup.action import adminAction
+from dssetup.action import adminAction,groupAction,domainAction
  
 
 urlpatterns =  patterns('',
@@ -15,7 +15,7 @@ urlpatterns =  patterns('',
        url(r"^domain/$",adminAction.show_object,{"obj":"domain"},name="show_domain"),               
        url(r"^domain/delete=(?P<Id>\d+)/$",adminAction.delete_object,{"obj":"domain"},name="delete_domain"),
        url(r"^domain/edit=(?P<Id>\d+)/$",adminAction.edit_object,{"obj":"domain"},name="edit_domain"),
-       url(r"^domain/(?P<Id>\d+)/$",adminAction.showDetailOfDomain,name="show_detail_of_domain"),
+       url(r"^domain/(?P<Id>\d+)/$",domainAction.showDetailOfDomain,name="show_detail_of_domain"),
        
        url(r"^zone/$",adminAction.show_object,{"obj":"zone"},name="show_zone"),               
        url(r"^zone/delete=(?P<Id>\d+)/$",adminAction.delete_object,{"obj":"zone"},name="delete_zone"),
@@ -30,8 +30,8 @@ urlpatterns =  patterns('',
        url(r"^group/edit=(?P<Id>\d+)/$",adminAction.edit_object,{"obj":"group"},name="edit_group"),
        url(r"^authority/edit=(?P<Id>\d+)/$",adminAction.edit_object,{"obj":"authority"},name="edit_authority"),  
        
-       url(r"^add_user_to_group/(?P<Id>\d+)/$",adminAction.addUserToGroup,name="add_user_to_group"),  
-       url(r"^domain_statistics/(?P<year>\d*)?$",adminAction.domainStatistics,name="domain_statistics")             
+       url(r"^add_user_to_group/(?P<Id>\d+)/$",groupAction.addUserToGroup,name="add_user_to_group"),  
+       url(r"^domain_statistics/(?P<year>\d*)?$",domainAction.domainStatistics,name="domain_statistics")             
                        
                        
                        )

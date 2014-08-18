@@ -27,7 +27,8 @@ SECRET_KEY = 'yak6$c5(efb^sqv$o%wx=&kc_%wr$9p8%th*dx-2qga$6kotf*'
 TEMPLATE_DEBUG = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_E_COOKIE_AGE = SESSION_EXPIRATION
- 
+PJ_ROOT= os.path.abspath(os.path.join(os.path.realpath(os.path.dirname(__file__)), '../'))
+
 DEBUG = True
 
 # Application definition
@@ -99,3 +100,75 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(os.path.dirname(__file__),"../static").replace("\\","/")
 
 APPEND_SLASH = True
+
+#login part
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(levelname)s]- %(message)s'
+        },
+    },
+    'filters': {
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+        'default': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','all.log'),  
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+        'request_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','request.log'),   
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'scprits_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','script.log'),  
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['default','console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'dssetuppj':{
+            'handlers': ['default','console'],
+            'level': 'DEBUG',
+            'propagate': False         
+        },
+         
+        'django.request': {
+            'handlers': ['request_handler'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'scripts': {  
+            'handlers': ['scprits_handler'],
+            'level': 'INFO',
+            'propagate': False
+        },
+    }
+}

@@ -1,9 +1,10 @@
 #coding=utf-8
 SESSION_EXPIRATION = 1200
+#权限组
 ADMINISTRATOR = "administrator"
 APPLICANT = "applicant"
-
-#��״̬����ת
+GUEST = ADMINISTRATOR
+#表单状态
 CREATED = "created"
 WAITINGFORVERIFY = "unverified"
 VERIFIED = "verified"
@@ -13,6 +14,8 @@ CONFIRMED = "confirmed"
 REJECTED = "rejected"
 CLOSED = "closed"
 COMPLETED="completed"
-#����״̬
+#域名状态״̬
 CAN_APPLY = "free"
 CANNOT_APPLY = "occupied" 
+
+ 

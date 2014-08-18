@@ -1,8 +1,8 @@
 #coding=utf-8
-from dssetup.models import DomainApplicationForm,ApplicationFormStatus,DomainForm,Zone,DomainMapping,ServiceProvider
+from dssetup.models import DomainApplication,FormStatus,DomainForm,Zone,DomainMapping,ServiceProvider
 from dssetup import staticVar
-from dssetup.forms import DomainFormForm
-from dssetup.service import adminService
+
+from dssetup.service import userService
 import datetime
 
 def getFormOfApplicant(creater):
@@ -14,7 +14,7 @@ def getFormOfApplicant(creater):
       closed是表单被创建人选择关闭了
      
     """
-    return DomainApplicationForm.objects.filter(creater = creater).exclude(status=staticVar.CREATED).exclude(status=staticVar.CLOSED).order_by("createTime")
+    return DomainApplication.objects.filter(creater = creater).exclude(status=staticVar.CREATED).exclude(status=staticVar.CLOSED).order_by("createTime")
 
 def getFormOfVerifier(verifier):
     """
@@ -38,13 +38,13 @@ def getFormOfOperator():
      获得所有的待操作的表单  
   
     """
-    return DomainApplicationForm.objects.filter(status=staticVar.VERIFIED)
+    return DomainApplication.objects.filter(status=staticVar.VERIFIED)
 def getFormOfChecker():
     """
      获得所有的待检查的表单  
   
     """
-    return DomainApplicationForm.objects.filter(status=staticVar.OPERATED)
+    return DomainApplication.objects.filter(status=staticVar.OPERATED)
 
 def addMainForm(request,main_part):
     """
@@ -54,14 +54,14 @@ def addMainForm(request,main_part):
     
     """
     main = main_part.save(commit=False)
-    main.creater = adminService.getUser(request)
+    main.creater = userService.getUser(request)
     main.createTime = datetime.datetime.now()
     main.status = staticVar.CREATED
     main.save()
 
     #创建一条标记表单状态流转的记录
-    status = ApplicationFormStatus(status=staticVar.CREATED)
-    status.status_user = adminService.getUser(request)
+    status = FormStatus(status=staticVar.CREATED)
+    status.status_user = userService.getUser(request)
     status.status_da = main
     status.createTime = datetime.datetime.now()
     status.save()
@@ -77,12 +77,12 @@ def addDomainMappingForm(Id,mapping,root):
       root:域名映射对应的父域名
       
     """
-    main = DomainApplicationForm.objects.get(id=Id)
+    main = DomainApplication.objects.get(id=Id)
     main.status = staticVar.WAITINGFORVERIFY
     main.save()
 
     #创建一条标记表单状态流转的记录
-    status = ApplicationFormStatus(status=staticVar.WAITINGFORVERIFY)
+    status = FormStatus(status=staticVar.WAITINGFORVERIFY)
     status.status_user = main.creater
     status.status_da = main
     status.createTime = datetime.datetime.now()
@@ -130,7 +130,7 @@ def getFormDetails(Id):
      Id:申请表单Id
   
     """
-    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    domainApplicationForm = DomainApplication.objects.get(id=Id)
     mapping_part=[]
     for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):   #构建一个类似于 session["mapping_part"] 的数据结构的表单数据 并且返回
         domainMapping ={}
@@ -164,9 +164,9 @@ def changeForm(request,Id,operation):
           创建表单状态流转记录 由于每一次改变表单状态都需要创建这么一条记录 所以 写成函数会方便很多
 
         """
-        user = adminService.getUser(request)
+        user = userService.getUser(request)
         
-        status = ApplicationFormStatus(status=form.status)
+        status = FormStatus(status=form.status)
         status.status_user = user
         status.status_da = form
         status.createTime = datetime.datetime.now()
@@ -177,7 +177,7 @@ def changeForm(request,Id,operation):
  
    
     root = "/handleForm/"    
-    form = DomainApplicationForm.objects.get(id=Id)
+    form = DomainApplication.objects.get(id=Id)
     if(operation=="verify"):
         form.status = staticVar.VERIFIED
         url = root + "show_unverified_form"
@@ -242,7 +242,7 @@ def getMappingDetailsForEdit(Id):
      Id:申请表单Id
   
     """
-    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    domainApplicationForm = DomainApplication.objects.get(id=Id)
     mapping_part={}
     waiting_for_delete={"domain":[],"mapping":[]}
     i = 0
@@ -264,30 +264,17 @@ def deleteOldMappingForm(Id,Ids):
                  我们编辑的思路是把编辑之前的旧内容删除掉  新的 插入数据库  这个函数用来删除插入新数据后 把  原来的给删除掉
     
     """
-    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    domainApplicationForm = DomainApplication.objects.get(id=Id)
     for i in Ids["mapping"]:    
         DomainMapping.objects.get(id=i).delete()
     for i in Ids["domain"]:
         DomainForm.objects.get(id=i).da_domain.remove(domainApplicationForm)
-        
-def domainIsOccupied(domainName):
-    """
-                        看某个域名能否被申请
-    
-    """
-    try:                                          
-        domain = DomainForm.objects.get(domainName=domainName,domainType=1)
-        if(domain.status == staticVar.CANNOT_APPLY):
-            return True
-        else:
-            return False
-    except DomainForm.DoesNotExist:
-        return False
+
     
 def getFormatMappingData(Id):
   
     
-    domainApplicationForm = DomainApplicationForm.objects.get(id=Id)
+    domainApplicationForm = DomainApplication.objects.get(id=Id)
     formattedData=[]
     for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):
         mappingData={}
@@ -327,17 +314,4 @@ def getFormatMappingData(Id):
                     data += "\n"
                 else:
                     data += mapping["aim"]+"\n"
-    return data  
-
-def showDetailOfDomain(Id):
-    """
-              这个函数是为了后台的  显示域名的详细绑定信息而使用的 
-    
-    """
-    domain = DomainForm.objects.get(id=Id)
-    form = DomainFormForm(instance=domain)
-    domainMapping=[]
-    for mapping in DomainMapping.objects.filter(dm_domain=domain):
-        domainMapping.append(mapping.get_values())
-    return (form,domainMapping)
-    
+    return data

@@ -1,5 +1,5 @@
  #coding=utf-8
-from dssetup.models import User,Group,Authority,DomainForm,Zone,DomainApplicationForm
+from dssetup.models import User,Group,Authority,DomainForm,Zone
 
 def getAllObject(obj):
     """ 
@@ -39,99 +39,14 @@ def getObjectById(obj,Id):
         return DomainForm.objects.get(id=Id)
     elif(obj == "zone"):
         return Zone.objects.get(id=Id)
-def getUser(request):
-    """
-      从request里面获得user对象
-
-    """
-    user = User.objects.get(userName=request.session["user"])
-    return user
-
-def getPermOfUser(user):
-    """
-       获得用户的权限列表
-       当用户的权限里面含有父权限的时候 返回的是该父权限下的所有子权限
-
-    """
-    perm = []
-    groups = User.objects.get(id=user.id).group.all()
-    for group in groups:
-        for auth in group.authority.all():
-            auth_children = Authority.objects.filter(auth_parent=auth)
-            if(auth_children):#如果是父权限 就返回该父权限对应的所有子权限
-                for auth_child in auth_children:
-                    if(not auth_child.authName in perm):
-                        perm .append(auth_child.authName)
-            else:
-                if(not auth.authName in perm):
-                    perm.append(auth.authName)
-    return perm
 
 def logout(request):
     """
       处理登出
 
     """
-    username = request.session["user"]
-    ip = request.session["ip"]
-    time = request.session["time"]
-    user = User.objects.get(userName=username)
-    user.loginLastIp = ip
-    import datetime
-    user.loginLastTime = datetime.datetime(*time)
-    user.save()
     
     from django.contrib.sessions.models import  Session
     Session.objects.get(pk=request.COOKIES["sessionid"]).delete()
 
-def addUserIntoGroup(groupId,userId):
-    """
-      将user添加到某个权限组
-
-    """
-    user = User.objects.get(id=userId)
-    user.group.add(Group.objects.get(id=groupId))
     
-def getUsersNotInThisGroup(Id):
-    """
-        获得所有不在Id表示的权限组的user
-      
-    """
-    return User.objects.exclude(group = Group.objects.get(id=Id))
-
-def getDomainStatistics(year):
-    """ 
-              统计出 year年份的每个月的申请域名的数目
-    
-    """
-    counter = []
-    for i in range(1,13):
-        num=0
-        if(i>9):
-           
-            for form in DomainApplication.objects.filter(createTime__contains=str(year)+"-"+str(i)):
-                num += len(DomainForm.objects.filter(da_domain=form))
-            
-        else:
-            for form in DomainApplication.objects.filter(createTime__contains=str(year)+"-0"+str(i)):
-                num += len(DomainForm.objects.filter(da_domain=form))
-        counter.append(num)
-            
-    return counter
-
-def getFormattedAuth():
-    formattedAuth=[]
-    auth_parent = []
-    for auth in Authority.objects.all():
-        if(not auth.auth_parent):
-            auth_parent.append(auth)
-    for auth in auth_parent:
-        f_auth=[]
-        f_auth.append(auth)
-        for auth_child in Authority.objects.filter(auth_parent=auth):
-            f_auth.append(auth_child)
-        formattedAuth.append(f_auth)
-   
-     
-    print formattedAuth
-    return formattedAuth

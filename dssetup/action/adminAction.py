@@ -1,10 +1,9 @@
 #coding=utf-8
 from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormForm
 from django.shortcuts import render,redirect
-from dssetup.service import adminService,formService
+from dssetup.service import adminService,authorityService
 from dssetup.models import Group
-import time
-
+ 
 def show_object(request,obj):
     """
        返回要展示在列表中的obj_list
@@ -44,13 +43,13 @@ def add_object(request,obj):
         
         else:
             if(obj=="group"):
-                return render(request,"add.html",{"form":form,"obj":obj,"authority":[adminService.getFormattedAuth(),request.REQUEST.getlist("authority")]})
+                return render(request,"add.html",{"form":form,"obj":obj,"authority":[authorityService.getFormattedAuth(),request.REQUEST.getlist("authority")]})
             else:
                 return render(request,"add.html",{"form":form,"obj":obj})
     else:
         form = __generateForm(obj=obj)
         if(obj=="group"):
-            return render(request,"add.html",{"form":form,"obj":obj,"authority":[adminService.getFormattedAuth()]})
+            return render(request,"add.html",{"form":form,"obj":obj,"authority":[authorityService.getFormattedAuth()]})
    
         else:
             return render(request,"add.html",{"form":form,"obj":obj})
@@ -71,14 +70,14 @@ def edit_object(request,Id,obj):
             return redirect("/admin/"+obj)
         else: 
             if(obj=="group"):
-                return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[adminService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
+                return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[authorityService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
             else:
                 return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
         
     else:
         form = __generateForm(instance_=instance_,obj=obj)
         if(obj=="group"):
-            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[adminService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
+            return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[authorityService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
         else:
             return render(request,"edit.html",{"form":form,"obj":obj,"id":Id})
         
@@ -103,28 +102,3 @@ def __generateForm(obj,post=None,instance_=None):
         form = DomainFormForm(data=post,instance=instance_)
     return form
 
-def addUserToGroup(request,Id):
-    """ 
-       批量添加用户到群组里面
-
-       Id:表示权限组的id     
-    """
-    if(request.POST):
-        for userId in request.POST.getlist("userIds"):
-            adminService.addUserIntoGroup(Id, userId)
-        return redirect("/admin/group/")
-    else:
-        return render(request,"user_into_group.html",{"users":adminService.getUsersNotInThisGroup(Id),"Id":Id})
-
-def domainStatistics(request,year):
-    """ 
-                   显示year 年份的域名申请的统计 
-    
-    """
-    if(not year):
-        year=time.localtime()[0]
-    return render(request,"chart.html",{"counter_array":adminService.getDomainStatistics(year),"year":year})
-
-def showDetailOfDomain(request,Id):
-    detail = formService.showDetailOfDomain(Id)
-    return render(request,"show_detail_of_domain.html",{"domain":detail[0],"mapping":detail[1]})
