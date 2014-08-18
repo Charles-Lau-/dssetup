@@ -4,6 +4,7 @@ from django.shortcuts import render,redirect
 from dssetup.service import adminService,authorityService
 from dssetup.models import Group
  
+ 
 def show_object(request,obj):
     """
        返回要展示在列表中的obj_list

@@ -131,14 +131,54 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
-        'request_handler': {
+        'dssetup_handler': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(PJ_ROOT+'/logs/','request.log'),   
+            'filename': os.path.join(PJ_ROOT+'/logs/','dssetup.log'),   
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
             'formatter':'standard',
         },
+        'view_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','dssetup_view.log'),   
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'action_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','dssetup_action.log'),   
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'service_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','dssetup_service.log'),   
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'request_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','dssetup_request.log'),   
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'ware_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PJ_ROOT+'/logs/','dssetup_ware.log'),   
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },                                                    
         'scprits_handler': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
@@ -154,17 +194,37 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
-        'dssetuppj':{
-            'handlers': ['default','console'],
+        'dssetup':{
+            'handlers': ['dssetup_handler'],
             'level': 'DEBUG',
             'propagate': False         
         },
          
-        'django.request': {
+        'dssetup.request': {
             'handlers': ['request_handler'],
             'level': 'DEBUG',
             'propagate': True
         },
+        'dssetup.view': {
+            'handlers': ['view_handler'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'dssetup.action': {
+            'handlers': ['action_handler'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'dssetup.service': {
+            'handlers': ['service_handler'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'dssetup.ware': {
+            'handlers': ['ware_handler'],
+            'level': 'DEBUG',
+            'propagate': True
+        },                                 
         'scripts': {  
             'handlers': ['scprits_handler'],
             'level': 'INFO',

@@ -1,8 +1,9 @@
+#coding=utf-8
 from dssetup.models import User,Authority
 
 def getUser(request):
     """
-      从request里面获得user对象
+                   从request里面获得user对象
 
     """
     user = User.objects.get(userMail=request.session["user"])
@@ -11,8 +12,8 @@ def getUser(request):
 
 def getPermOfUser(user):
     """
-       获得用户的权限列表
-       当用户的权限里面含有父权限的时候 返回的是该父权限下的所有子权限
+                  获得用户的权限列表
+                   当用户的权限里面含有父权限的时候 返回的是该父权限下的所有子权限
 
     """
     perm = []

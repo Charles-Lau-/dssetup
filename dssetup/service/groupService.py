@@ -1,3 +1,4 @@
+#coding=utf-8
 from dssetup.models import User,Group
 
 def addUserIntoGroup(groupId,userId):

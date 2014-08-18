@@ -1,3 +1,4 @@
+#coding=utf-8
 from dssetup.models import DomainApplication,DomainForm,DomainMapping
 from dssetup.forms import DomainFormForm
 from dssetup import staticVar
