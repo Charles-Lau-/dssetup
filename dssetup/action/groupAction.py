@@ -4,7 +4,7 @@ from dssetup.service import groupService
 
 def addUserToGroup(request,Id):
     """ 
-       批量添加用户到群组里面
+                     批量添加用户到群组里面
 
        Id:表示权限组的id     
     """

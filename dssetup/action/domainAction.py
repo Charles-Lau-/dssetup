@@ -13,5 +13,9 @@ def domainStatistics(request,year):
     return render(request,"chart.html",{"counter_array":domainService.getDomainStatistics(year),"year":year})
 
 def showDetailOfDomain(request,Id):
+    """
+                 显示域名的详细信息 除了 自己的 一些信息外  主要是显示  目前该域名的绑定状况
+    
+    """
     detail = domainService.showDetailOfDomain(Id)
     return render(request,"show_detail_of_domain.html",{"domain":detail[0],"mapping":detail[1]})

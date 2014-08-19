@@ -1,6 +1,6 @@
 #coding=utf-8
 from django.shortcuts import render,redirect
-from dssetup.models import User,Group,Department
+from dssetup.models import User,Group 
 from dssetup.service import adminService,userService
 import urllib,httplib,datetime
 from dssetup import staticVar
@@ -9,25 +9,25 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     """
-        指向首页
+                   指向首页
         
     """
     return redirect("/index") 
 
 def index(request):
     """
-        指向首页
+                 指向首页
         
     """
     return render(request,"base.html")
 
 def login(request):
     """
-      用来处理登录信息的
+                  用来处理登录信息的
 
   
     """
-    
+    #从登录页面过来 并且有ticket 就说明请求里面含有登录信息 进行处理 并跳转到index页面上面去
     if(request.GET.get("ticket","")):
         href=request.META['HTTP_HOST'] 
         ticket= request.GET.get("ticket")
@@ -54,32 +54,34 @@ def login(request):
                          ,createTime=datetime.datetime.now(),loginLastIp=clientip)
             
             usertmp.save()
-            usertmp.group.add(Group.objects.get(groupName=staticVar.GUEST))
-            usertmp.user_dpt = Department.objects.get(dptName=usermsg[1].split("(")[1].split(r"/")[0])
+            usertmp.group.add(Group.objects.get(groupName=staticVar.GUEST))       #给登陆证  GUEST的 分组权限   
             usertmp.save()
            
         
-        request.session["perm"] = userService.getPermOfUser(usertmp) 
-        request.session['user']=usermsg[0]
+        request.session["perm"] = userService.getPermOfUser(usertmp)               #保存用户的权限列表
+        request.session['user']=usermsg[0]                                         #保存用户的邮箱  
         logger.info("%s has logged in " % usermsg[1])
         return redirect("/index") 
         
     else:
+        #从login.html 过来 就让他跳转到登录页面
         if(request.POST):
             href=request.META['HTTP_HOST']
+         
             return redirect('https://passport.no.opi-corp.com/login.php?forward=http://%s/login/' % href)
+        #其他情况 就让他到登录页面去去登录
         else:
             return render(request,"login.html")
 def logout(request):
     """
-     处理登出的操作
+                    处理登出的操作
   
     """
-    adminService.logout(request)
+    adminService.logout(request)        #删除相关的session
     return redirect("/login")
 def permission(request):
     """
-     处理权限不够的情况
+                      处理权限不够的情况
 
     """
     return render(request,"permission.html")

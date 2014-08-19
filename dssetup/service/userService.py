@@ -1,23 +1,23 @@
 #coding=utf-8
 from dssetup.models import User,Authority
-
+from django.shortcuts import get_object_or_404
+ 
 def getUser(request):
     """
                    从request里面获得user对象
 
     """
-    user = User.objects.get(userMail=request.session["user"])
-    return user
+    return  get_object_or_404(User,userMail=request.session["user"])
 
 
 def getPermOfUser(user):
     """
-                  获得用户的权限列表
+                   获得用户的权限列表
                    当用户的权限里面含有父权限的时候 返回的是该父权限下的所有子权限
 
     """
     perm = []
-    groups = User.objects.get(id=user.id).group.all()
+    groups =  get_object_or_404(User,id=user.id).group.all()
     for group in groups:
         for auth in group.authority.all():
             auth_children = Authority.objects.filter(auth_parent=auth)

@@ -7,7 +7,7 @@ import re
 
 def validate_url(value):
     """
-       验证URL是否合法、
+                     验证URL是否合法、
        
     """
     regex = re.compile(
@@ -17,7 +17,7 @@ def validate_url(value):
    
 def InvalidRootDomain(value):
     """
-      验证申请的主域名是否存在
+                    验证申请的主域名是否存在
       
     """
     try:
@@ -30,7 +30,7 @@ def InvalidRootDomain(value):
     
 def InvalidIpList(value):
     """
-      验证ip,ip是否合法
+                         验证ip,ip是否合法
 
     """
     ips = value.split(",")
@@ -43,7 +43,7 @@ def InvalidIpList(value):
     
 def InvalidMailList(value):
     """
-      验证邮件列表是否合法
+                     验证邮件列表是否合法
       
     """
     emails = value.split(",")
@@ -70,7 +70,7 @@ def TooEasyPasswordValidator(value):
 
 def InvalidPhoneNumber(value):
     """
-      验证手机号码的合法性
+                         验证手机号码的合法性
       
     """
     isMatched = bool(re.match(r"^\d{11}$",value))
@@ -79,7 +79,7 @@ def InvalidPhoneNumber(value):
     
 class UserForm(forms.ModelForm):
     """
-       用户表单
+                   用户表单
        
     """
     userPassword =forms.CharField(widget=forms.PasswordInput(),label=u"密码")
@@ -105,7 +105,7 @@ class UserForm(forms.ModelForm):
     
     def full_clean(self):
         """
-           去掉了空格
+                                  去掉了空格
           
         """
         data = self.data.copy() 
@@ -129,7 +129,7 @@ class UserForm(forms.ModelForm):
 
 class GroupForm(forms.ModelForm):
     """
-       群组表单
+                              群 组表单
           
     """
     authority = forms.ModelMultipleChoiceField(queryset=Authority.objects.all(),widget=forms.CheckboxSelectMultiple,label=u"权限")
@@ -138,7 +138,7 @@ class GroupForm(forms.ModelForm):
     
     def full_clean(self):
         """
-           去掉了空格
+                             去掉了空格
           
         """
         data = self.data.copy() 
@@ -154,7 +154,7 @@ class GroupForm(forms.ModelForm):
       
 class AuthorityForm(forms.ModelForm):
     """
-       权限表单
+                  权限表单
        
     """
     class Meta:
@@ -162,7 +162,7 @@ class AuthorityForm(forms.ModelForm):
     
     def full_clean(self):
         """
-           去掉了空格
+                            去掉了空格
           
         """
         data = self.data.copy() 
@@ -178,7 +178,7 @@ class AuthorityForm(forms.ModelForm):
 
 class DomainApplicationForm(forms.ModelForm):
     """
-      域名申请表单的主要部分对应的表单
+                   域名申请表单的主要部分对应的表单
       
     """
     ROOT = ((zone.zoneName,zone.zoneName) for zone in Zone.objects.all())
@@ -208,7 +208,7 @@ class DomainApplicationForm(forms.ModelForm):
   
 class DomainMappingForm(forms.Form):
     """
-      域名申请单中的映射部分对应的表单
+                    域名申请单中的映射部分对应的表单
       
     """
     MODE = (
@@ -225,7 +225,7 @@ class DomainMappingForm(forms.Form):
     
     def clean(self):
         """
-           验证aim 和 mode字段的值是否一致。a mode对应 ip,cname对应url
+                                验证aim 和 mode字段的值是否一致。a mode对应 ip,cname对应url
     
         """
         super(DomainMappingForm,self).clean()
@@ -257,15 +257,16 @@ class DomainMappingForm(forms.Form):
     
     def excludeSelected(self,selected):
         """
-           为了实现 当sp供应商选择了以后  就不再出现在页面供大家选择的功能
-
+                                        为了实现 当sp供应商选择了以后  就不再出现在页面供大家选择的功能
+                                         
+           selected: 已经选择的sp服务供应商的列表                              
         """
         validChoices = ((sp.spName,sp.spName) for sp in ServiceProvider.objects.all() if sp.spName not in selected)
         self.fields["spName"]  = forms.MultipleChoiceField(choices=validChoices,widget=forms.CheckboxSelectMultiple)
          
     def isAllowedToAdd(self):
         """
-          当所有的服务供应商被选择完毕后 我们不再允许其添加域名映射
+                                     当所有的服务供应商被选择完毕后 我们不再允许其添加域名映射
           
         """
         if(self.fields["spName"].choices):
@@ -277,8 +278,8 @@ class DomainMappingForm(forms.Form):
             
 class ZoneForm(forms.ModelForm):
     """
-       主域名表单，后台管理的时候使用
-
+                        主域名表单，后台管理的时候使用  用来add 和 edit 主域名
+       
     """
     class Meta:
         model = Zone
@@ -289,7 +290,7 @@ class ZoneForm(forms.ModelForm):
   
 class DomainFormForm(forms.ModelForm):
     """
-       域名表单，后台管理的时候使用
+                     域名表单，后台管理的时候使用  用来edit域名
 
     """
     class Meta:

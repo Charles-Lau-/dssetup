@@ -1,24 +1,33 @@
 #coding=utf-8
 from dssetup.forms import DomainApplicationForm,DomainMappingForm,validate_url
-from dssetup.models import ServiceProvider
+from dssetup.models import ServiceProvider,DomainApplication
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404,redirect,render
 from django.http import Http404
 from dssetup.service import formService,userService,domainService
 from copy import copy 
 
+#该模块主要处理一些  和申请表单相关的问题。需要注意的几个函数：
+#createDomainForm ： 用处创建表单的主要部分。创建成功后  会插入数据库 并且   设置表单状态为  staticVar.CREATED
+#createMappingForm  用来创建 表单的域名映射部分。  数据都存在session里面 。 格式为
+#{"domainName-x"：{"domainName-x":xxxURL,"mapping":[{"ip":xxxx,"mode":xx,"sp":xx},{...}],"error":xxx},"domainName-y":.....}
+#storeDomainName  将域名存入session 这个函数里面做了很多对域名合法的验证
+#addFormIntoDatabase  将session里面的数据存入数据库
+#editForm  表单的编辑 值得注意的是  这里采用的方式是  我们直接调用了创建表单的代码   先存入session 更改成功后存入 数据库。 如果编成功 在插入数据库之前  会把原来的给删除掉
+#
+
 def showUncheckedForm(request):
     """
-             显示待检查申请单列表
-     
+               显示待检查申请单列表
+      
     """
     return render(request,"formlist.html",{
                   "form_list":formService.getFormOfChecker(),                          
                   "role":"checker"
                 })
-def showUnimplementedForm(request):
+def showUnimplementedForm(request):     
     """
-             显示待操作申请单列表
+                 显示待操作申请单列表
      
     """
     return render(request,"formlist.html",{
@@ -27,7 +36,7 @@ def showUnimplementedForm(request):
                 })
 def showUnverifiedForm(request):
     """
-             显示待审核申请单列表
+                显示待审核申请单列表
      
     """
     user = userService.getUser(request)
@@ -37,7 +46,7 @@ def showUnverifiedForm(request):
                 })
 def showAppliedForm(request):
     """
-             显示已申请单列表
+              显示已申请单列表
      
     """
     user = userService.getUser(request)
@@ -49,12 +58,12 @@ def showAppliedForm(request):
                
 def createDomainForm(request):
     """
-            创建申请单的主要信息 如 申请人   产品负责人 所有的信息将会被存入SESSION里面 
+                  创建申请单的主要信息 如 申请人   产品负责人 所有的信息将会被存入SESSION里面 
      
     """
     def __getHtmlFromForm(form):
             """
-            创建 显示申请单主要信息的HTML代码
+                                           创建 显示申请单主要信息的HTML代码
      
             """
             html=""
@@ -84,26 +93,26 @@ def createDomainForm(request):
             
 def createMappingForm(request,domainName=None):
         """
-         用于创建申请表单的 域名映射部分 主要填写 IP MODE 和 SP 三个字段数据，而domainName 参数是用来标记 这个映射关系 是属于哪个域名的  
+                              用于创建申请表单的 域名映射部分 主要填写 IP MODE 和 SP 三个字段数据，而domainName 参数是用来标记 这个映射关系 是属于哪个域名的  
 
          domainName: 标记 该域名映射部分属于哪个域名
          
         """
         def __addMappingDataToSession():
             """
-              将映射信息存入SESSION中
+                                              将映射信息存入SESSION中
 
             """
             sessionMapping = request.session["mapping_part"] 
             if(sessionMapping.get(domainName,"")):
-                mappingDict = sessionMapping.get(domainName) #获得该域名对应的字典数据 返回的数据格式是{"domainName-x":xxx,"mapping":[{"aim":xx,"mode":xx,"Ip":xxx},....],"error":...}
+                #获得该域名对应的字典数据 返回的数据格式是{"domainName-x":xxx,"mapping":[{"aim":xx,"mode":xx,"Ip":xxx},....],"error":...}
+                mappingDict = sessionMapping.get(domainName) 
                 cleaned_data = mapping_part.cleaned_data
                 cleaned_data_spName = " ".join(cleaned_data["spName"])
                 if(not mappingDict.get("mapping","")):
                     mappingDict["mapping"] = []
                       
-                  
-                print request.POST.get("hidden_value")
+                
                 for sp in cleaned_data_spName.split(" "): #由于sp是多选框  但是我们显示的时候 需要一个 SP一行的显示 所以这里是分开他们 为每一个创建一行
                     if(request.POST.get("flag")=="false"):
                         for sp__ in ServiceProvider.objects.filter(spName__icontains=sp):
@@ -136,8 +145,8 @@ def createMappingForm(request,domainName=None):
         else:
            
             if(domainName and request.session["mapping_part"].get(domainName,"")): #防止通过URL进行攻击 进行domainName审核
-                 
-                selected=[]              #如果你已经选择了联通 移动，那么返回的表格里面SP字段 就应该排除掉这两个选项 只显示其他剩下的选项给你选择
+                #如果你已经选择了联通 移动，那么返回的表格里面SP字段 就应该排除掉这两个选项 只显示其他剩下的选项给你选择 
+                selected=[]             
                 print request.session["mapping_part"]
                 mapping = request.session["mapping_part"].get(domainName,"")
                 if(mapping and mapping.has_key("mapping")): #selected 里面放的是已经选择了的sp的名字   
@@ -163,9 +172,10 @@ def storeDomainName(request):
     """
     def __addDomainNameDataToSession():
             """
-                                                           将域名存入SESSION里面
+                                                将域名存入SESSION里面
 
-              session里面的mapping_part的数据结构是这样的：{"domainName-x"：{"domainName-x":xxxURL,"mapping":[{"ip":xxxx,"mode":xx,"sp":xx},{...}],"error":xxx},"domainName-y":.....}
+             session里面的mapping_part的数据结构是这样的：
+             {"domainName-x"：{"domainName-x":xxxURL,"mapping":[{"ip":xxxx,"mode":xx,"sp":xx},{...}],"error":xxx},"domainName-y":.....}
               
             """
             sessionMapping = request.session.get("mapping_part") 
@@ -234,7 +244,7 @@ def deleteDomainForm(request,domainName):
             
 def deleteMappingForm(request,domainName,Id):
     """
-     删除某个映射关系 如 132.123.123.123  a 联通
+             删除某个映射关系 如 132.123.123.123  a 联通
 
      domainName:用来标记被删除的映射关系式属于哪个域名的
      Id:标记该域名下第几个映射关系呗删除
@@ -268,7 +278,7 @@ def editForm(request,Id,step):
         
     if(step==1):   #表单主要部分内容的编辑
         if(request.POST):
-            form = DomainApplicationForm(data=request.POST,instance=get_object_or_404(DomainApplicationForm,id=Id))
+            form = DomainApplicationForm(data=request.POST,instance=get_object_or_404(DomainApplication,id=Id))
             if(form.is_valid()):
                 form.save()
                 return redirect("/handleForm/edit_form/"+str(Id)+"/2")
@@ -276,7 +286,7 @@ def editForm(request,Id,step):
                 return render(request,"editForm.html",{"form":form,"Id":Id})
             
         else:
-            domainApplicationForm = get_object_or_404(DomainApplicationForm,id=Id)
+            domainApplicationForm = get_object_or_404(DomainApplication,id=Id)
             form = DomainApplicationForm(instance=domainApplicationForm)
             form.initial["RootDomain"] = domainApplicationForm.getZoneOfApplicationForm().zoneName
             return render(request,"editForm.html",{"form":form,"Id":Id})
@@ -291,7 +301,7 @@ def editForm(request,Id,step):
             if(not "Id" in request.session):
                 request.session["Id"] = Id
             if(not "RootDomain" in request.session):
-                request.session["root"] = get_object_or_404(DomainApplicationForm,id=Id).getZoneOfApplicationForm().zoneName
+                request.session["root"] = get_object_or_404(DomainApplication,id=Id).getZoneOfApplicationForm().zoneName
             return render(request,"editMappingForm.html",{"step":2})
     else:
         raise Http404
@@ -350,7 +360,7 @@ def checkForm(request,Id,role=None):
                  +"<input readOnly=true value='"+v+"'>"\
                  +r"</div></div>"  
     
-    root = get_object_or_404(DomainApplicationForm,id=Id).getZoneOfApplicationForm().zoneName
+    root = get_object_or_404(DomainApplication,id=Id).getZoneOfApplicationForm().zoneName
                     
     html += r"<div class='control-group'><label class='control-label'>"\
                  +u"主域名"\
@@ -381,7 +391,7 @@ def changeForm(request):
   
 def cancelEdit(request):
     """
-        取消表单修改
+           取消表单修改
 
     """
     if("waiting_for_delete" in request.session):
@@ -400,5 +410,5 @@ def showFormHistory(request,Id):
       展示表单的状态流转历史
  
     """
-    return render(request,"show_form_history.html",{"status_list":get_object_or_404(DomainApplicationForm,id=Id).getStatusListOfForm()})
+    return render(request,"show_form_history.html",{"status_list":get_object_or_404(DomainApplication,id=Id).getStatusListOfForm()})
     

@@ -4,7 +4,10 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models.signals import post_save
 import hashlib
- 
+
+#get_value方法是用来 获取该模型对象的一些信息来使用的  比如 在Html页面上面进行信息的显示 需要调用该函数，比如 在Service里面 我需要 提取该模型对象 格式成字典的数据 就直接调用该函数
+# 
+#
 class Department(models.Model):
     dptName = models.CharField(max_length=30,unique=True,verbose_name=u"部门名字")
     dptLeader = models.TextField(blank=True,verbose_name=u"部门领导")
@@ -22,7 +25,9 @@ class Authority(models.Model):
         return self.authName+" : "+self.authDes 
 
     def get_values(self):
-        return {u"权限名字":self.authName,u"权限描述":self.authDes,u"父权限":self.auth_parent}
+        return {u"权限名字":self.authName,
+                u"权限描述":self.authDes,
+                u"父权限":self.auth_parent}
 
 class Group(models.Model):
     groupName = models.CharField(max_length=30,unique=True,verbose_name=u"权限组名")
@@ -52,29 +57,16 @@ class User(models.Model):
     def __unicode__(self):
         return self.userName+" "+self.userMail+" "+str(self.user_dpt)
 
-    def is_authenticated(self):
-        try:
-            
-            self.make_password(self.userPassword)
-            get_object_or_404(User,userName=self.userName,userPassword=self.userPassword)
-            
-            return True
-        except Http404:
-            return False
-     
-    def make_password(self,raw_password):
-        hs = hashlib.md5()
-        hs.update(raw_password)
-
+ 
     def get_values(self):
-        return {u"用户名":self.userName,u"邮件":self.userMail,u"权限组":[ g.groupName for g in self.group.all()],u"电话号码":self.userPhone,u"上次登录的IP":self.loginLastIp,u"上次登录的时间":self.loginLastTime,u"创建时间":self.createTime}
-
-def hash_password(instance,**kwargs):
-    instance.make_password(instance.userPassword)
-
-post_save.connect(hash_password, sender=User)
-
-
+        return {u"用户名":self.userName,
+                u"邮件":self.userMail,
+                u"权限组":[ g.groupName for g in self.group.all()],
+                u"电话号码":self.userPhone,
+                u"上次登录的IP":self.loginLastIp,
+                u"上次登录的时间":self.loginLastTime,
+                u"创建时间":self.createTime}
+ 
 class DomainApplication(models.Model):
 
     APPCATEGORY = (
@@ -107,7 +99,6 @@ class DomainApplication(models.Model):
         return "%s-%s-%s" % (self.creater,self.status,self.createTime)
 
     def get_values(self):
- 
         return {u"申请人":self.da_applicant,
                 u"技术负责人":self.techRespon,
                 u"产品负责人":self.proRespon,
@@ -122,7 +113,7 @@ class DomainApplication(models.Model):
     
     def getZoneOfApplicationForm(self):
         """ 
-                                得到到 改申请单对应的主域名
+                                 得到到 改申请单对应的主域名
                  
         """ 
         domain  = DomainForm.objects.filter(da_domain=self)  
@@ -135,7 +126,7 @@ class DomainApplication(models.Model):
     def getStatusListOfForm(self):
         """  
                                     得到记录该表单的状态流转记录
-          
+         
         """
         return FormStatus.objects.filter(status_da=self)
 
@@ -184,7 +175,6 @@ class DomainForm(models.Model):
                 u"域名描述":self.domainDes,
                 u"域名状态":self.status,
                 u"父域名":self.domain_zone,
-             
                 }
     
     

@@ -1,14 +1,14 @@
-#coding=utf-8
+ #coding=utf-8
 from dssetup.models import DomainApplication,FormStatus,DomainForm,Zone,DomainMapping,ServiceProvider
 from dssetup import staticVar
-
+from django.shortcuts import get_object_or_404
 from dssetup.service import userService
 import datetime
-
+ 
 def getFormOfApplicant(creater):
     """
-      获得申请者身份允许看到的表单列表
-      即是 表单创建者为该creater的表单集合 并且排除掉那些表单状态为created 和 closed的表单
+                       获得申请者身份允许看到的表单列表
+                     即是 表单创建者为该creater的表单集合 并且排除掉那些表单状态为created 和 closed的表单
 
       created是表单创建 但是未进入流程中 被遗弃在数据库中了
       closed是表单被创建人选择关闭了
@@ -18,8 +18,8 @@ def getFormOfApplicant(creater):
 
 def getFormOfVerifier(verifier):
     """
-     获得审核者可以审核的表单列表
-     逻辑是：查出所有的申请的域名的父域名为该审核者部门管理的表单 并且表单的状态应该是待审核
+                          获得审核者可以审核的表单列表
+                         逻辑是：查出所有的申请的域名的父域名为该审核者部门管理的表单 并且表单的状态应该是待审核
  
     """
     zones = Zone.objects.filter(zone_dpt=verifier.user_dpt)
@@ -35,20 +35,20 @@ def getFormOfVerifier(verifier):
 
 def getFormOfOperator():
     """
-     获得所有的待操作的表单  
+                     获得所有的待操作的表单  
   
     """
     return DomainApplication.objects.filter(status=staticVar.VERIFIED)
 def getFormOfChecker():
     """
-     获得所有的待检查的表单  
+                       获得所有的待检查的表单  
   
     """
     return DomainApplication.objects.filter(status=staticVar.OPERATED)
 
 def addMainForm(request,main_part):
     """
-     将表单的主要信息存入数据库中
+                   将表单的主要信息存入数据库中    返回存入后的id
 
      main_part: 是申请表单主要信息的form
     
@@ -70,14 +70,15 @@ def addMainForm(request,main_part):
 
 def addDomainMappingForm(Id,mapping,root):
     """
-      将申请单 域名映射部分存入数据库
+                    将申请单 域名映射部分存入数据库
 
       Id: 该域名映射对应的申请单ID
       mapping：域名映射数据
       root:域名映射对应的父域名
       
     """
-    main = DomainApplication.objects.get(id=Id)
+  
+    main = get_object_or_404(DomainApplication,id=Id)
     main.status = staticVar.WAITINGFORVERIFY
     main.save()
 
@@ -112,8 +113,9 @@ def addDomainMappingForm(Id,mapping,root):
         domainMapping.dm_domain = domain
         domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName"))
         domainMapping.save()
-    
-    if(DomainMapping.objects.filter(dm_domain=domain1)):  #如果该域名有绑定的映射  就删除掉映射 然后  再绑定新的 如果没有  就直接创建新的域名绑定
+    #如果该域名有绑定的映射  就删除掉映射 然后  再绑定新的 如果没有  就直接创建新的域名绑定
+    #这个部分是服务于  发现数据库设计bug后的修复
+    if(DomainMapping.objects.filter(dm_domain=domain1)):  
         for m in DomainMapping.objects.filter(dm_domain=domain1):
             m.delete()
     for m in mappingData:
@@ -125,12 +127,12 @@ def addDomainMappingForm(Id,mapping,root):
         
 def getFormDetails(Id):
     """
-     返回申请表单详细信息
+                 返回申请表单详细信息
 
      Id:申请表单Id
-  
+     mapping_part: 采取以下格式  {"domainName":xx,mapping:[{"ip":xx,"mode":xx,"aim":xx},....]} 
     """
-    domainApplicationForm = DomainApplication.objects.get(id=Id)
+    domainApplicationForm = get_object_or_404(DomainApplication,id=Id)
     mapping_part=[]
     for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):   #构建一个类似于 session["mapping_part"] 的数据结构的表单数据 并且返回
         domainMapping ={}
@@ -151,18 +153,18 @@ def getFormDetails(Id):
 
 def changeForm(request,Id,operation):
     """
-      改变表单的状态
-
+                          改变表单的状态
+ 
       Id：表单的Id
-      Operation：对该表单进行的操作 如 审核 检查
+      Operation：对该表单进行的操作 如 审核 检查       如何要修改operation的名字  除了修改这里之外    还要修改  show_form.html 里面对应的名字
 
-      返回一个Url用来指引action部分的跳转
+                     返回一个Url用来指引action部分的跳转
       
     """
     def __createStatusRecord():
         """
-          创建表单状态流转记录 由于每一次改变表单状态都需要创建这么一条记录 所以 写成函数会方便很多
-
+                                创建表单状态流转记录 由于每一次改变表单状态都需要创建这么一条记录 所以 写成函数会方便很多
+    
         """
         user = userService.getUser(request)
         
@@ -177,7 +179,7 @@ def changeForm(request,Id,operation):
  
    
     root = "/handleForm/"    
-    form = DomainApplication.objects.get(id=Id)
+    form = get_object_or_404(DomainApplication,id=Id)
     if(operation=="verify"):
         form.status = staticVar.VERIFIED
         url = root + "show_unverified_form"
@@ -193,7 +195,8 @@ def changeForm(request,Id,operation):
             url = root + "show_unchecked_form"
     elif(operation=="close"):
         form.status = staticVar.CLOSED
-        for domain in DomainForm.objects.filter(da_domain=form):  #改变表单对应的DOMAIN的状态
+        #改变表单对应的DOMAIN的状态  在表单完被关闭后   该表弟那对应的域名 都应该设置为 可以被申请
+        for domain in DomainForm.objects.filter(da_domain=form):
                 domain.status = staticVar.CAN_APPLY
                 domain1 = DomainForm.objects.get(domainName=domain.domainName,domainType=1)
                 domain1.status = staticVar.CAN_APPLY
@@ -216,7 +219,8 @@ def changeForm(request,Id,operation):
        
         if(form.status==staticVar.CHECKED):
             form.status = staticVar.COMPLETED
-            for domain in DomainForm.objects.filter(da_domain=form):   #改变表单对应的DOMAIN的状态
+            #改变表单对应的DOMAIN的状态  在表单完成流程后  该表弟那对应的域名 都应该设置为 可以被申请
+            for domain in DomainForm.objects.filter(da_domain=form): 
                 domain.status = staticVar.CAN_APPLY
                 domain1 = DomainForm.objects.get(domainName=domain.domainName,domainType=1)
                 domain1.status = staticVar.CAN_APPLY
@@ -236,17 +240,18 @@ def changeForm(request,Id,operation):
 
 def getMappingDetailsForEdit(Id):
     """
-                返回申请表单映射关系详细信息
-              用于表单再编辑 
+                    返回申请表单映射关系详细信息
+                  用于表单再编辑 
      
      Id:申请表单Id
   
     """
-    domainApplicationForm = DomainApplication.objects.get(id=Id)
+    domainApplicationForm = get_object_or_404(DomainApplication,id=Id)
     mapping_part={}
     waiting_for_delete={"domain":[],"mapping":[]}
     i = 0
-    for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):   #构建一个类似于 session["mapping_part"] 的数据结构的表单数据 并且返回
+    #构建一个类似于 session["mapping_part"] 的数据结构的表单数据 并且返回
+    for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):  
         waiting_for_delete["domain"].append(domain.id)
         domainMapping ={}
         domainMapping["domainName-"+str(i)] = domain.domainName
@@ -264,17 +269,21 @@ def deleteOldMappingForm(Id,Ids):
                  我们编辑的思路是把编辑之前的旧内容删除掉  新的 插入数据库  这个函数用来删除插入新数据后 把  原来的给删除掉
     
     """
-    domainApplicationForm = DomainApplication.objects.get(id=Id)
+    
     for i in Ids["mapping"]:    
-        DomainMapping.objects.get(id=i).delete()
+        get_object_or_404(DomainMapping,id=i).delete()
     for i in Ids["domain"]:
-        DomainForm.objects.get(id=i).da_domain.remove(domainApplicationForm)
-
-    
+        domain = get_object_or_404(DomainForm,id=i)
+        domain1 = get_object_or_404(DomainForm,domainType=1,domainName=domain.domainName)
+        domain1.status = staticVar.CAN_APPLY
+        domain.delete()
+       
 def getFormatMappingData(Id):
-  
+    """
+                 经过讨论，需要给操作人员提供更好的数据格式  这个韩式用来处理这个的    可以返回要求中的   申请表单域名映射数据
     
-    domainApplicationForm = DomainApplication.objects.get(id=Id)
+    """
+    domainApplicationForm = get_object_or_404(DomainApplication,id=Id)
     formattedData=[]
     for domain in DomainForm.objects.filter(da_domain=domainApplicationForm):
         mappingData={}

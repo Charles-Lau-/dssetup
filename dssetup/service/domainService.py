@@ -1,11 +1,12 @@
 #coding=utf-8
 from dssetup.models import DomainApplication,DomainForm,DomainMapping
 from dssetup.forms import DomainFormForm
+from django.shortcuts import get_object_or_404
 from dssetup import staticVar
 
 def getDomainStatistics(year):
     """ 
-              统计出 year年份的每个月的申请域名的数目
+                   统计出 year年份的每个月的申请域名的数目
     
     """
     counter = []
@@ -25,10 +26,13 @@ def getDomainStatistics(year):
 
 def showDetailOfDomain(Id):
     """
-              这个函数是为了后台的  显示域名的详细绑定信息而使用的 
-    
+                 这个函数是为了后台的  显示域名的详细绑定信息而使用的 
+     
+     form: 是域名的自己的一些信息 如 域名名字 域名状态
+     domainMapping: 是域名对应的一些映射关系  ip sp mode的一个list字典
     """
-    domain = DomainForm.objects.get(id=Id)
+   
+    domain = get_object_or_404(DomainForm,id=Id)
     form = DomainFormForm(instance=domain)
     domainMapping=[]
     for mapping in DomainMapping.objects.filter(dm_domain=domain):

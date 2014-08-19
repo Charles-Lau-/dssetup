@@ -7,7 +7,7 @@ from dssetup.models import Group
  
 def show_object(request,obj):
     """
-       返回要展示在列表中的obj_list
+                         返回要展示在列表中的obj_list
 
        obj: 表示需要显示哪个物体的列表 user 还是group
 
@@ -20,18 +20,18 @@ def show_object(request,obj):
  
 def delete_object(request,Id,obj):
     """
-       删除Id对应的物体
+                         删除Id对应的物体
 
        obj表示需要删除哪个物体 group 还是user...
 
     """
     adminService.deleteObjectById(obj, Id)
-    return redirect("/admin/"+obj+"/")
+    return redirect("/admin/show_"+obj+"/")
 
  
 def add_object(request,obj):
     """
-      创建对象
+                    创建对象
 
       obj:表示需要创建哪个对象 group 还是user 还是 auth 。...
 
@@ -40,15 +40,17 @@ def add_object(request,obj):
         form = __generateForm(post=request.POST,obj=obj) #生成obj对应的表单
         if(form.is_valid()):
             form.save()
-            return redirect("/admin/"+obj)
+            return redirect("/admin/show_"+obj)
         
         else:
+            #由于权限组的权限部分显示  要求比较特殊 所以我们要进行特殊处理
             if(obj=="group"):
                 return render(request,"add.html",{"form":form,"obj":obj,"authority":[authorityService.getFormattedAuth(),request.REQUEST.getlist("authority")]})
             else:
                 return render(request,"add.html",{"form":form,"obj":obj})
     else:
         form = __generateForm(obj=obj)
+        #由于权限组的权限部分显示  要求比较特殊 所以我们要进行特殊处理
         if(obj=="group"):
             return render(request,"add.html",{"form":form,"obj":obj,"authority":[authorityService.getFormattedAuth()]})
    
@@ -70,6 +72,7 @@ def edit_object(request,Id,obj):
             form.save()
             return redirect("/admin/"+obj)
         else: 
+            #由于权限组的权限部分显示  要求比较特殊 所以我们要进行特殊处理
             if(obj=="group"):
                 return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[authorityService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
             else:
@@ -77,6 +80,7 @@ def edit_object(request,Id,obj):
         
     else:
         form = __generateForm(instance_=instance_,obj=obj)
+        #由于权限组的权限部分显示  要求比较特殊 所以我们要进行特殊处理
         if(obj=="group"):
             return render(request,"edit.html",{"form":form,"obj":obj,"id":Id,"authority":[authorityService.getFormattedAuth(),[ a.id  for a in Group.objects.get(id=Id).authority.all()]]})
         else:
@@ -85,7 +89,7 @@ def edit_object(request,Id,obj):
             
 def __generateForm(obj,post=None,instance_=None):
     """
-      根据参数生成不同需求的表单
+                     根据参数生成不同需求的表单
 
       obj:标识需要生成哪种对象的表单
       post:标识是否有post数据过来

@@ -1,9 +1,11 @@
  #coding=utf-8
 from dssetup.models import User,Group,Authority,DomainForm,Zone
+from django.shortcuts import get_object_or_404
+from django.contrib.sessions.models import  Session
 
 def getAllObject(obj):
     """ 
-       根据obj 来返回相应的对象列表
+                    根据obj 来返回相应的对象列表
 
     """
     if(obj == "user"):
@@ -29,24 +31,23 @@ def getObjectById(obj,Id):
       根据obj 和 Id 返回 某个对象
 
     """
+    
     if(obj == "user"):
-        return User.objects.get(id=Id) 
+        return get_object_or_404(User,id=Id) 
     elif(obj == "group"):
-        return Group.objects.get(id=Id) 
+        return get_object_or_404(Group,id=Id)
     elif(obj=="authority"):
-        return Authority.objects.get(id=Id)
+        return get_object_or_404(Authority,id=Id) 
     elif(obj=="domain"):
-        return DomainForm.objects.get(id=Id)
+        return get_object_or_404(DomainForm,id=Id)
     elif(obj == "zone"):
-        return Zone.objects.get(id=Id)
+        return get_object_or_404(Zone,id=Id)
 
 def logout(request):
     """
-      处理登出
+                处理登出
 
     """
     
-    from django.contrib.sessions.models import  Session
-    Session.objects.get(pk=request.COOKIES["sessionid"]).delete()
 
-    
+    Session.objects.get(pk=request.COOKIES["sessionid"]).delete()

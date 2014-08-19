@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 
 class LoginWare():
     """
-      处理登录的情况
+                 处理登录的情况
 
     """
     def process_request(self,request):
