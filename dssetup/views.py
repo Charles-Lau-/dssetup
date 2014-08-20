@@ -27,8 +27,12 @@ def login(request):
 
   
     """
+    #从login.html 过来 就让他跳转到登录页面
+    if(request.POST):
+        href=request.META['HTTP_HOST']
+        return redirect('https://passport.no.opi-corp.com/login.php?forward=http://%s/login/' % href)
     #从登录页面过来 并且有ticket 就说明请求里面含有登录信息 进行处理 并跳转到index页面上面去
-    if(request.GET.get("ticket","")):
+    elif(request.GET.get("ticket","")):
         href=request.META['HTTP_HOST'] 
         ticket= request.GET.get("ticket")
         params = urllib.urlencode({"t": ticket, "d": 1, "info": 1})
@@ -49,7 +53,7 @@ def login(request):
             usertmp.lastLoginIp=clientip
             usertmp.save()
         except:
-            usertmp=User(userName=usermsg[1],userPassword=usermsg[0]
+            usertmp=User(userName=unicode(usermsg[1],"utf-8"),userPassword=usermsg[0]
                          ,userMail=usermsg[0],loginLastTime=datetime.datetime.now()
                          ,createTime=datetime.datetime.now(),loginLastIp=clientip)
             
@@ -59,24 +63,18 @@ def login(request):
            
         
         request.session["perm"] = userService.getPermOfUser(usertmp)               #保存用户的权限列表
-        request.session['user']=usermsg[0]                                         #保存用户的邮箱  
+        request.session["user"]=usermsg[0]                                         #保存用户的邮箱  
         logger.info("%s has logged in " % usermsg[1])
         return redirect("/index") 
         
     else:
-        #从login.html 过来 就让他跳转到登录页面
-        if(request.POST):
-            href=request.META['HTTP_HOST']
-         
-            return redirect('https://passport.no.opi-corp.com/login.php?forward=http://%s/login/' % href)
-        #其他情况 就让他到登录页面去去登录
-        else:
-            return render(request,"login.html")
+        return render(request,"login.html")
 def logout(request):
     """
                     处理登出的操作
   
     """
+    logger.info("%s has logged out" % request.session["user"])
     adminService.logout(request)        #删除相关的session
     return redirect("/login")
 def permission(request):

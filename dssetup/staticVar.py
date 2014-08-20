@@ -3,7 +3,7 @@ SESSION_EXPIRATION = 1200
 #权限组
 ADMINISTRATOR = "administrator"  #管理者   拥有所有的权限
 APPLICANT = "applicant"  #申请者 最普通的权限
-GUEST = ""  #游客  目前 仅仅给 申请表单的权限 
+GUEST = "guest"  #游客  目前 仅仅给 申请表单的权限 
 #表单状态
 CREATED = "created"  #意味着表单刚刚被创建  还没有进入流程   是不会在已申请表单列表里面出现的
 WAITINGFORVERIFY = "unverified" #已经进入申请流程    等待被审核

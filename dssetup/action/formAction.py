@@ -340,7 +340,9 @@ def addFormIntoDatabase(request):
         return redirect("/handleForm/show_applied_form")
     else:
         return redirect("/handleForm/apply_form/create_mapping_part")  #如果SESSION失效则让他重新填写域名映射信息
+
 def checkForm(request,Id,role=None):
+    
     """
      返回某个表单的详细信息给HTML页面
      

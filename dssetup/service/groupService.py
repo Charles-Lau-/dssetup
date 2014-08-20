@@ -1,7 +1,9 @@
 #coding=utf-8
 from dssetup.models import User,Group
 from django.shortcuts import get_object_or_404
- 
+from dssetup.logDecor import  logDecor
+
+@logDecor  
 def addUserIntoGroup(groupId,userId):
     """
                      将user添加到某个权限组
@@ -12,6 +14,7 @@ def addUserIntoGroup(groupId,userId):
     group = Group.objects.get(id=groupId)
   
     user.group.add(group)
+
     
 def getUsersNotInThisGroup(Id):
     """

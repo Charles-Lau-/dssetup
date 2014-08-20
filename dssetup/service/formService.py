@@ -4,7 +4,8 @@ from dssetup import staticVar
 from django.shortcuts import get_object_or_404
 from dssetup.service import userService
 import datetime
- 
+from dssetup.logDecor import logDecor
+
 def getFormOfApplicant(creater):
     """
                        获得申请者身份允许看到的表单列表
@@ -46,6 +47,7 @@ def getFormOfChecker():
     """
     return DomainApplication.objects.filter(status=staticVar.OPERATED)
 
+@logDecor
 def addMainForm(request,main_part):
     """
                    将表单的主要信息存入数据库中    返回存入后的id
@@ -113,18 +115,8 @@ def addDomainMappingForm(Id,mapping,root):
         domainMapping.dm_domain = domain
         domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName"))
         domainMapping.save()
-    #如果该域名有绑定的映射  就删除掉映射 然后  再绑定新的 如果没有  就直接创建新的域名绑定
-    #这个部分是服务于  发现数据库设计bug后的修复
-    if(DomainMapping.objects.filter(dm_domain=domain1)):  
-        for m in DomainMapping.objects.filter(dm_domain=domain1):
-            m.delete()
-    for m in mappingData:
-        domainMapping = DomainMapping(mode=m.get("mode"),aim= m.get("aim"))
-        domainMapping.dm_domain = domain1
-        domainMapping.dm_sp = ServiceProvider.objects.get(spName=m.get("spName")) 
-        domainMapping.save()
    
-        
+          
 def getFormDetails(Id):
     """
                  返回申请表单详细信息
@@ -150,7 +142,7 @@ def getFormDetails(Id):
       
     return (main_part,mapping_part)   #第一个是表单的主要信息，第二个是表单的映射信息
 
-
+@logDecor 
 def changeForm(request,Id,operation):
     """
                           改变表单的状态
@@ -222,10 +214,25 @@ def changeForm(request,Id,operation):
             #改变表单对应的DOMAIN的状态  在表单完成流程后  该表弟那对应的域名 都应该设置为 可以被申请
             for domain in DomainForm.objects.filter(da_domain=form): 
                 domain.status = staticVar.CAN_APPLY
+                domain.save()
+                
                 domain1 = DomainForm.objects.get(domainName=domain.domainName,domainType=1)
                 domain1.status = staticVar.CAN_APPLY
-                domain1.save()  
-                domain.save()
+                domain1.save() 
+                #如果该域名有绑定的映射  就删除掉映射 然后  再绑定新的 如果没有  就直接创建新的域名绑定
+                #这个部分是服务于  发现数据库设计bug后的修复
+                if(DomainMapping.objects.filter(dm_domain=domain1)):
+                    for m in DomainMapping.objects.filter(dm_domain=domain1):
+                        m.delete()
+                for m in DomainMapping.objects.filter(dm_domain=domain):
+                    domainMapping = DomainMapping(mode=m.mode,aim= m.aim)
+                    domainMapping.dm_domain = domain1
+                    domainMapping.dm_sp = m.dm_sp
+                    domainMapping.save() 
+                    
+               
+                
+            
             url = root + "show_applied_form"
         else:
             url = "/index"
@@ -264,6 +271,7 @@ def getMappingDetailsForEdit(Id):
      
     return (waiting_for_delete,mapping_part)   #表单的映射信息        
 
+@logDecor
 def deleteOldMappingForm(Id,Ids):
     """
                  我们编辑的思路是把编辑之前的旧内容删除掉  新的 插入数据库  这个函数用来删除插入新数据后 把  原来的给删除掉

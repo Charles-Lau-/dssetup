@@ -2,6 +2,7 @@
 from dssetup.models import User,Group,Authority,DomainForm,Zone
 from django.shortcuts import get_object_or_404
 from django.contrib.sessions.models import  Session
+from dssetup.logDecor import logDecor
 
 def getAllObject(obj):
     """ 
@@ -20,12 +21,14 @@ def getAllObject(obj):
         objs_list = Zone.objects.all()
     return objs_list
 
+@logDecor 
 def deleteObjectById(obj,Id):
     """
       根据obj 和Id 来删除相应对象
 
     """
-    getObjectById(obj,Id).delete() 
+    getObjectById(obj,Id).delete()
+     
 def getObjectById(obj,Id):
     """
       根据obj 和 Id 返回 某个对象
