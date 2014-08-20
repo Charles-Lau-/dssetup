@@ -3,7 +3,6 @@ from dssetup.forms import UserForm,GroupForm,AuthorityForm,ZoneForm,DomainFormFo
 from django.shortcuts import render,redirect
 from dssetup.service import adminService,authorityService
 from dssetup.models import Group
-from dssetup.logDecor import logDecor
 import logging
 logger = logging.getLogger(__name__)
  
@@ -28,8 +27,7 @@ def delete_object(request,Id,obj):
     """
     adminService.deleteObjectById(obj, Id)
     return redirect("/admin/show_"+obj+"/")
-
-@logDecor    
+  
 def add_object(request,obj):
     """
                     创建对象
@@ -41,6 +39,7 @@ def add_object(request,obj):
         form = __generateForm(post=request.POST,obj=obj) #生成obj对应的表单
         if(form.is_valid()):
             form.save()
+            logger.info("The called function is "+__name__+" and args are "+obj)
             return redirect("/admin/show_"+obj)
         
         else:
@@ -58,7 +57,7 @@ def add_object(request,obj):
         else:
             return render(request,"add.html",{"form":form,"obj":obj})
 
-@logDecor   
+  
 def edit_object(request,Id,obj):
     """
         编辑对象
@@ -72,6 +71,7 @@ def edit_object(request,Id,obj):
        
         if(form.is_valid()):
             form.save()
+            logger.info("The called function is "+__name__+" and args are "+obj+" "+Id)
             return redirect("/admin/show_"+obj)
         else: 
             #由于权限组的权限部分显示  要求比较特殊 所以我们要进行特殊处理
